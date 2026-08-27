@@ -1,0 +1,76 @@
+# ==============================================================================
+# GitIgnore Profesional — AAnalogos (Python / Streamlit / Linux / Windows)
+# ==============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Caches y herramientas de testing
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Configuración y secretos de Streamlit
+.streamlit/secrets.toml
+
+# Logs del sistema y aplicaciones
+*.log
+logs/
+
+# Archivos específicos de sistemas operativos
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Configuración de entornos de desarrollo (IDE)
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Archivos temporales, respaldos y volcados
+*.tmp
+*.bak
+scratch/
+tmp/
+temp/
+*.zip
+*.tar.gz
+
+# Directorios de salidas y descargas temporales
+outputs/
+results/
+data/raw/
+data/cache/
+data/downloads/
+
+# Salidas generadas por ejecuciones manuales o pruebas
+Años_Análogos.txt
+Trazabilidad_Detallada.txt
+Años_Análogos.png
+informe_*.txt
+ranking_*.csv
+trazabilidad_*.csv

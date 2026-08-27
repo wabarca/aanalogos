@@ -1,0 +1,319 @@
+# ==============================================================================
+# MANIFIESTO DE FUENTES DE DATOS CLIMÁTICAS (AANALOGOS)
+# ==============================================================================
+
+AMO:
+  name: "Atlantic Multidecadal Oscillation (Kaplan SST)"
+  acronym: "AMO"
+  institution: "NOAA Physical Sciences Laboratory (PSL)"
+  url: "https://psl.noaa.gov/data/correlation/amon.us.data"
+  filename_csv: "dataAMO.csv"
+  filename_txt: "dataAMO.txt"
+  format: "monthly_matrix"
+  region: "Atlántico Norte (0° a 70°N)"
+  variable: "Anomalía de Temperatura Superficial del Mar (°C)"
+  units: "°C"
+  period_start: 1950
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+AO:
+  name: "Arctic Oscillation"
+  acronym: "AO"
+  institution: "NOAA Climate Prediction Center (CPC)"
+  url: "https://www.cpc.ncep.noaa.gov/products/precip/CWlink/daily_ao_index/monthly.ao.index.b50.current.ascii.table"
+  filename_csv: "dataAO.csv"
+  filename_txt: "dataAO.txt"
+  format: "monthly_matrix"
+  region: "Ártico / Hemisferio Norte (20°N a 90°N)"
+  variable: "Anomalía de Geopotencial en 1000 hPa"
+  units: "Estandarizado"
+  period_start: 1950
+  update_frequency: "Mensual"
+  missing_value: -999.0
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+MEI:
+  name: "Multivariate ENSO Index Version 2"
+  acronym: "MEI"
+  institution: "NOAA Physical Sciences Laboratory (PSL)"
+  url: "https://psl.noaa.gov/enso/mei/data/meiv2.data"
+  filename_csv: "dataMEI_2.csv"
+  filename_txt: "dataMEI_2.txt"
+  format: "monthly_matrix"
+  region: "Pacífico Tropical"
+  variable: "Combinación multivariada (SLP, SST, vientos zonales/meridionales, OLR)"
+  units: "Estandarizado"
+  period_start: 1950
+  update_frequency: "Bimensual / Mensual"
+  missing_value: -999.0
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+ONI:
+  name: "Oceanic Niño Index"
+  acronym: "ONI"
+  institution: "NOAA Climate Prediction Center (CPC)"
+  url: "https://origin.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php"
+  filename_csv: "dataONI.csv"
+  filename_txt: "dataONI.txt"
+  format: "seasonal_running_mean"
+  region: "Pacífico Niño 3.4 (5°N-5°S, 120°-170°W)"
+  variable: "Media móvil de 3 meses de Anomalía TSM ERSST.v5 (°C)"
+  units: "°C"
+  period_start: 1950
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+NAO:
+  name: "North Atlantic Oscillation"
+  acronym: "NAO"
+  institution: "NOAA Climate Prediction Center (CPC) / PSL"
+  url: "https://psl.noaa.gov/data/correlation/nao.data"
+  filename_csv: "dataNAO.csv"
+  filename_txt: "dataNAO.txt"
+  format: "monthly_matrix"
+  region: "Atlántico Norte (Baja de Islandia vs Alta de Azores)"
+  variable: "Diferencia de presión a nivel del mar normalizada"
+  units: "Estandarizado"
+  period_start: 1950
+  update_frequency: "Mensual"
+  missing_value: -99.90
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+PDO:
+  name: "Pacific Decadal Oscillation"
+  acronym: "PDO"
+  institution: "NCEI NOAA / University of Washington"
+  url: "https://www.ncei.noaa.gov/pub/data/cmb/ersst/v5/index/ersst.v5.pdo.dat"
+  filename_csv: "dataPDO.csv"
+  filename_txt: "dataPDO.txt"
+  format: "monthly_matrix"
+  region: "Pacífico Norte (al norte de 20°N)"
+  variable: "Patrón espacial empírico dominante (EOF 1) de anomalías TSM"
+  units: "Estandarizado"
+  period_start: 1946
+  update_frequency: "Mensual"
+  missing_value: 99.99
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+TNA:
+  name: "Tropical Northern Atlantic Index"
+  acronym: "TNA"
+  institution: "NOAA Physical Sciences Laboratory (PSL)"
+  url: "https://psl.noaa.gov/data/correlation/tna.data"
+  filename_csv: "dataTNA.csv"
+  filename_txt: "dataTNA.txt"
+  format: "monthly_matrix"
+  region: "Atlántico Norte Tropical (5.5°N a 23.5°N, 15°W a 57.5°W)"
+  variable: "Anomalía promedio de TSM (°C)"
+  units: "°C"
+  period_start: 1950
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.30
+
+SSTA_12:
+  name: "Niño 1+2 SST Anomaly Index"
+  acronym: "SSTA_12"
+  institution: "NOAA Climate Prediction Center (CPC)"
+  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
+  filename_csv: "dataSSTA_12.csv"
+  format: "monthly_matrix"
+  region: "Pacífico Ecuatorial Oriental (0°-10°S, 90°W-80°W)"
+  variable: "Anomalía TSM OISST.v2 (°C)"
+  units: "°C"
+  period_start: 1982
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+SSTA_3:
+  name: "Niño 3 SST Anomaly Index"
+  acronym: "SSTA_3"
+  institution: "NOAA Climate Prediction Center (CPC)"
+  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
+  filename_csv: "dataSSTA_3.csv"
+  format: "monthly_matrix"
+  region: "Pacífico Ecuatorial Central-Oriental (5°N-5°S, 150°W-90°W)"
+  variable: "Anomalía TSM OISST.v2 (°C)"
+  units: "°C"
+  period_start: 1982
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+SSTA_4:
+  name: "Niño 4 SST Anomaly Index"
+  acronym: "SSTA_4"
+  institution: "NOAA Climate Prediction Center (CPC)"
+  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
+  filename_csv: "dataSSTA_4.csv"
+  format: "monthly_matrix"
+  region: "Pacífico Ecuatorial Central-Occidental (5°N-5°S, 160°E-150°W)"
+  variable: "Anomalía TSM OISST.v2 (°C)"
+  units: "°C"
+  period_start: 1982
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+SSTA_34:
+  name: "Niño 3.4 SST Anomaly Index"
+  acronym: "SSTA_34"
+  institution: "NOAA Climate Prediction Center (CPC)"
+  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
+  filename_csv: "dataSSTA_34.csv"
+  format: "monthly_matrix"
+  region: "Pacífico Ecuatorial Central (5°N-5°S, 170°W-120°W)"
+  variable: "Anomalía TSM OISST.v2 (°C)"
+  units: "°C"
+  period_start: 1982
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+AtlTROP:
+  name: "Tropical Atlantic SST Anomaly"
+  acronym: "AtlTROP"
+  institution: "NOAA Climate Prediction Center (CPC)"
+  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
+  filename_csv: "dataAtlTROP.csv"
+  format: "monthly_matrix"
+  region: "Atlántico Ecuatorial y Tropical (10°S a 10°N, 0° a 360°)"
+  variable: "Anomalía TSM OISST.v2 (°C)"
+  units: "°C"
+  period_start: 1982
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.30
+
+SAtl:
+  name: "South Atlantic SST Anomaly"
+  acronym: "SAtl"
+  institution: "NOAA Climate Prediction Center (CPC)"
+  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
+  filename_csv: "dataSAtl.csv"
+  format: "monthly_matrix"
+  region: "Atlántico Sur (Eq a 20°S, 30°E a 60°W)"
+  variable: "Anomalía TSM OISST.v2 (°C)"
+  units: "°C"
+  period_start: 1982
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.30
+
+NAtl:
+  name: "North Atlantic SST Anomaly"
+  acronym: "NAtl"
+  institution: "NOAA Climate Prediction Center (CPC)"
+  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
+  filename_csv: "dataNAtl.csv"
+  format: "monthly_matrix"
+  region: "Atlántico Norte (5°N a 20°N, 30°E a 60°W)"
+  variable: "Anomalía TSM OISST.v2 (°C)"
+  units: "°C"
+  period_start: 1982
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.30
+
+CAR:
+  name: "Caribbean SST Anomaly Index"
+  acronym: "CAR"
+  institution: "NOAA Physical Sciences Laboratory (PSL)"
+  url: "https://psl.noaa.gov/data/correlation/car.data"
+  filename_csv: "dataCAR.csv"
+  filename_txt: "dataCAR.txt"
+  format: "monthly_matrix"
+  region: "Mar Caribe (10°N-20°N, 85°W-60°W)"
+  variable: "Anomalía TSM (°C)"
+  units: "°C"
+  period_start: 1950
+  update_frequency: "Histórico (hasta 2020)"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.30
+
+WHWP:
+  name: "Western Hemisphere Warm Pool"
+  acronym: "WHWP"
+  institution: "NOAA Physical Sciences Laboratory (PSL)"
+  url: "https://psl.noaa.gov/data/correlation/whwp.data"
+  filename_csv: "dataWHWP.csv"
+  filename_txt: "dataWHWP.txt"
+  format: "monthly_matrix"
+  region: "Pacífico Oriental Tropical y Atlántico Tropical (TSM > 28.5°C)"
+  variable: "Anomalía del área de la piscina cálida (10^6 km²)"
+  units: "10^6 km²"
+  period_start: 1950
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+PNA:
+  name: "Pacific-North American Pattern"
+  acronym: "PNA"
+  institution: "NOAA Climate Prediction Center (CPC) / PSL"
+  url: "https://psl.noaa.gov/data/correlation/pna.data"
+  filename_csv: "dataPNA.csv"
+  filename_txt: "dataPNA.txt"
+  format: "monthly_matrix"
+  region: "Pacífico Norte y Norteamérica"
+  variable: "Patrón de teleconexión de geopotencial 500 hPa"
+  units: "Estandarizado"
+  period_start: 1950
+  update_frequency: "Mensual"
+  missing_value: -99.90
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+SOI:
+  name: "Southern Oscillation Index"
+  acronym: "SOI"
+  institution: "NOAA Climate Prediction Center (CPC) / PSL"
+  url: "https://psl.noaa.gov/data/correlation/soi.data"
+  filename_csv: "dataSOI.csv"
+  filename_txt: "dataSOI.txt"
+  format: "monthly_matrix"
+  region: "Pacífico Sur (Tahiti vs Darwin)"
+  variable: "Diferencia de presión a nivel del mar normalizada"
+  units: "Estandarizado"
+  period_start: 1953
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.60
+
+AMO_CSU:
+  name: "Atlantic Multidecadal Oscillation (Colorado State University)"
+  acronym: "AMO_CSU"
+  institution: "Colorado State University (CSU) Tropical Meteorology Project"
+  url: "https://tropical.colostate.edu/amo.html"
+  filename_csv: "dataAMO_CSU.csv"
+  filename_txt: "dataAMO_CSU.txt"
+  format: "monthly_matrix"
+  region: "Atlántico Norte (0°-60°N, 80°W-0°)"
+  variable: "Anomalía TSM filtrada/destrended (°C)"
+  units: "°C"
+  period_start: 1950
+  update_frequency: "Mensual"
+  missing_value: -99.99
+  threshold_r: 0.60
+  threshold_mad: 0.60

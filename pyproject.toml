@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aanalogos"
+version = "3.1.0"
+description = "Sistema para cálculo y selección automatizada de años análogos climáticos"
+readme = "README.md"
+authors = [
+    { name = "William Abarca", email = "wabarca@ambiente.gob.sv" },
+    { name = "Gerencia de Meteorología, MARN El Salvador" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Intended Audience :: Science/Research"
+]
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "streamlit>=1.30.0",
+    "matplotlib>=3.7.0",
+    "requests>=2.28.0",
+    "beautifulsoup4>=4.12.0",
+    "pyyaml>=6.0"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/wabarca/aanalogos"
+"Documentation" = "https://github.com/wabarca/aanalogos/tree/master/docs"
+
+[tool.setuptools.packages.find]
+include = ["aanalogos*"]
