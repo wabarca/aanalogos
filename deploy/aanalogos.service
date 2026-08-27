@@ -1,3 +1,11 @@
+# ==============================================================================
+# Unidad systemd Estándar para AAnalogos (Producción en /opt/aanalogos)
+# Ministerio de Medio Ambiente y Recursos Naturales (MARN), El Salvador
+#
+# Para instalación automatizada en cualquier ruta o con usuario específico:
+#   sudo bash deploy/install_service.sh
+# ==============================================================================
+
 [Unit]
 Description=Servicio Web de Años Análogos Climáticos (AAnalogos Streamlit)
 After=network.target

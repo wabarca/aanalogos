@@ -3,111 +3,131 @@
 **Documento:** `docs/despliegue_institucional.md`  
 **Destinatarios:** Administradores de Sistemas, Gerencia de Informática y Gerencia de Meteorología, MARN El Salvador
 
-
-
 ## Contenido
 
-1. [Arquitectura de Despliegue en Red Local (LAN)](#arquitectura-de-despliegue-en-red-local-lan)
-2. [Procedimiento de Instalación Paso a Paso](#procedimiento-de-instalación-paso-a-paso)
-3. [Configuración del Servicio `systemd`](#configuración-del-servicio-systemd)
-4. [Configuración de Red y Seguridad](#configuración-de-red-y-seguridad)
-5. [Buenas Prácticas de Seguridad](#buenas-prácticas-de-seguridad)
+1. [Arquitectura de Despliegue en Red Local (LAN)](#1-arquitectura-de-despliegue-en-red-local-lan)
+2. [Ruta Estándar y Usuario de Producción](#2-ruta-estándar-y-usuario-de-producción)
+3. [Procedimiento Automatizado de Despliegue](#3-procedimiento-automatizado-de-despliegue)
+4. [Configuración y Estructura de la Unidad `systemd`](#4-configuración-y-estructura-de-la-unidad-systemd)
+5. [Seguridad y Restricción de Firewall](#5-seguridad-y-restricción-de-firewall)
+6. [Auditoría Operativa y Verificación del Servicio](#6-auditoría-operativa-y-verificación-del-servicio)
 
----
 ---
 
 ## 1. Arquitectura de Despliegue en Red Local (LAN)
 
-```
-[ Usuario en Red Institucional ]
-             │
-             │ HTTP (Puerto 8501)
-             ▼
-[ Servidor Linux (Ubuntu 22.04 LTS / Debian 12) ]
+```text
+[ Estaciones de Trabajo / Meteorólogos (LAN MARN) ]
+                       │
+                       │ HTTP (Puerto 8501)
+                       ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ Firewall (UFW): Permitir 8501/tcp desde 192.168.x.x         │
+│ Servidor Institucional Linux (Ubuntu 22.04+ / Debian 12)    │
+│                                                             │
+│ Firewall (UFW): Permitir 8501/tcp desde 192.168.0.0/16      │
 │                                                             │
 │ Servicio systemd: aanalogos.service                         │
-│ └── Usuario de sistema: clima (sin privilegios root)        │
-│ └── Entorno Python: /opt/aanalogos/.venv                    │
-│ └── Streamlit Web Server (0.0.0.0:8501)                     │
+│ ├── Usuario del sistema: clima (sin acceso a shell)         │
+│ ├── Directorio raíz: /opt/aanalogos                         │
+│ ├── Entorno Python aislado: /opt/aanalogos/.venv            │
+│ └── Servidor Web: Streamlit (0.0.0.0:8501, headless)        │
 │                                                             │
-│ Capas del Software:                                         │
-│ └── app.py                                                  │
-│ └── aanalogos/ (Motor Climatológico Modular)                │
-│ └── data/ (Series Históricas)                               │
+│ Componentes del Sistema:                                    │
+│ ├── app.py (Interfaz Web)                                   │
+│ ├── aanalogos/ (Motor Climatológico Modular)                │
+│ └── data/ (Matrices Históricas de 19 Índices)               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Procedimiento de Instalación Paso a Paso
+## 2. Ruta Estándar y Usuario de Producción
 
-### 2.1 Preparación del Servidor
-```bash
-sudo apt update && sudo apt install -y python3 python3-venv python3-pip git
-```
+Para garantizar aislamiento, mantenibilidad y cumplimiento de las políticas de infraestructura del MARN:
 
-### 2.2 Clonación y Permisos
-```bash
-sudo git clone https://github.com/wabarca/aanalogos.git /opt/aanalogos
-sudo useradd -r -s /bin/false -d /opt/aanalogos clima
-sudo chown -R clima:clima /opt/aanalogos
-```
-
-### 2.3 Creación del Entorno Virtual e Instalación de Dependencias
-```bash
-cd /opt/aanalogos
-sudo -u clima python3 -m venv .venv
-sudo -u clima .venv/bin/pip install --upgrade pip
-sudo -u clima .venv/bin/pip install -r requirements.txt
-```
-
-### 2.4 Verificación de Integridad y Pruebas
-```bash
-sudo -u clima .venv/bin/python -m unittest discover -s tests -v
-```
-*(Debe reportar 9 pruebas OK con 100% de paridad).*
+* **Ruta Estándar de Producción:** `/opt/aanalogos`
+* **Usuario de Servicio Dedicado:** `clima` (creado como usuario del sistema con `/usr/sbin/nologin`).
+* **Permisos del Directorio:** `750` (`rwxr-x---`) con propiedad `clima:clima`.
 
 ---
 
-## 3. Configuración del Servicio `systemd`
+## 3. Procedimiento Automatizado de Despliegue
 
-Copie el archivo de servicio y active el arranque automático:
+Para instalar o actualizar el servicio de forma determinista y reproducible:
+
 ```bash
-sudo cp /opt/aanalogos/deploy/aanalogos.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable aanalogos
-sudo systemctl start aanalogos
+# 1. Clonar el repositorio
+git clone https://github.com/wabarca/aanalogos.git
+cd aanalogos
+
+# 2. Ejecutar el instalador institucional
+sudo bash deploy/install_service.sh --opt
 ```
 
-### Comandos de Control Operativo
-* **Consultar estado:** `sudo systemctl status aanalogos`
-* **Reiniciar servicio:** `sudo systemctl restart aanalogos`
-* **Ver logs en tiempo real:** `journalctl -u aanalogos -f`
+El script ejecuta automáticamente:
+1. Creación del usuario `clima` (si no existe).
+2. Instalación de archivos en `/opt/aanalogos`.
+3. Creación y aprovisionamiento del entorno virtual `.venv`.
+4. Asignación de permisos de ejecución a los scripts.
+5. Generación de `/etc/systemd/system/aanalogos.service`.
+6. Recarga del demonio (`systemctl daemon-reload`) y arranque inmediato (`enable --now`).
 
 ---
 
-## 4. Configuración de Red y Seguridad
+## 4. Configuración y Estructura de la Unidad `systemd`
 
-### 4.1 Reglas de Firewall (UFW)
-Para restringir el acceso exclusivamente a la subred de la institución:
+La unidad `/etc/systemd/system/aanalogos.service` queda configurada de la siguiente forma:
+
+```ini
+[Unit]
+Description=Servicio Web de Años Análogos Climáticos (AAnalogos Streamlit)
+After=network.target
+
+[Service]
+Type=simple
+User=clima
+Group=clima
+WorkingDirectory=/opt/aanalogos
+Environment="PATH=/opt/aanalogos/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/opt/aanalogos/.venv/bin/streamlit run app.py --server.port 8501 --server.address 0.0.0.0 --server.headless true --browser.gatherUsageStats false
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aanalogos
+
+[Install]
+WantedBy=multi-user.target
+```
+
+---
+
+## 5. Seguridad y Restricción de Firewall
+
+Al tratarse de una herramienta institucional que no implementa autenticación nativa en Streamlit, el acceso debe ser restringido a la red local del MARN:
+
 ```bash
+# Permitir únicamente conexiones desde la subred institucional
 sudo ufw allow from 192.168.0.0/16 to any port 8501 proto tcp
 sudo ufw reload
 ```
 
-### 4.2 Acceso desde las Estaciones de Trabajo
-Los analistas y meteorólogos pueden acceder mediante navegador web ingresando:
-```text
-http://<IP_DEL_SERVIDOR_LINUX>:8501
-```
-
 ---
 
-## 5. Buenas Prácticas de Seguridad
-* **No exponer directamente a Internet:** La aplicación está diseñada para uso institucional interno. Si se requiere acceso externo, debe realizarse mediante VPN institucional o Reverse Proxy HTTPS (Nginx/Caddy) con autenticación centralizada.
-* **Aislamiento de Privilegios:** El servicio se ejecuta bajo el usuario dedicado `clima` sin privilegios de administración.
+## 6. Auditoría Operativa y Verificación del Servicio
+
+Tras la instalación, valide que el servicio se encuentre activo y escuchando en el puerto configurado:
+
+```bash
+# 1. Verificar estado en systemd
+sudo systemctl status aanalogos.service
+
+# 2. Verificar puerto de escucha en 0.0.0.0:8501
+ss -ltnp | grep 8501
+
+# 3. Monitorear logs de ejecución
+journalctl -u aanalogos.service -f
+```
 
 ---
 
