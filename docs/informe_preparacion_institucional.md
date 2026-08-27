@@ -4,6 +4,20 @@
 **Institución:** Gerencia de Meteorología, Dirección del Observatorio de Amenazas y Recursos Naturales, MARN, El Salvador  
 **Responsable Técnico:** William Abarca (wabarca@ambiente.gob.sv)
 
+
+
+## Contenido
+
+1. [Estado Inicial del Repositorio](#estado-inicial-del-repositorio)
+2. [Resumen de Cambios Realizados](#resumen-de-cambios-realizados)
+3. [Inventario de Archivos](#inventario-de-archivos)
+4. [Validación Científica y Suite de Pruebas](#validación-científica-y-suite-de-pruebas)
+5. [Estado de Referencias Bibliográficas](#estado-de-referencias-bibliográficas)
+6. [Estado del Despliegue Linux y Red Institucional](#estado-del-despliegue-linux-y-red-institucional)
+7. [Riesgos Pendientes y Recomendaciones para Fases Posteriores](#riesgos-pendientes-y-recomendaciones-para-fases-posteriores)
+8. [Dictamen Final](#dictamen-final)
+
+---
 ---
 
 ## 1. Estado Inicial del Repositorio
@@ -98,3 +112,9 @@ El proyecto **AAnalogos** se dictamina como:
 ### **APTO PARA DESPLIEGUE INSTITUCIONAL**
 
 Cumple a cabalidad con todos los criterios de rigor científico, reproducibilidad computacional, seguridad, trazabilidad, documentación técnica y facilidad de operación en la Gerencia de Meteorología del MARN.
+
+---
+
+### Navegación
+
+**[← Anterior](auditoria_repositorio.md)** · **[Índice de documentación](README.md)**

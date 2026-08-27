@@ -1,5 +1,14 @@
 # Guía de Instalación y Uso en Windows
 
+
+
+## Contenido
+
+1. [Requisitos](#requisitos)
+2. [Instalación Paso a Paso](#instalación-paso-a-paso)
+3. [Ejecución de la Aplicación](#ejecución-de-la-aplicación)
+
+---
 Instrucciones para instalar y ejecutar **AAnalogos** en estaciones de trabajo con Windows 10 u 11.
 
 ---
@@ -47,3 +56,9 @@ La aplicación se abrirá automáticamente en su navegador en `http://localhost:
 ```powershell
 python aanlogos_v3.py
 ```
+
+---
+
+### Navegación
+
+**[← Anterior](instalacion_linux.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](despliegue_institucional.md)**

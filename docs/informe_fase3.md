@@ -1,5 +1,14 @@
 # Informe de Entrega — Fase 3: Documentación, Saneamiento y Preparación para Despliegue Linux
 
+
+
+## Contenido
+
+1. [Resumen Ejecutivo](#resumen-ejecutivo)
+2. [Archivos Creados y Organizados](#archivos-creados-y-organizados)
+3. [Resultados de Pruebas de Regresión](#resultados-de-pruebas-de-regresión)
+
+---
 ---
 
 ## 1. Resumen Ejecutivo

@@ -1,5 +1,15 @@
 # Guía de Instalación y Despliegue en Servidor Linux (Ubuntu / Debian)
 
+
+
+## Contenido
+
+1. [Requisitos Previos del Sistema](#requisitos-previos-del-sistema)
+2. [Clonación del Repositorio e Instalación](#clonación-del-repositorio-e-instalación)
+3. [Configuración para Acceso en Red Institucional (LAN)](#configuración-para-acceso-en-red-institucional-lan)
+4. [Configuración como Servicio Continuo con `systemd`](#configuración-como-servicio-continuo-con-systemd)
+
+---
 Esta guía describe el procedimiento para desplegar **AAnalogos** en un servidor o PC institucional con sistema operativo Linux (Ubuntu 22.04 / 24.04 LTS o Debian 11 / 12) para servicio en red local (LAN).
 
 ---
@@ -91,3 +101,9 @@ sudo systemctl status aanalogos
 ```bash
 journalctl -u aanalogos -f
 ```
+
+---
+
+### Navegación
+
+**[← Anterior](manual_usuario.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](instalacion_windows.md)**

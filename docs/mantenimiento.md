@@ -1,5 +1,15 @@
 # Manual de Mantenimiento y Operación Técnica
 
+
+
+## Contenido
+
+1. [Actualización Periódica de Datos Climáticos](#actualización-periódica-de-datos-climáticos)
+2. [Auditoría Automatizada de Calidad de Datos](#auditoría-automatizada-de-calidad-de-datos)
+3. [Gestión del Servicio en Linux (`systemd`)](#gestión-del-servicio-en-linux-systemd)
+4. [Procedimiento de Respaldo (Backup)](#procedimiento-de-respaldo-backup)
+
+---
 Este documento describe las tareas de mantenimiento periódico, actualización de datos climáticos, auditoría y respaldo de **AAnalogos**.
 
 ---
@@ -52,3 +62,9 @@ Para respaldar el estado completo de la aplicación y sus datos históricos:
 ```bash
 tar -czvf backup_aanalogos_$(date +%Y%m%d).tar.gz /opt/aanalogos/data /opt/aanalogos/config
 ```
+
+---
+
+### Navegación
+
+**[← Anterior](despliegue_institucional.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](reproducibilidad.md)**

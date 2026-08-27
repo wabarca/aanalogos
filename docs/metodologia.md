@@ -1,8 +1,20 @@
 # Metodología Climatológica de Selección de Años Análogos
 
+
+
+## Contenido
+
+1. [Concepto y Fundamento Climatológico de los Años Análogos](#concepto-y-fundamento-climatológico-de-los-años-análogos)
+2. [Definición y Construcción de la Ventana Temporal](#definición-y-construcción-de-la-ventana-temporal)
+3. [Universo de Candidatos e Intersección Temporal](#universo-de-candidatos-e-intersección-temporal)
+4. [Métricas Estadísticas de Similitud](#métricas-estadísticas-de-similitud)
+5. [Criterio de Coincidencia y Ranking Multivariado](#criterio-de-coincidencia-y-ranking-multivariado)
+6. [Tratamiento de Datos Faltantes y Valores Sentinela](#tratamiento-de-datos-faltantes-y-valores-sentinela)
+
+---
 ## 1. Concepto y Fundamento Climatológico de los Años Análogos
 
-El método de **Años Análogos** es una técnica empírico-estadística ampliamente utilizada en la climatología aplicada y los servicios meteorológicos operativos (como el Instituto Meteorológico Nacional de Costa Rica, IMN) para el apoyo a la **predicción climática estacional y subsustancial**.
+El método de **Años Análogos** es una técnica empírico-estadística ampliamente utilizada en la climatología aplicada y los servicios meteorológicos e hidrológicos operativos para el apoyo a la **predicción climática estacional y subsustancial**.
 
 ### 1.1 Fundamento Físico
 El sistema climático global exhibe variabilidad en múltiples escalas temporales (intraestacional, interanual y multidecadal), gobernada en gran medida por la interacción océano-atmósfera y los modos acoplados de gran escala (como el evento El Niño-Oscilación del Sur - ENOS, la Oscilación Decadal del Pacífico - PDO, y la Oscilación Multidecadal del Atlántico - AMO).
@@ -101,3 +113,9 @@ Los años análogos se ordenan en forma **descendente por la columna `Total`**, 
 1. **Sentinelas de Fuentes Oficiales:** Códigos como `-99.99`, `-99.90`, `99.99`, `-999.0` representan ausencia de medición y son convertidos inmediatamente a `NaN`.
 2. **Aislamiento Estricto:** Si alguno de los 6 meses de la ventana de un año candidato contiene `NaN`, la ventana se considera incompleta y el año queda **excluido de la evaluación estadística**.
 3. **Cero Imputación Arbitraria:** La metodología prohíbe rellenar datos faltantes con ceros o medias artificiales para preservar la estricta pureza observacional.
+
+---
+
+### Navegación
+
+**[← Índice de documentación](README.md)** · **[Siguiente →](validacion_climatologica.md)**

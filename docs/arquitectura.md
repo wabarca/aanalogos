@@ -1,5 +1,14 @@
 # Arquitectura Técnica del Software AAnalogos
 
+
+
+## Contenido
+
+1. [Diagrama de Arquitectura por Capas](#diagrama-de-arquitectura-por-capas)
+2. [Responsabilidades por Módulo](#responsabilidades-por-módulo)
+3. [Aislamiento y Estabilidad](#aislamiento-y-estabilidad)
+
+---
 El diseño de **AAnalogos** se fundamenta en una arquitectura modular desacoplada por capas (Layered Architecture), garantizando la separación de responsabilidades, la pureza matemática del motor científico y la portabilidad entre interfaces gráficas, líneas de comandos (CLI) o servicios web en red.
 
 ---
@@ -62,3 +71,9 @@ El diseño de **AAnalogos** se fundamenta en una arquitectura modular desacoplad
 
 1. **Independencia de Streamlit:** El paquete `aanalogos` no contiene ninguna importación ni dependencia de Streamlit. Puede importarse en scripts de procesamiento por lotes, notebooks de Jupyter o servicios REST.
 2. **Inmutabilidad y Trazabilidad:** Cada cálculo genera una instancia autocontenida de `ResultadoAnalogos` con toda la trazabilidad detallada ($N \times K$ registros) en precisión completa `float64`.
+
+---
+
+### Navegación
+
+**[← Anterior](referencias.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](manual_usuario.md)**

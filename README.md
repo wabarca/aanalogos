@@ -91,17 +91,20 @@ aanalogos/
 
 ---
 
-## 6. Documentación Detallada
+## 6. Documentación
 
-* **[Metodología Científica](docs/metodologia.md)**
-* **[Fichas de los 19 Índices](docs/indices.md)**
-* **[Referencias Bibliográficas (DOIs)](docs/referencias.md)**
-* **[Manual de Usuario](docs/manual_usuario.md)**
-* **[Arquitectura de Software](docs/arquitectura.md)**
-* **[Instalación en Linux](docs/instalacion_linux.md)**
-* **[Mantenimiento y Actualización](docs/mantenimiento.md)**
-* **[Protocolo de Reproducibilidad](docs/reproducibilidad.md)**
-* **[Auditoría Consolidada](docs/auditoria.md)**
+El sistema cuenta con un manual técnico y científico completo e interconectado:
+
+* 📚 [**Índice General de Documentación**](docs/README.md)
+* 🔬 [**Metodología Científica**](docs/metodologia.md)
+* 🌦️ [**Validación Climatológica**](docs/validacion_climatologica.md)
+* 📊 [**Fichas Técnicas de los 19 Índices**](docs/indices.md)
+* 🖥️ [**Manual de Usuario (Streamlit)**](docs/manual_usuario.md)
+* 🐧 [**Guía de Instalación en Linux**](docs/instalacion_linux.md)
+* 🏢 [**Despliegue Institucional y Red LAN**](docs/despliegue_institucional.md)
+* 🛠️ [**Manual de Mantenimiento y Operaciones**](docs/mantenimiento.md)
+* 🔁 [**Protocolo de Reproducibilidad**](docs/reproducibilidad.md)
+* 📋 [**Auditoría Final y Certificación**](docs/auditoria_final_cierre.md)
 
 ---
 

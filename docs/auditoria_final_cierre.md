@@ -5,6 +5,27 @@
 **Institución:** Gerencia de Meteorología, Dirección del Observatorio de Amenazas y Recursos Naturales, Ministerio de Medio Ambiente y Recursos Naturales (MARN), Gobierno de El Salvador  
 **Responsable Técnico:** William Abarca (`wabarca@ambiente.gob.sv`)
 
+
+
+## Contenido
+
+1. [Resumen Ejecutivo](#resumen-ejecutivo)
+2. [Estado del Motor Científico y Auditoría Metodológica](#estado-del-motor-científico-y-auditoría-metodológica)
+3. [Auditoría de Validez Climatológica](#auditoría-de-validez-climatológica)
+4. [Auditoría de los 19 Índices Climáticos](#auditoría-de-los-19-índices-climáticos)
+5. [Auditoría Bibliográfica](#auditoría-bibliográfica)
+6. [Auditoría de Fuentes de Datos e Ingesta](#auditoría-de-fuentes-de-datos-e-ingesta)
+7. [Certificación del Benchmark Oficial](#certificación-del-benchmark-oficial)
+8. [Auditoría de Casos Límite y Robustez](#auditoría-de-casos-límite-y-robustez)
+9. [Auditoría de Reproducibilidad y Entorno Computacional](#auditoría-de-reproducibilidad-y-entorno-computacional)
+10. [Auditoría de Despliegue Linux y Red Institucional (LAN)](#auditoría-de-despliegue-linux-y-red-institucional-lan)
+11. [Auditoría de Seguridad Operacional](#auditoría-de-seguridad-operacional)
+12. [Atribución y Metadata](#atribución-y-metadata)
+13. [Limitaciones Metodológicas y Operacionales Conocidas](#limitaciones-metodológicas-y-operacionales-conocidas)
+14. [Recomendaciones para la Operación Institucional (MARN)](#recomendaciones-para-la-operación-institucional-marn)
+15. [Dictamen Final](#dictamen-final)
+
+---
 ---
 
 ## 1. Resumen Ejecutivo
@@ -221,3 +242,9 @@ Con base en la auditoría exhaustiva e independiente del código, las pruebas fo
 ### Justificación del Dictamen:
 * **APTO:** El software es computacionalmente correcto, determinista, seguro, portable, completamente documentado y reproduce el 100% de la paridad matemática del benchmark certificado.
 * **CON LIMITACIONES:** Debido a que la metodología climatológica de años análogos es de naturaleza empírico-estadística no determinista, utiliza ponderación discreta lineal de índices, y la aplicación web Streamlit debe ser operada exclusivamente dentro de una red institucional protegida (LAN) al carecer de módulo de autenticación propio.
+
+---
+
+### Navegación
+
+**[← Anterior](auditoria.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](auditoria_repositorio.md)**

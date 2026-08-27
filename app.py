@@ -1,6 +1,6 @@
 """
 Sistema Interactivo de Selección de Años Análogos Climáticos
-Metodología Original: Anthony Segura García (UCR / IMN)
+Gerencia de Meteorología — MARN El Salvador
 Framework: Streamlit
 """
 
@@ -27,7 +27,7 @@ from aanalogos import (
 
 # Configuración de página de Streamlit
 st.set_page_config(
-    page_title="Años Análogos Climáticos | IMN - UCR",
+    page_title="Años Análogos Climáticos | MARN El Salvador",
     page_icon="🌦️",
     layout="wide",
     initial_sidebar_state="expanded"

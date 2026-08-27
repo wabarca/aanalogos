@@ -1,5 +1,15 @@
 # Manual de Usuario: Sistema de Selección de Años Análogos Climáticos
 
+
+
+## Contenido
+
+1. [Introducción](#introducción)
+2. [Acceso e Inicio de la Aplicación](#acceso-e-inicio-de-la-aplicación)
+3. [Guía Paso a Paso de Uso](#guía-paso-a-paso-de-uso)
+4. [Alertas y Mensajes de Advertencia](#alertas-y-mensajes-de-advertencia)
+
+---
 ## 1. Introducción
 **AAnalogos** es una aplicación interactiva desarrollada en Python y Streamlit para asistir a meteorólogos, climatólogos y analistas en la identificación rigurosa y automatizada de años históricos con patrones de variabilidad climática similares a un período objetivo.
 
@@ -66,3 +76,9 @@ En la sección **`📥 Exportación de Resultados`**:
   *Acción requerida:* Deseleccione los índices sin cobertura o elija un año/mes con datos observados completos.
 * **⚠️ Sin Intersección Temporal Común:**  
   Ocurre si la combinación de índices elegida no comparte ningún año histórico con ventanas completas.
+
+---
+
+### Navegación
+
+**[← Anterior](arquitectura.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](instalacion_linux.md)**

@@ -1,5 +1,14 @@
 # Protocolo de Reproducibilidad Científica y Benchmark de Referencia
 
+
+
+## Contenido
+
+1. [Caso de Referencia Certificado (Benchmark)](#caso-de-referencia-certificado-benchmark)
+2. [Resultados Numéricos Esperados](#resultados-numéricos-esperados)
+3. [Comando Automatizado de Verificación de Reproducibilidad](#comando-automatizado-de-verificación-de-reproducibilidad)
+
+---
 Este protocolo permite a cualquier investigador o técnico verificar de forma independiente y exacta la reproducibilidad matemática de **AAnalogos**.
 
 ---
@@ -48,3 +57,9 @@ Ejecute la prueba de regresión automatizada:
 python -m unittest tests/test_regression.py
 ```
 Si el resultado es `OK`, la instalación reproduce con **100% de paridad matemática** el motor climatológico validado.
+
+---
+
+### Navegación
+
+**[← Anterior](mantenimiento.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](auditoria.md)**

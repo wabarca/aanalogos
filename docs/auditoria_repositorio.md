@@ -5,6 +5,16 @@
 **Institución:** Gerencia de Meteorología, Dirección del Observatorio de Amenazas y Recursos Naturales, MARN, El Salvador  
 **Responsable:** William Abarca (wabarca@ambiente.gob.sv)
 
+
+
+## Contenido
+
+1. [Alcance de la Auditoría](#alcance-de-la-auditoría)
+2. [Inventario y Clasificación de Archivos](#inventario-y-clasificación-de-archivos)
+3. [Verificación de Seguridad, Rutas y Portabilidad](#verificación-de-seguridad-rutas-y-portabilidad)
+4. [Dictamen de Auditoría](#dictamen-de-auditoría)
+
+---
 ---
 
 ## 1. Alcance de la Auditoría
@@ -67,3 +77,9 @@ Se realizó una inspección exhaustiva de todos los directorios, archivos de có
 
 ## 4. Dictamen de Auditoría
 El repositorio cumple con los estándares institucionales de seguridad, orden, modularidad y portabilidad.
+
+---
+
+### Navegación
+
+**[← Anterior](auditoria_final_cierre.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](informe_preparacion_institucional.md)**

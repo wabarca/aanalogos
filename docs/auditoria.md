@@ -28,3 +28,9 @@ Este documento resume los hallazgos técnicos, climatológicos y las pruebas de 
 
 * **Invarianza ante Shuffle:** Demostrada reordenando aleatoriamente las filas de todas las series históricas ($\Delta = 0$).
 * **Precisión Flotante:** Preservada en `float64` nativo para $r$ y MAD en toda la cadena de cómputo.
+
+---
+
+### Navegación
+
+**[← Anterior](reproducibilidad.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](auditoria_final_cierre.md)**

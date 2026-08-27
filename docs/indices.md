@@ -1,5 +1,25 @@
 # Documentación Científica y Operacional de los 19 Índices Climáticos
 
+
+
+## Contenido
+
+1. [AMO — Atlantic Multidecadal Oscillation (Kaplan SST)](#amo--atlantic-multidecadal-oscillation-kaplan-sst)
+2. [AO — Arctic Oscillation](#ao--arctic-oscillation)
+3. [MEI — Multivariate ENSO Index (v2)](#mei--multivariate-enso-index-v2)
+4. [ONI — Oceanic Niño Index](#oni--oceanic-niño-index)
+5. [NAO — North Atlantic Oscillation](#nao--north-atlantic-oscillation)
+6. [PDO — Pacific Decadal Oscillation](#pdo--pacific-decadal-oscillation)
+7. [TNA — Tropical Northern Atlantic Index](#tna--tropical-northern-atlantic-index)
+8. [8–11. Índices de Anomalías Térmicas del Pacífico Ecuatorial (SSTA 1+2, 3, 4, 3.4)](#811-índices-de-anomalías-térmicas-del-pacífico-ecuatorial-ssta-12-3-4-34)
+9. [12–14. Índices del Atlántico Tropical y Subtropical (AtlTROP, SAtl, NAtl)](#1214-índices-del-atlántico-tropical-y-subtropical-atltrop-satl-natl)
+10. [CAR — Caribbean SST Index](#car--caribbean-sst-index)
+11. [WHWP — Western Hemisphere Warm Pool](#whwp--western-hemisphere-warm-pool)
+12. [PNA — Pacific-North American Pattern](#pna--pacific-north-american-pattern)
+13. [SOI — Southern Oscillation Index](#soi--southern-oscillation-index)
+14. [AMO_CSU — AMO Colorado State University](#amo_csu--amo-colorado-state-university)
+
+---
 A continuación se detalla la descripción física, cobertura, fuente operacional y citas de los 19 índices implementados en **AAnalogos**.
 
 ---
@@ -183,3 +203,9 @@ A continuación se detalla la descripción física, cobertura, fuente operaciona
 * **Fuente Operacional:** Colorado State University (CSU).
 * **URL:** `https://tropical.colostate.edu/amo.html`
 * **Umbrales:** $r > 0.60$, $\text{MAD} < 0.60$.
+
+---
+
+### Navegación
+
+**[← Anterior](validacion_climatologica.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](referencias.md)**

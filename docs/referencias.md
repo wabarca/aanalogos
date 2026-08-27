@@ -3,6 +3,15 @@
 **Documento:** `docs/referencias.md`  
 **Proyecto:** AAnalogos — Gerencia de Meteorología, MARN El Salvador
 
+
+
+## Contenido
+
+1. [Tabla de Verificación de Referencias Científicas de los 19 Índices](#tabla-de-verificación-de-referencias-científicas-de-los-19-índices)
+2. [Referencias Metodológicas de Años Análogos y Pronóstico Estacional](#referencias-metodológicas-de-años-análogos-y-pronóstico-estacional)
+3. [Antecedentes y Atribución Institucional](#antecedentes-y-atribución-institucional)
+
+---
 Todas las referencias bibliográficas y fuentes institucionales listadas a continuación han sido investigadas, validadas y contrastadas con la literatura científica internacional revisada por pares y los repositorios operacionales oficiales (NOAA PSL, CPC, NCEI, CSU).
 
 ---
@@ -52,3 +61,9 @@ La versión actualmente contenida en este repositorio ha sido **completamente mo
   **William Abarca**  
   *Ministerio de Medio Ambiente y Recursos Naturales (MARN), El Salvador*  
   Contacto: [wabarca@ambiente.gob.sv](mailto:wabarca@ambiente.gob.sv)
+
+---
+
+### Navegación
+
+**[← Anterior](indices.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](arquitectura.md)**

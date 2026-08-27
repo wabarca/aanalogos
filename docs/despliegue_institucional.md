@@ -3,6 +3,17 @@
 **Documento:** `docs/despliegue_institucional.md`  
 **Destinatarios:** Administradores de Sistemas, Gerencia de Informática y Gerencia de Meteorología, MARN El Salvador
 
+
+
+## Contenido
+
+1. [Arquitectura de Despliegue en Red Local (LAN)](#arquitectura-de-despliegue-en-red-local-lan)
+2. [Procedimiento de Instalación Paso a Paso](#procedimiento-de-instalación-paso-a-paso)
+3. [Configuración del Servicio `systemd`](#configuración-del-servicio-systemd)
+4. [Configuración de Red y Seguridad](#configuración-de-red-y-seguridad)
+5. [Buenas Prácticas de Seguridad](#buenas-prácticas-de-seguridad)
+
+---
 ---
 
 ## 1. Arquitectura de Despliegue en Red Local (LAN)
@@ -97,3 +108,9 @@ http://<IP_DEL_SERVIDOR_LINUX>:8501
 ## 5. Buenas Prácticas de Seguridad
 * **No exponer directamente a Internet:** La aplicación está diseñada para uso institucional interno. Si se requiere acceso externo, debe realizarse mediante VPN institucional o Reverse Proxy HTTPS (Nginx/Caddy) con autenticación centralizada.
 * **Aislamiento de Privilegios:** El servicio se ejecuta bajo el usuario dedicado `clima` sin privilegios de administración.
+
+---
+
+### Navegación
+
+**[← Anterior](instalacion_windows.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](mantenimiento.md)**

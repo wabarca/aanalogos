@@ -58,3 +58,9 @@ Para verificar que cualquier instalación o réplica del sistema reproduce con e
 * **Total 1957:** **2 coincidencias**.
 
 **Paridad Matemática del Motor:** **100.00%**.
+
+---
+
+### Navegación
+
+**[← Anterior](metodologia.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](indices.md)**
