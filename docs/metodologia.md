@@ -98,7 +98,11 @@ $$\text{MAD} = \frac{1}{6} \sum_{i=1}^{6} |x_i - y_i|$$
 
 ### 5.1 Criterio Booleano de Coincidencia Univariada
 Un año histórico $Y_{\text{cand}}$ se declara **coincidente** para el índice $k$ si y solo si cumple simultáneamente ambas condiciones umbral:
-$$C_k(Y_{\text{cand}}) = \begin{cases} 1 & \text{si } r_k > r_{\text{umbral}, k} \quad \land \quad \text{MAD}_k < \text{MAD}_{\text{umbral}, k} \\ 0 & \text{en caso contrario} \end{cases}$$
+
+$$C_k(Y_{\text{cand}}) = \begin{cases} 
+1 & \text{si } (r_k > r_{\text{umbral}, k}) \;\land\; (\text{MAD}_k < \text{MAD}_{\text{umbral}, k}) \\ 
+0 & \text{en caso contrario} 
+\end{cases}$$
 
 ### 5.2 Conteo Total y Ranking Final
 Para una combinación de $K$ índices seleccionados, el puntaje total de coincidencia del año candidato es:
