@@ -91,14 +91,20 @@ year_op_default, mes_op_default = determinar_ultimo_mes_disponible(
 # ==============================================================================
 # PANEL LATERAL DE NAVEGACIÓN Y PARÁMETROS
 # ==============================================================================
-st.sidebar.image(
-    (
-        "https://raw.githubusercontent.com/wabarca/aanalogos/master/docs/img/logo_MARN.png"
-        if False
-        else None
-    ),
-    width=180,
-)
+posibles_rutas_logo = [
+    os.path.join(DIRECTORIO_ACTUAL, "docs", "img", "logo_MARN.png"),
+    os.path.join(DIRECTORIO_ACTUAL, "docs", "img", "logo_marn.png"),
+    os.path.join(DIRECTORIO_ACTUAL, "docs", "img", "marn_logo.png"),
+]
+logo_encontrado = None
+for ruta in posibles_rutas_logo:
+    if os.path.isfile(ruta):
+        logo_encontrado = ruta
+        break
+
+if logo_encontrado:
+    st.sidebar.image(logo_encontrado, width=180)
+
 st.sidebar.title("🌦️ AAnalogos")
 st.sidebar.caption("**MARN El Salvador** | Gerencia de Meteorología")
 
