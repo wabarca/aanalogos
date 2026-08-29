@@ -63,6 +63,7 @@ temp/
 # Directorios de salidas y descargas temporales
 outputs/
 results/
+data/
 data/raw/
 data/cache/
 data/downloads/
