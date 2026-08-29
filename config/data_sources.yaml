@@ -68,7 +68,7 @@ ONI:
   name: "Oceanic Niño Index"
   acronym: "ONI"
   institution: "NOAA Climate Prediction Center (CPC)"
-  url: "https://origin.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php"
+  url: "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/"
   filename_csv: "dataONI.csv"
   filename_txt: "dataONI.txt"
   format: "seasonal_running_mean"
