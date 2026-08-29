@@ -313,11 +313,13 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
         with tab_tabla:
             st.markdown("### Tabla Consolidada de Coincidencias")
             st.markdown(
-                "Años históricos ordenados en forma descendente según el número total de índices que cumplen "
-                "simultáneamente las condiciones $(r_k > r_{\text{umbral}, k}) \land (\text{MAD}_k < \text{MAD}_{\text{umbral}, k})$. "
-                "El año objetivo está estrictamente excluido."
+                r"Años históricos ordenados en forma descendente según el número total de índices que cumplen "
+                r"simultáneamente las condiciones $(r_k > r_{\text{umbral}, k}) \land (\text{MAD}_k < \text{MAD}_{\text{umbral}, k})$. "
+                r"El año objetivo está estrictamente excluido."
             )
             df_tabla = resultado.tabla_coincidencias.copy()
+            # Indicador de Coincidencia (Coincide: Sí / No)
+            df_tabla["Coincide"] = df_tabla["Total"].apply(lambda t: "Sí" if t > 0 else "No")
             # Resaltar filas con coincidencias
             st.dataframe(
                 df_tabla.style.background_gradient(subset=["Total"], cmap="YlOrRd"),
@@ -327,7 +329,7 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
 
         with tab_graficos:
             st.markdown("### Histograma de Coincidencias por Año Candidato")
-            fig, ax = plt.subplots(figsize=(14, 5))
+            fig, ax = plt.subplots(figsize=(14, 4.5))
             df_plot = resultado.tabla_coincidencias.head(30)
             if len(df_plot) > 0:
                 ax.bar(
@@ -351,12 +353,38 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                 st.pyplot(fig)
             plt.close(fig)
 
-            # Gráfico de comparación temporal para el análogo #1
-            if len(resultado.ranking) > 0 and resultado.ranking[0][1] > 0:
-                top_year = resultado.ranking[0][0]
-                st.markdown(
-                    f"### Comparación de Trayectoria Temporal: Objetivo ({resultado.year_objetivo}) vs Análogo #{1} ({top_year})"
+            # Gráfico de comparación temporal interactivo para candidatos seleccionados
+            st.divider()
+            st.markdown("### 📈 Comparación de Trayectorias Temporales (Objetivo vs Análogos)")
+
+            anios_coincidentes = [y for y, score in resultado.ranking if score > 0]
+            opciones_candidatos = [y for y, _ in resultado.ranking]
+
+            # Selección por defecto: Top análogos (hasta 3 coincidentes)
+            default_selection = anios_coincidentes[:3] if anios_coincidentes else opciones_candidatos[:1]
+
+            col_sel1, col_sel2 = st.columns([3, 1])
+            with col_sel1:
+                anios_a_graficar = st.multiselect(
+                    "Seleccione los años análogos a graficar:",
+                    options=opciones_candidatos,
+                    default=default_selection,
+                    format_func=lambda y: f"Año {y} (Coincidencias: {resultado.tabla_coincidencias.loc[y, 'Total']})"
+                    if y in resultado.tabla_coincidencias.index
+                    else f"Año {y}",
+                    help="Permite visualizar y comparar uno o varios años candidatos simultáneamente contra el año objetivo."
                 )
+
+            with col_sel2:
+                st.markdown("<br>", unsafe_allow_html=True)
+                if st.button("Ver solo Top #1", help="Graficar únicamente el primer análogo"):
+                    st.session_state["anios_graf_override"] = [opciones_candidatos[0]] if opciones_candidatos else []
+
+            if not anios_a_graficar:
+                st.info("ℹ️ Seleccione al menos un año candidato en el menú superior para visualizar las curvas temporales.")
+            else:
+                colores_candidatos = ["#d62728", "#2ca02c", "#ff7f0e", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
+                estilos_linea = ["--", "-.", ":", "--", "-.", ":", "--", "-.", ":"]
 
                 fig_comp, axes = plt.subplots(
                     len(resultado.indices_evaluados),
@@ -375,41 +403,54 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                         resultado.mes_objetivo,
                         longitud_ventana=resultado.longitud_ventana,
                     )
-                    v_cand = extraer_ventana(
-                        df_osc,
-                        top_year,
-                        resultado.mes_objetivo,
-                        longitud_ventana=resultado.longitud_ventana,
-                    )
-
                     x_labels = resultado.ventana_temporal
                     ax_i.plot(
                         x_labels,
                         v_obj,
                         marker="o",
-                        linewidth=2.2,
+                        linewidth=2.4,
                         color="#1f77b4",
                         label=f"Objetivo ({resultado.year_objetivo})",
+                        zorder=5,
                     )
-                    ax_i.plot(
-                        x_labels,
-                        v_cand,
-                        marker="s",
-                        linewidth=2.0,
-                        linestyle="--",
-                        color="#d62728",
-                        label=f"Análogo {top_year}",
-                    )
+
+                    for idx_c, y_cand in enumerate(anios_a_graficar):
+                        v_cand = extraer_ventana(
+                            df_osc,
+                            y_cand,
+                            resultado.mes_objetivo,
+                            longitud_ventana=resultado.longitud_ventana,
+                        )
+                        if v_cand is not None:
+                            c_color = colores_candidatos[idx_c % len(colores_candidatos)]
+                            c_style = estilos_linea[idx_c % len(estilos_linea)]
+                            total_cand = (
+                                resultado.tabla_coincidencias.loc[y_cand, "Total"]
+                                if y_cand in resultado.tabla_coincidencias.index
+                                else 0
+                            )
+                            ax_i.plot(
+                                x_labels,
+                                v_cand,
+                                marker="s",
+                                markersize=4,
+                                linewidth=1.8,
+                                linestyle=c_style,
+                                color=c_color,
+                                label=f"Análogo {y_cand} (Total: {total_cand})",
+                            )
+
                     ax_i.set_title(
                         f"Índice: {osc} ({CATALOGO.get(osc, {}).get('name', osc)})",
                         fontsize=11,
+                        fontweight="bold",
                     )
                     ax_i.set_ylabel(
                         f"Valor ({CATALOGO.get(osc, {}).get('units', 'u')})",
                         fontsize=10,
                     )
                     ax_i.grid(True, linestyle=":", alpha=0.6)
-                    ax_i.legend(loc="upper left")
+                    ax_i.legend(loc="best", framealpha=0.9, fontsize=9)
 
                 plt.xticks(rotation=45, ha="right")
                 plt.tight_layout()
@@ -614,7 +655,7 @@ elif seccion_seleccionada == "📚 Metodología de Cálculo":
     )
     st.divider()
 
-    st.markdown("""
+    st.markdown(r"""
         ### 1. Concepto y Objetivo Climatológico
         El método de años análogos busca identificar aquellos años del registro histórico cuyas condiciones atmosféricas y
         oceánicas evolucionaron de manera más semejante a la configuración observada en el período reciente. Permite a los
