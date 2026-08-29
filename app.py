@@ -655,61 +655,59 @@ elif seccion_seleccionada == "📚 Metodología de Cálculo":
     )
     st.divider()
 
-    st.markdown(r"""
-        ### 1. Concepto y Objetivo Climatológico
-        El método de años análogos busca identificar aquellos años del registro histórico cuyas condiciones atmosféricas y
-        oceánicas evolucionaron de manera más semejante a la configuración observada en el período reciente. Permite a los
-        meteorólogos evaluar qué patrones de precipitación o temperatura se manifestaron en el pasado ante configuraciones
-        sinópticas similares.
+    st.markdown("### 1. Concepto y Objetivo Climatológico")
+    st.markdown(
+        "El método de años análogos busca identificar aquellos años del registro histórico cuyas condiciones atmosféricas y "
+        "oceánicas evolucionaron de manera más semejante a la configuración observada en el período reciente. Permite a los "
+        "meteorólogos evaluar qué patrones de precipitación o temperatura se manifestaron en el pasado ante configuraciones "
+        "sinópticas similares."
+    )
+    st.divider()
 
-        ---
+    st.markdown("### 2. Ventana Temporal Móvil (6 vs 12 Meses)")
+    st.markdown(
+        "* **Ventana Operacional (12 meses):** Configuración predeterminada en operación. Evalúa el ciclo anual completo previo al mes de pronóstico (ej. para octubre de 2026, abarca desde noviembre de 2025 hasta octubre de 2026).\n"
+        "* **Ventana Metodológica Histórica (6 meses):** Configuración de referencia científica original.\n"
+        "* **Manejo de Cruces Interanuales:** Cuando la ventana cruza el cambio de año (ej. mes < longitud de ventana), los meses previos se extraen de $Y-1$ y los meses restantes de $Y$. La etiqueta del candidato es siempre el año de cierre $Y$."
+    )
+    st.divider()
 
-        ### 2. Ventana Temporal Móvil (6 vs 12 Meses)
-        * **Ventana Operacional (12 meses):** Configuración predeterminada en operación. Evalúa el ciclo anual completo previo al mes de pronóstico (ej. para octubre de 2026, abarca desde noviembre de 2025 hasta octubre de 2026).
-        * **Ventana Metodológica Histórica (6 meses):** Configuración de referencia científica original.
-        * **Manejo de Cruces Interanuales:** Cuando la ventana cruza el cambio de año (ej. mes < longitud de ventana), los meses previos se extraen de $Y-1$ y los meses restantes de $Y$. La etiqueta del candidato es siempre el año de cierre $Y$.
+    st.markdown("### 3. Exclusión Estricta del Año Objetivo")
+    st.markdown("El año objetivo **jamás** se evalúa como candidato de sí mismo:")
+    st.latex(r"Y_{\text{cand}} \neq Y_{\text{obj}}")
+    st.markdown(
+        r"Incluirlo generaría una correlación trivial $r = 1.0000$ y $\text{MAD} = 0.0000$, distorsionando el ranking."
+    )
+    st.divider()
 
-        ---
+    st.markdown("### 4. Métricas Estadísticas de Similitud")
+    st.markdown(r"Para cada índice $k$, se comparan el vector candidato $\mathbf{x}$ y el vector objetivo $\mathbf{y}$:")
 
-        ### 3. Exclusión Estricta del Año Objetivo
-        El año objetivo **jamás** se evalúa como candidato de sí mismo:
-        $$Y_{\text{cand}} \neq Y_{\text{obj}}$$
-        Incluirlo generaría una correlación trivial $r = 1.0000$ y $\text{MAD} = 0.0000$, distorsionando el ranking.
+    st.markdown("#### 4.1 Coeficiente de Correlación Lineal de Pearson ($r$)")
+    st.markdown("Evalúa la **similitud en la sincronía, tendencia y forma** de la oscilación:")
+    st.latex(r"r = \frac{\sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{N} (x_i - \bar{x})^2} \sqrt{\sum_{i=1}^{N} (y_i - \bar{y})^2}}")
 
-        ---
+    st.markdown("#### 4.2 Distancia Absoluta Media (MAD)")
+    st.markdown("En esta formulación climatológica, MAD representa la **Diferencia Absoluta Media (Mean Absolute Difference)**, evaluando la **cercanía en la magnitud física y amplitud de la anomalía**:")
+    st.latex(r"\text{MAD} = \frac{1}{N} \sum_{i=1}^{N} |x_i - y_i|")
+    st.divider()
 
-        ### 4. Métricas Estadísticas de Similitud
-        Para cada índice $k$, se comparan el vector candidato $\mathbf{x}$ y el vector objetivo $\mathbf{y}$:
+    st.markdown("### 5. Criterio de Coincidencia Univariada y Ranking")
+    st.markdown(r"Un año histórico se declara análogo para el índice $k$ si y solo si:")
+    st.latex(r"C_k(Y_{\text{cand}}) = \begin{cases} 1 & \text{si } (r_k > r_{\text{umbral}, k}) \land (\text{MAD}_k < \text{MAD}_{\text{umbral}, k}) \\ 0 & \text{en caso contrario} \end{cases}")
 
-        #### 4.1 Coeficiente de Correlación Lineal de Pearson ($r$)
-        Evalúa la **similitud en la sincronía, tendencia y forma** de la oscilación:
-        $$r = \frac{\sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{N} (x_i - \bar{x})^2} \sqrt{\sum_{i=1}^{N} (y_i - \bar{y})^2}}$$
+    st.markdown("El puntaje total de coincidencia multivariado es:")
+    st.latex(r"\text{Total}(Y_{\text{cand}}) = \sum_{k=1}^{K} C_k(Y_{\text{cand}}) \quad \in \{0, 1, \dots, K\}")
 
-        #### 4.2 Distancia Absoluta Media (MAD)
-        En esta formulación climatológica, MAD representa la **Diferencia Absoluta Media (Mean Absolute Difference)**, evaluando la **cercanía en la magnitud física y amplitud de la anomalía**:
-        $$\text{MAD} = \frac{1}{N} \sum_{i=1}^{N} |x_i - y_i|$$
+    st.markdown("Los años análogos se ordenan de forma descendente por `Total`, desempatando por el año más reciente.")
+    st.divider()
 
-        ---
-
-        ### 5. Criterio de Coincidencia Univariada y Ranking
-        Un año histórico se declara análogo para el índice $k$ si y solo si:
-        $$C_k(Y_{\text{cand}}) = \begin{cases}
-        1 & \text{si } (r_k > r_{\text{umbral}, k}) \;\land\; (\text{MAD}_k < \text{MAD}_{\text{umbral}, k}) \\
-        0 & \text{en caso contrario}
-        \end{cases}$$
-
-        El puntaje total de coincidencia multivariado es:
-        $$\text{Total}(Y_{\text{cand}}) = \sum_{k=1}^{K} C_k(Y_{\text{cand}}) \quad \in \{0, 1, \dots, K\}$$
-
-        Los años análogos se ordenan de forma descendente por `Total`, desempatando por el año más reciente.
-
-        ---
-
-        ### 6. Control Estricto de Datos y Reanálisis sin Contaminación
-        * **Aislamiento de Sentinelas:** Valores como `-99.99`, `-999.0` se transforman en `NaN` y anulan la ventana si están presentes.
-        * **Sin Reducción Silenciosa:** Si un índice seleccionado no dispone de datos completos, el cálculo se detiene e informa al usuario.
-        * **Prevención de Look-Ahead Bias:** En modo reanálisis, ningún dato posterior al año objetivo se utiliza en la evaluación.
-        """)
+    st.markdown("### 6. Control Estricto de Datos y Reanálisis sin Contaminación")
+    st.markdown(
+        "* **Aislamiento de Sentinelas:** Valores como `-99.99`, `-999.0` se transforman en `NaN` y anulan la ventana si están presentes.\n"
+        "* **Sin Reducción Silenciosa:** Si un índice seleccionado no dispone de datos completos, el cálculo se detiene e informa al usuario.\n"
+        "* **Prevención de Look-Ahead Bias:** En modo reanálisis, ningún dato posterior al año objetivo se utiliza en la evaluación."
+    )
 
 # ==============================================================================
 # SECCIÓN 4: ESTADO Y ACTUALIZACIÓN DE DATOS
@@ -728,14 +726,14 @@ elif seccion_seleccionada == "📈 Estado de Datos":
 
     col_stat1, col_stat2, col_stat3 = st.columns(3)
     col_stat1.metric("Series Disponibles", f"{disponibles} / {total_indices}")
-    col_stat2.metric(
-        "Cobertura Temporal Promedio",
-        f"{int(df_salud['Años Registrados'].mean()) if disponibles > 0 else 0} años",
-    )
-    col_stat3.metric(
-        "Último Año con Registros",
-        f"{df_salud['Último Año'].max() if disponibles > 0 else '-'}",
-    )
+
+    anios_reg_validos = pd.to_numeric(df_salud["Años Registrados"], errors="coerce").dropna()
+    mean_anios = f"{int(anios_reg_validos.mean())} años" if not anios_reg_validos.empty else "0 años"
+    col_stat2.metric("Cobertura Temporal Promedio", mean_anios)
+
+    ult_anios_validos = pd.to_numeric(df_salud["Último Año"], errors="coerce").dropna()
+    max_ult_anio = f"{int(ult_anios_validos.max())}" if not ult_anios_validos.empty else "-"
+    col_stat3.metric("Último Año con Registros", max_ult_anio)
 
     # Botón de Actualización
     st.subheader("🔄 Actualización Atómica de Series Climáticas")
