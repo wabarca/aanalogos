@@ -1,120 +1,91 @@
-# AAnalogos: Sistema de Selección de Años Análogos Climáticos
+# AAnalogos — Sistema de Selección de Años Análogos Climáticos
 
-[![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Tests](https://img.shields.io/badge/tests-9%20passed%20%7C%20100%25-brightgreen.svg)]()
-
-**AAnalogos** es un sistema computacional y climatológico desarrollado para la identificación, evaluación y selección automatizada de **años análogos climáticos** mediante la comparación estadística multivariada de las principales oscilaciones e índices océano-atmosféricos globales y regionales.
+**Ministerio de Medio Ambiente y Recursos Naturales (MARN)**  
+**Dirección del Observatorio de Amenazas y Recursos Naturales — Gerencia de Meteorología**  
+*San Salvador, El Salvador*
 
 ---
 
-## 1. Metodología Climatológica
+## Descripción General
 
-La metodología compara una **ventana retrospectiva móvil de seis meses** del año objetivo ($Y_{\text{obj}}$) contra el registro histórico ($1950–2026$) a través de **19 índices climáticos**:
+**AAnalogos** es un sistema computacional interactivo y modular para la **identificación y análisis multivariado de años análogos climáticos**, diseñado como herramienta de diagnóstico y apoyo para la **predicción climática estacional y el seguimiento del ENOS en Centroamérica**.
 
-* **Métricas de Similitud:**
-  * **Correlación de Pearson ($r$):** Evalúa la sincronía y forma de la trayectoria temporal.
-  * **Distancia Absoluta Media (MAD):** Evalúa la cercanía en la magnitud y amplitud física de la anomalía.
-* **Criterio de Coincidencia:** Un año histórico se declara análogo para un índice si cumple simultáneamente:
-  $$r > r_{\text{umbral}} \quad \land \quad \text{MAD} < \text{MAD}_{\text{umbral}}$$
-* **Ranking:** Los años candidatos se ordenan en forma descendente según el número total de índices coincidentes.
+La formulación matemática fundamental de similitud, incluyendo la correlación de Pearson, la distancia absoluta media (MAD), el tratamiento de valores faltantes, la exclusión del año objetivo y los criterios históricos de coincidencia, se preserva respecto al benchmark validado. La aplicación incorpora extensiones operacionales explícitas, particularmente una ventana retrospectiva de doce meses y mecanismos de actualización y determinación automática del período disponible.
 
-> ⚠️ **Aviso Climatológico:** El método de años análogos es una herramienta de diagnóstico y apoyo a la predicción climática estacional. **No constituye por sí mismo un pronóstico determinista del clima futuro.**
+La aplicación evalúa de forma simultánea hasta **19 índices oceánicos y atmosféricos** (Pacífico, Atlántico, Ártico y atmósfera global), comparando la trayectoria reciente frente al registro histórico mediante **correlación de Pearson ($r$)** y **distancia absoluta media (MAD)**.
 
 ---
 
-## 2. Índices Climáticos Contemplados (19 Series)
+## Características Principales
 
-`AMO`, `AO`, `MEI`, `ONI`, `NAO`, `PDO`, `TNA`, `SSTA_12`, `SSTA_3`, `SSTA_4`, `SSTA_34`, `AtlTROP`, `SAtl`, `NAtl`, `CAR`, `WHWP`, `PNA`, `SOI`, `AMO_CSU`.
+* 🌦️ **Operación Automática:** Detección dinámica del año actual y del último mes operacional disponible respetando la regla de publicación ($M+1$) con ventana de 12 meses predeterminada.
+* 🕰️ **Reanálisis y Backtesting:** Soporte para reanálisis retrospectivo completo frente a todo el registro histórico y backtesting estricto con corte temporal ($Y_{\text{cand}} \le Y_{\text{obj}}$).
+* 📐 **Ventana Paramétrica (12 vs 6 Meses):** Soporte operacional para ciclo anual completo (12 meses) y ventana metodológica histórica (6 meses).
+* 📊 **Explorador de Índices:** Fichas técnicas, metadatos, fuentes oficiales, DOIs y series temporales interactivas para las 19 oscilaciones.
+* 📚 **Metodología Integrada:** Documentación científica interactiva con fórmulas KaTeX y explicación física de cada métrica.
+* 🔄 **Actualización Atómica:** Descarga y validación no destructiva de las fuentes remotas oficiales (NOAA/CPC/PSL/CSU).
+* ⚙️ **Umbrales Configurables:** Personalización de criterios de coincidencia por índice con trazabilidad y botón de restauración oficial.
+* 🛡️ **Rigor Científico Certificado:** Precisión `float64` nativa, aislamiento de valores sentinela (`-99.99`), exclusión del año objetivo ($Y_{\text{cand}} \neq Y_{\text{obj}}$) y suite automatizada de 23 pruebas unitarias.
 
 ---
 
-## 3. Instalación Rápida
+## 19 Índices Climáticos Integrados
 
+| Pacífico & ENOS | Atlántico & Caribe | Atmósfera & Hemisferio Norte |
+| :--- | :--- | :--- |
+| **ONI** (Oceanic Niño Index) | **AMO** (Kaplan SST) | **AO** (Arctic Oscillation) |
+| **MEI** (Multivariate ENSO v2) | **AMO_CSU** (Colorado State Univ.) | **NAO** (North Atlantic Oscillation) |
+| **SOI** (Southern Oscillation Index) | **TNA** (Tropical Northern Atlantic) | **PNA** (Pacific-North American) |
+| **SSTA_12** (Niño 1+2) | **CAR** (Caribbean SST Index) | |
+| **SSTA_3** (Niño 3) | **AtlTROP** (Tropical Atlantic) | |
+| **SSTA_4** (Niño 4) | **NAtl** (North Atlantic) | |
+| **SSTA_34** (Niño 3.4) | **SAtl** (South Atlantic) | |
+| | **WHWP** (Western Hemisphere Warm Pool) | |
+
+---
+
+## Instalación y Ejecución Rápida
+
+### 1. Clonar e Instalar Dependencias
 ```bash
-# Clonar repositorio
 git clone https://github.com/wabarca/aanalogos.git
 cd aanalogos
-
-# Crear y activar entorno virtual
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate  # En Windows: .venv\Scripts\activate
-
-# Instalar dependencias
 pip install -r requirements.txt
-
-# Ejecutar suite de pruebas
-python -m unittest discover -s tests
 ```
 
----
+### 2. Ejecutar Suite de Pruebas Automatizadas
+```bash
+python -m unittest discover -s tests -v
+```
 
-## 4. Ejecución
-
-### Interfaz Web Interactiva (Streamlit)
+### 3. Iniciar la Aplicación Web
 ```bash
 streamlit run app.py
 ```
-Abra su navegador en `http://localhost:8501`.
-
-### Despliegue en Red Local (LAN Institucional)
-```bash
-./deploy/run_server.sh
-```
-Accesible desde otros equipos de la red en `http://<IP_SERVIDOR>:8501`.
 
 ---
 
-## 5. Estructura del Repositorio
+## Estructura de Documentación
 
-```text
-aanalogos/
-├── app.py                  # Aplicación interactiva Streamlit
-├── requirements.txt        # Dependencias fijadas
-├── pyproject.toml          # Metadatos del paquete
-├── CHANGELOG.md            # Historial de versiones
-│
-├── aanalogos/              # Motor climatológico modular (Python package)
-│   ├── engine.py           # Orquestador (cero prints, validación estricta)
-│   ├── metrics.py          # Cálculo de Pearson r y MAD en float64
-│   ├── windows.py          # Construcción de ventanas semestrales
-│   ├── quality.py          # Limpieza y control de sentinelas
-│   └── data.py             # Ingesta y normalización
-│
-├── config/                 # Manifiesto YAML de fuentes de datos
-├── data/                   # Series históricas de las 19 oscilaciones
-├── docs/                   # Documentación científica y técnica completa (11 guías)
-├── deploy/                 # Servicio systemd y scripts de arranque en red
-├── scripts/                # Actualización y auditoría automatizada
-└── tests/                  # Suite formal de pruebas automatizadas y regresión
-```
+* [📚 Índice General de Documentación](docs/README.md)
+* [🔬 Metodología Científica](docs/metodologia.md)
+* [📊 Validación Climatológica](docs/validacion_climatologica.md)
+* [📖 Manual de Usuario](docs/manual_usuario.md)
+* [📈 Catálogo de Índices Climáticos](docs/indices.md)
+* [📑 Referencias Bibliográficas y DOIs](docs/referencias.md)
+* [🏗️ Arquitectura Técnica](docs/arquitectura.md)
+* [🔁 Reproducibilidad y Benchmarks](docs/reproducibilidad.md)
+* [🐧 Instalación en Linux](docs/instalacion_linux.md)
+* [🏛️ Despliegue Institucional](docs/despliegue_institucional.md)
 
 ---
 
-## 6. Documentación
+## Licencia y Créditos Institucionales
 
-El sistema cuenta con un manual técnico y científico completo e interconectado:
-
-* 📚 [**Índice General de Documentación**](docs/README.md)
-* 🔬 [**Metodología Científica**](docs/metodologia.md)
-* 🌦️ [**Validación Climatológica**](docs/validacion_climatologica.md)
-* 📊 [**Fichas Técnicas de los 19 Índices**](docs/indices.md)
-* 🖥️ [**Manual de Usuario (Streamlit)**](docs/manual_usuario.md)
-* 🐧 [**Guía de Instalación en Linux**](docs/instalacion_linux.md)
-* 🏢 [**Despliegue Institucional y Red LAN**](docs/despliegue_institucional.md)
-* 🛠️ [**Manual de Mantenimiento y Operaciones**](docs/mantenimiento.md)
-* 🔁 [**Protocolo de Reproducibilidad**](docs/reproducibilidad.md)
-* 📋 [**Auditoría Final y Certificación**](docs/auditoria_final_cierre.md)
-
----
-
-## Antecedentes y Atribución
-
-Este proyecto tiene como antecedente un código de cálculo de años análogos desarrollado originalmente por el meteorólogo **Anthony Segura García**, asociado a la **Universidad de Costa Rica** y al **Instituto Meteorológico Nacional de Costa Rica**. El código original sirvió como referencia para el desarrollo inicial de esta herramienta.
-
-La versión actualmente contenida en este repositorio ha sido **completamente modificada, reestructurada, rediseñada, modularizada, auditada y validada** para su utilización en el contexto de la **Gerencia de Meteorología del Ministerio de Medio Ambiente y Recursos Naturales (MARN) de El Salvador**.
-
-* **Desarrollo y rediseño de la versión actual:**  
-  **William Abarca**  
-  *Ministerio de Medio Ambiente y Recursos Naturales (MARN), El Salvador*  
-  Contacto: [wabarca@ambiente.gob.sv](mailto:wabarca@ambiente.gob.sv)
+* **Institución:** Ministerio de Medio Ambiente y Recursos Naturales (MARN), El Salvador.
+* **Dirección:** Dirección del Observatorio de Amenazas y Recursos Naturales.
+* **Gerencia:** Gerencia de Meteorología.
+* **Responsable Técnico:** William Abarca (`wabarca@ambiente.gob.sv`).
+* **Antecedente Histórico:** Metodología conceptual basada en los trabajos de Anthony Segura García (UCR / IMN Costa Rica).

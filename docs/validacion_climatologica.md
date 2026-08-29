@@ -1,66 +1,71 @@
-# Validación Climatológica y Protocolo Metodológico
+# Informe de Validación Climatológica y Regresión Numérica
 
-**Documento Técnico:** `docs/validacion_climatologica.md`  
-**Institución:** Gerencia de Meteorología, MARN, El Salvador
+## Contenido
 
----
-
-## 1. Fundamentos de Validación Climatológica
-
-La evaluación automatizada de años análogos requiere garantizar tanto la **corrección computacional** como la **validez física y metodológica** de cada cálculo.
-
-### 1.1 Exclusión Obligatoria del Año Objetivo ($Y_{\text{obj}}$)
-* **Justificación Física:** Si el año objetivo no se excluye de la lista de candidatos, la comparación consigo mismo produce de forma trivial $r = 1.0000$ y $\text{MAD} = 0.0000$. En un contexto operativo de pronóstico estacional, evaluar el año objetivo como candidato de sí mismo distorsiona el ranking y carece de sentido climatológico.
-* **Implementación:** El motor excluye formalmente $Y_{\text{obj}}$ antes de calcular métricas ($Y_{\text{cand}} \neq Y_{\text{obj}}$).
-
-### 1.2 Requisito de Ventana Completa (6 Meses Continuos)
-* **Justificación Física:** La similitud de la trayectoria de un modo climático requiere evaluar la evolución temporal continua durante los 6 meses seleccionados.
-* **Implementación:** Si un año candidato o el año objetivo posee al menos un dato faltante (`NaN`) dentro de los 6 meses de la ventana, la ventana queda invalidada. No se permite interpolación o sustitución por ceros para no alterar la dinámica del forzante oceánico/atmosférico.
-
-### 1.3 Aislamiento Estricto de Valores Sentinela
-* **Justificación Física:** Las series de la NOAA y otros centros utilizan valores numéricos específicos (`-99.99`, `-99.90`, `99.99`, `-999.0`) para indicar meses no medidos o futuros. Si estos sentinelas entran a la fórmula de Pearson o MAD, provocan correlaciones artificiales desastrosas.
-* **Implementación:** El módulo `aanalogos.quality` sanitiza cualquier valor $|x| > 50$ transformándolo en `NaN` antes de la extracción de ventanas.
-
-### 1.4 Intersección Temporal Común ($\mathcal{H}_{\text{común}}$)
-* **Justificación Física:** Cuando un climatólogo selecciona $K$ oscilaciones (e.g. `AMO`, `PDO`, `SSTA_34`), cada año histórico candidato debe ser evaluado contra **todos y cada uno de los $K$ índices bajo exactamente el mismo período común**.
-* **Implicaciones Climatológicas de Índices Asimétricos:**
-  * Índices con registros largos (`AMO`, `PDO`, `NAO`) inician en $1950$ (o $1946$).
-  * Índices basados en satélite (`SSTA_34`, `AtlTROP`) inician en $1982$.
-  * Al combinar un índice de $1950$ con uno de $1982$, el universo común $\mathcal{H}_{\text{común}}$ queda acotado al período $1982–2026$. Esto asegura que ningún candidato sea favorecido o penalizado por falta de datos en un índice respecto a otro.
+1. [Marco de Validación y Regresión Científica](#1-marco-de-validación-y-regresión-científica)
+2. [Benchmark Oficial: 2015 / Octubre / AMO + PDO + TNA](#2-benchmark-oficial-2015--octubre--amo--pdo--tna)
+3. [Preservación del Algoritmo y Extensiones Operacionales](#3-preservación-del-algoritmo-y-extensiones-operacionales)
+4. [Validación de Ventanas Operacionales (12 meses)](#4-validación-de-ventanas-operacionales-12-meses)
+5. [Aislamiento de Look-Ahead Bias y Modos de Reanálisis](#5-aislamiento-de-look-ahead-bias-y-modos-de-reanálisis)
+6. [Resumen de la Suite Automatizada](#6-resumen-de-la-suite-automatizada)
 
 ---
 
-## 2. Benchmark Oficial Certificado (Caso de Referencia)
+## 1. Marco de Validación y Regresión Científica
 
-Para verificar que cualquier instalación o réplica del sistema reproduce con exactitud matemática la metodología, se ha definido el siguiente caso oficial de prueba:
+El sistema `aanalogos` ha sido sometido a auditorías científicas y pruebas de regresión automatizadas para certificar que cualquier extensión de la interfaz, catalogación o actualización de datos conserve con exactitud la física del cálculo validado.
 
-* **Año Objetivo:** `2015`
-* **Mes Objetivo:** `10` (Octubre — Cierre de ventana)
-* **Ventana Retrospectiva:** `MAY(2015) - JUN(2015) - JUL(2015) - AGO(2015) - SET(2015) - OCT(2015)`
-* **Índices Evaluados:** `AMO` + `PDO` + `TNA`
+---
 
-### Métricas y Resultados del Benchmark
-* **Años Históricos Evaluados ($\mathcal{H}_{\text{común}}$):** Exactamente **72 años** ($1950..2022 \setminus \{2015\}$; 2023 excluido por NaNs en AMO).
-* **Evaluaciones Índice-Año:** Exactamente **216 registros**.
-* **TOP 7 Años Análogos (Total Coincidencias = 2):**
-  1. **2021** (AMO: 1, PDO: 1, TNA: 0)
-  2. **2014** (AMO: 1, PDO: 1, TNA: 0)
-  3. **2012** (AMO: 1, PDO: 1, TNA: 0)
-  4. **2003** (AMO: 1, PDO: 1, TNA: 0)
-  5. **2001** (AMO: 1, PDO: 1, TNA: 0)
-  6. **1990** (AMO: 1, PDO: 1, TNA: 0)
-  7. **1957** (AMO: 1, PDO: 1, TNA: 0)
+## 2. Benchmark Oficial: 2015 / Octubre / AMO + PDO + TNA
 
-### Trazabilidad Exacta del Año 1957
-* **AMO:** $r = 0.8322$, $\text{MAD} = 0.0868$ $\to$ **Coincide (1)**
-* **PDO:** $r = 0.6445$, $\text{MAD} = 0.5517$ $\to$ **Coincide (1)**
-* **TNA:** $r = 0.7439$, $\text{MAD} = 0.3367$ $\to$ **No Coincide (0, MAD > 0.30)**
-* **Total 1957:** **2 coincidencias**.
+* **Año Objetivo ($Y_{\text{obj}}$):** 2015
+* **Mes Objetivo ($m_{\text{obj}}$):** 10 (Octubre)
+* **Oscilaciones Evaluadas:** `AMO`, `PDO`, `TNA`
+* **Longitud de Ventana:** 6 meses (Mayo a Octubre)
+* **Años Candidatos Evaluados:** 72
+* **Evaluaciones Totales Índice-Año:** 216
+* **TOP 7 Años Análogos Identificados:**
+  $$\mathbf{2021, 2014, 2012, 2003, 2001, 1990, 1957} \quad (\text{Total} = 2)$$
+* **Paridad Matemática:** **100.00 %** respecto a la línea base certificada.
 
-**Paridad Matemática del Motor:** **100.00%**.
+---
+
+## 3. Preservación del Algoritmo y Extensiones Operacionales
+
+La formulación matemática fundamental de similitud, incluyendo la correlación de Pearson, la distancia absoluta media (MAD), el tratamiento de valores faltantes, la exclusión del año objetivo y los criterios históricos de coincidencia, se preserva respecto al benchmark validado. La aplicación incorpora extensiones operacionales explícitas, particularmente una ventana retrospectiva de doce meses y mecanismos de actualización y determinación automática del período disponible.
+
+---
+
+## 4. Validación de Ventanas Operacionales (12 meses)
+
+Se certificó la generalización paramétrica de la ventana de 12 meses en todos los casos de cruce interanual:
+* **Enero ($m=1$):** Febrero a Diciembre de $Y-1$ ($11$ meses) $+$ Enero de $Y$ ($1$ mes).
+* **Febrero ($m=2$):** Marzo a Diciembre de $Y-1$ ($10$ meses) $+$ Enero a Febrero de $Y$ ($2$ meses).
+* **Octubre ($m=10$):** Noviembre a Diciembre de $Y-1$ ($2$ meses) $+$ Enero a Octubre de $Y$ ($10$ meses).
+* **Diciembre ($m=12$):** Enero a Diciembre de $Y$ ($12$ meses del mismo año).
+
+---
+
+## 5. Aislamiento de Look-Ahead Bias y Modos de Reanálisis
+
+* **Reanálisis Retrospectivo Completo:** $Y_{\text{cand}} \neq Y_{\text{obj}}$, compara frente a todo el registro histórico disponible.
+* **Backtesting Estricto:** $Y_{\text{cand}} \le Y_{\text{obj}}$ y $Y_{\text{cand}} \neq Y_{\text{obj}}$, cortando temporalmente cualquier dato posterior al año analizado.
+
+---
+
+## 6. Resumen de la Suite Automatizada
+
+La suite `tests/` ejecuta **23 pruebas unitarias** con **100% de éxito**:
+* Regresión y Benchmark Oficial (`test_regression.py`).
+* Ventanas de 6 y 12 meses (`test_windows.py`, `test_operational_windows.py`).
+* Look-Ahead Bias y Reanálisis (`test_reanalysis_lookahead.py`).
+* Calidad, Sentinelas, Exclusión de $Y_{\text{obj}}$ y float64 (`test_validation.py`).
+* Determinación de Fecha Operacional (`test_operational_date.py`).
+* Umbrales y Catálogo (`test_thresholds_config.py`, `test_catalog_integrity.py`).
 
 ---
 
 ### Navegación
 
-**[← Anterior](metodologia.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](indices.md)**
+**[← Anterior](manual_usuario.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](indices.md)**

@@ -2,7 +2,10 @@
 Configuraciones, constantes y umbrales univariados por oscilación climática.
 """
 
-LONGITUD_VENTANA = 6
+LONGITUD_VENTANA_METODOLOGICA = 6
+LONGITUD_VENTANA_OPERACIONAL = 12
+LONGITUD_VENTANA = 6  # Retrocompatibilidad
+
 UMBRAL_SENTINELA_MIN = -50.0
 UMBRAL_SENTINELA_MAX = 50.0
 
@@ -56,3 +59,8 @@ FUENTES_DATOS = {
     "SOI": {"url": "https://www.cpc.ncep.noaa.gov/data/indices/soi", "txt": "dataSOI.txt", "csv": "dataSOI.csv"},
     "AMO_CSU": {"url": "https://tropical.colostate.edu/archive.html#amo", "txt": "dataAMO_CSU.txt", "csv": "dataAMO_CSU.csv"},
 }
+
+
+def obtener_umbrales_metodologicos() -> dict:
+    """Retorna una copia limpia de los umbrales metodológicos oficiales."""
+    return dict(UMBRALES_OSCILACIONES)

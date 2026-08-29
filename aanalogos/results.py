@@ -29,6 +29,9 @@ class ResultadoAnalogos:
     anios_candidatos: List[int]
     tabla_coincidencias: pd.DataFrame
     tabla_trazabilidad: pd.DataFrame
+    longitud_ventana: int = 6
+    umbrales_utilizados: Dict[str, Tuple[float, float]] = field(default_factory=dict)
+    modo_analisis: str = "Metodológico"
     ranking: List[Tuple[int, int]] = field(default_factory=list)
     indices_no_disponibles: List[str] = field(default_factory=list)
     es_valido: bool = True

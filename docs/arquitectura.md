@@ -1,79 +1,92 @@
 # Arquitectura Técnica del Software AAnalogos
 
-
-
 ## Contenido
 
-1. [Diagrama de Arquitectura por Capas](#diagrama-de-arquitectura-por-capas)
-2. [Responsabilidades por Módulo](#responsabilidades-por-módulo)
-3. [Aislamiento y Estabilidad](#aislamiento-y-estabilidad)
+1. [Visión General de la Arquitectura](#1-visión-general-de-la-arquitectura)
+2. [Capas del Sistema](#2-capas-del-sistema)
+3. [Motor Climatológico Modular (`aanalogos/`)](#3-motor-climatológico-modular-aanalogos)
+4. [Catálogo y Gestión de Datos](#4-catálogo-y-gestión-de-datos)
+5. [Capa de Presentación Web (Streamlit `app.py`)](#5-capa-de-presentación-web-streamlit-apppy)
+6. [Suite de Pruebas Automatizadas (`tests/`)](#6-suite-de-pruebas-automatizadas-tests)
 
 ---
-El diseño de **AAnalogos** se fundamenta en una arquitectura modular desacoplada por capas (Layered Architecture), garantizando la separación de responsabilidades, la pureza matemática del motor científico y la portabilidad entre interfaces gráficas, líneas de comandos (CLI) o servicios web en red.
 
----
+## 1. Visión General de la Arquitectura
 
-## 1. Diagrama de Arquitectura por Capas
-
-```
-+-------------------------------------------------------------------------------+
-|                             CAPA DE PRESENTACIÓN                             |
-|  - app.py (Streamlit Web Interface)                                           |
-|  - Formateo de decimales a 4 dígitos, alertas visuales y exportación CSV/TXT   |
-+-------------------------------------------------------------------------------+
-                                      │
-                                      ▼
-+-------------------------------------------------------------------------------+
-|                           CAPA DE APLICACIÓN / API                            |
-|  - aanalogos.calcular_analogos(...)                                           |
-|  - Validación estricta de parámetros y cobertura (cero reducción silenciosa)  |
-|  - Estructuración en Dataclasses (ResultadoAnalogos, MetricaDetallada)        |
-+-------------------------------------------------------------------------------+
-                                      │
-                                      ▼
-+-------------------------------------------------------------------------------+
-|                       CAPA CIENTÍFICA Y DE CÁLCULO                            |
-|  - aanalogos.windows (Construcción de ventanas semestrales intra/interanual)   |
-|  - aanalogos.metrics (Cálculo puro de Pearson r y MAD en float64)             |
-|  - aanalogos.quality (Sanitización de sentinelas |x| > 50 -> NaN)              |
-|  - aanalogos.config (Umbrales univariados validados por oscilación)          |
-+-------------------------------------------------------------------------------+
-                                      │
-                                      ▼
-+-------------------------------------------------------------------------------+
-|                             CAPA DE DATOS E INGESTA                           |
-|  - aanalogos.data (Carga y resolución de rutas en data/ y raíz)               |
-|  - config/data_sources.yaml (Manifiesto estructurado de fuentes remotas)      |
-|  - scripts/download_data.py (Descarga atómica no destructiva)                 |
-|  - scripts/audit_sources.py (Auditoría automatizada de consistencia)          |
-+-------------------------------------------------------------------------------+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                    app.py (Streamlit UI)                    │
+│ ├── 🌦️ Análisis (Operacional & Reanálisis Histórico)       │
+│ ├── 📊 Explorador de Índices (Fichas Técnicas & Series)      │
+│ ├── 📚 Metodología Interactiva                              │
+│ ├── 📈 Estado y Actualización Atómica de Datos              │
+│ └── ⚙️ Configuración y Calibración de Umbrales              │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ Consume API Pública
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│              aanalogos/ (Motor Climatológico)                │
+│ ├── engine.py     → Orquestador de Años Análogos            │
+│ ├── catalog.py    → Diagnóstico de fuentes y fechas op.     │
+│ ├── windows.py    → Ventanas móviles (12m / 6m / Cruce año) │
+│ ├── metrics.py    → Pearson float64 y MAD                   │
+│ ├── quality.py    → Aislamiento de sentinelas y limpieza    │
+│ ├── data.py       → Carga, parsing y actualización atómica  │
+│ ├── results.py    → Dataclasses de resultados y trazabilidad│
+│ └── config.py     → Constantes y umbrales metodológicos     │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ Lee / Escribe
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ ├── data/ (Archivos CSV de las 19 series climáticas)        │
+│ └── config/data_sources.yaml (Catálogo estructurado YAML)   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Responsabilidades por Módulo
+## 2. Capas del Sistema
 
-| Módulo / Archivo | Capa | Responsabilidad Principal |
-| :--- | :---: | :--- |
-| `app.py` | Presentación | Interfaz gráfica web en Streamlit, controles, gráficos y descargas. |
-| `aanalogos/engine.py` | Aplicación | Orquestador del flujo de cálculo. Cero llamadas a `print()`. |
-| `aanalogos/results.py` | Aplicación | Definición de estructuras de datos inmutables y exportadores. |
-| `aanalogos/windows.py` | Científica | Construcción y etiquetado de ventanas móviles de 6 meses. |
-| `aanalogos/metrics.py` | Científica | Cálculo estadístico de $r$, MAD y evaluación booleana de umbrales. |
-| `aanalogos/quality.py` | Científica | Limpieza de sentinelas y conversión de tipos a matriz numérica. |
-| `aanalogos/config.py` | Científica | Constantes, nombres de meses y diccionario de umbrales ($r$, MAD). |
-| `aanalogos/data.py` | Datos | Carga de archivos CSV/TXT desde `data/` o directorio del proyecto. |
-| `config/data_sources.yaml`| Datos | Manifiesto declarativo de URLs, instituciones y metadatos. |
+1. **Capa de Datos:** Repositorio local de matrices mensuales en `data/` y manifiesto estructurado `config/data_sources.yaml`.
+2. **Capa de Negocio (Motor Científico):** Módulos en `aanalogos/` que procesan las series, extraen ventanas, calculan correlaciones y construyen rankings.
+3. **Capa de Presentación:** Aplicación Streamlit en `app.py` organizada en 5 secciones modulares.
+4. **Capa de Infraestructura:** Scripts de despliegue en `deploy/` y servicio continuo `systemd`.
 
 ---
 
-## 3. Aislamiento y Estabilidad
+## 3. Motor Climatológico Modular (`aanalogos/`)
 
-1. **Independencia de Streamlit:** El paquete `aanalogos` no contiene ninguna importación ni dependencia de Streamlit. Puede importarse en scripts de procesamiento por lotes, notebooks de Jupyter o servicios REST.
-2. **Inmutabilidad y Trazabilidad:** Cada cálculo genera una instancia autocontenida de `ResultadoAnalogos` con toda la trazabilidad detallada ($N \times K$ registros) en precisión completa `float64`.
+* **`engine.py`:** Expone `calcular_analogos()`, orquestando la validación estricta de cobertura, intersección de años candidatos, cálculo de métricas y ranking.
+* **`windows.py`:** Implementa la extracción continua de ventanas de $N$ meses ($N=12$ operacional, $N=6$ metodológico) generalizando cruces interanuales.
+* **`catalog.py`:** Determina fechas operacionales disponibles y compila la tabla de salud de fuentes.
+* **`data.py`:** Gestiona descargas atómicas no destructivas con validación previa al reemplazo de archivos locales.
+
+---
+
+## 4. Catálogo y Gestión de Datos
+
+La configuración de metadatos de las 19 series climáticas reside en `config/data_sources.yaml`, manteniendo una **única fuente estructurada de verdad** para nombres, regiones, variables, unidades, fuentes operacionales y DOIs.
+
+---
+
+## 5. Capa de Presentación Web (Streamlit `app.py`)
+
+Implementa reactividad mediante `st.session_state` y optimización de rendimiento con `st.cache_resource` y `st.cache_data`.
+
+---
+
+## 6. Suite de Pruebas Automatizadas (`tests/`)
+
+* `test_regression.py`: Benchmark oficial 2015/10/AMO+PDO+TNA (100% de paridad matemática).
+* `test_operational_windows.py`: Validación de ventanas de 12 meses en todos los meses del año.
+* `test_reanalysis_lookahead.py`: Verificación de aislamiento estricto de datos posteriores en reanálisis.
+* `test_operational_date.py`: Determinación dinámica del año actual y mes operacional.
+* `test_thresholds_config.py`: Aplicación y restauración de umbrales personalizados.
+* `test_catalog_integrity.py`: Cobertura completa de los 19 índices en el catálogo.
+* `test_validation.py`, `test_windows.py`, `test_invariance.py`, `test_multi_cases.py`: Suite base de 9 pruebas científicas.
 
 ---
 
 ### Navegación
 
-**[← Anterior](referencias.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](manual_usuario.md)**
+**[← Anterior](referencias.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](reproducibilidad.md)**

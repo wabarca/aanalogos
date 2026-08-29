@@ -1,5 +1,7 @@
 # ==============================================================================
 # MANIFIESTO DE FUENTES DE DATOS CLIMÁTICAS (AANALOGOS)
+# Catálogo Maestro de Índices y Oscilaciones Climáticas
+# Ministerio de Medio Ambiente y Recursos Naturales (MARN), El Salvador
 # ==============================================================================
 
 AMO:
@@ -17,7 +19,10 @@ AMO:
   update_frequency: "Mensual"
   missing_value: -99.99
   threshold_r: 0.60
-  threshold_mad: 0.60
+  threshold_mad: 0.30
+  description: "Variabilidad multidecadal de la temperatura superficial del mar en el Atlántico Norte. Modula la actividad ciclónica tropical en la cuenca del Atlántico y los regímenes de precipitación estacional en Centroamérica."
+  reference: "Enfield, D. B., Mestas-Nuñez, A. M., & Trimble, P. J. (2001). The Atlantic Multidecadal Oscillation and its relation to rainfall and river flows in the continental U.S. Geophysical Research Letters, 28(10), 2077-2080."
+  doi: "10.1029/2000GL012745"
 
 AO:
   name: "Arctic Oscillation"
@@ -33,8 +38,11 @@ AO:
   period_start: 1950
   update_frequency: "Mensual"
   missing_value: -999.0
-  threshold_r: 0.60
-  threshold_mad: 0.60
+  threshold_r: 0.40
+  threshold_mad: 1.00
+  description: "Modo dominante de variabilidad de la circulación troposférica en latitudes medias y altas del Hemisferio Norte. Condiciona la intensidad del vórtice polar y la incursión de frentes fríos hacia Centroamérica durante la temporada seca."
+  reference: "Thompson, D. W., & Wallace, J. M. (1998). The Arctic Oscillation signature in the wintertime geopotential height and temperature fields. Geophysical Research Letters, 25(9), 1297-1300."
+  doi: "10.1029/98GL00950"
 
 MEI:
   name: "Multivariate ENSO Index Version 2"
@@ -50,8 +58,11 @@ MEI:
   period_start: 1950
   update_frequency: "Bimensual / Mensual"
   missing_value: -999.0
-  threshold_r: 0.60
-  threshold_mad: 0.60
+  threshold_r: 0.40
+  threshold_mad: 0.50
+  description: "Índice multivariado que integra seis variables atmosféricas y oceánicas sobre el Pacífico Tropical para monitorear de forma holística el acoplamiento océano-atmósfera del fenómeno ENOS."
+  reference: "Zhang, T., Hoell, A., Perlwitz, J., Eischeid, J., Murray, D., & Wolter, K. (2019). The Multivariate ENSO Index Version 2. International Journal of Climatology, 39(8), 3467-3482."
+  doi: "10.1002/joc.6033"
 
 ONI:
   name: "Oceanic Niño Index"
@@ -69,6 +80,9 @@ ONI:
   missing_value: -99.99
   threshold_r: 0.60
   threshold_mad: 0.60
+  description: "Indicador estándar operacional de NOAA para clasificar episodios cálidos (El Niño) y fríos (La Niña) mediante la media móvil trimestral de anomalías térmicas en la región Niño 3.4."
+  reference: "Huang, B., Thorne, P. W., Banzon, V. F., Boyer, T., Chepurin, G., Lawrimore, J. H., ... & Zhang, H. M. (2017). Extended Reconstructed Sea Surface Temperature, Version 5 (ERSSTv5): Upgrades, Validations, and Intercomparisons. Journal of Climate, 30(20), 8179-8205."
+  doi: "10.1175/JCLI-D-16-0836.1"
 
 NAO:
   name: "North Atlantic Oscillation"
@@ -85,7 +99,10 @@ NAO:
   update_frequency: "Mensual"
   missing_value: -99.90
   threshold_r: 0.60
-  threshold_mad: 0.60
+  threshold_mad: 0.80
+  description: "Fluctuación a gran escala en la masa atmosférica entre la Baja de Islandia y la Alta de las Azores, modulando la intensidad de los vientos alisios del Atlántico y el transporte de humedad hacia el Caribe."
+  reference: "Hurrell, J. W. (1995). Decadal trends in the North Atlantic Oscillation: Regional temperatures and precipitation. Science, 269(5224), 676-679."
+  doi: "10.1126/science.269.5224.676"
 
 PDO:
   name: "Pacific Decadal Oscillation"
@@ -101,8 +118,11 @@ PDO:
   period_start: 1946
   update_frequency: "Mensual"
   missing_value: 99.99
-  threshold_r: 0.60
+  threshold_r: 0.40
   threshold_mad: 0.60
+  description: "Patrón recurrente de variabilidad climática decadal del Pacífico Norte que modula la respuesta regional del ENOS y la temperatura del Pacífico nororiental sobre escalas interanuales y multidecadales."
+  reference: "Mantua, N. J., Hare, S. R., Zhang, Y., Wallace, J. M., & Francis, R. C. (1997). A Pacific interdecadal climate oscillation with impacts on salmon production. Bulletin of the American Meteorological Society, 78(6), 1069-1080."
+  doi: "10.1175/1520-0477(1997)078<1069:APICOW>2.0.CO;2"
 
 TNA:
   name: "Tropical Northern Atlantic Index"
@@ -118,8 +138,11 @@ TNA:
   period_start: 1950
   update_frequency: "Mensual"
   missing_value: -99.99
-  threshold_r: 0.60
+  threshold_r: 0.50
   threshold_mad: 0.30
+  description: "Monitorea las anomalías superficiales de temperatura en el Atlántico Norte Tropical, sector clave para la modulación de la Zona de Convergencia Intertropical (ZCIT) y las ondas del este sobre Centroamérica."
+  reference: "Enfield, D. B., Mestas-Nuñez, A. M., Mayer, D. A., & Cid-Serrano, L. (1999). How ubiquitous is the dipole relationship in tropical Atlantic sea surface temperatures? Journal of Geophysical Research: Oceans, 104(C4), 7841-7848."
+  doi: "10.1029/1998JC900109"
 
 SSTA_12:
   name: "Niño 1+2 SST Anomaly Index"
@@ -136,6 +159,9 @@ SSTA_12:
   missing_value: -99.99
   threshold_r: 0.60
   threshold_mad: 0.60
+  description: "Anomalía de TSM frente a las costas de Ecuador y norte de Perú (0°-10°S, 90°W-80°W), indicativa de calentamientos costeros intensos (El Niño Costero) y su propagación termoclina."
+  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
+  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
 
 SSTA_3:
   name: "Niño 3 SST Anomaly Index"
@@ -150,8 +176,11 @@ SSTA_3:
   period_start: 1982
   update_frequency: "Mensual"
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.60
+  threshold_r: 0.50
+  threshold_mad: 0.70
+  description: "Anomalía térmica en el Pacífico Ecuatorial Oriental (5°N-5°S, 150°W-90°W), región central en la caracterización clásica de eventos El Niño Canónico del Pacífico Oriental."
+  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
+  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
 
 SSTA_4:
   name: "Niño 4 SST Anomaly Index"
@@ -166,8 +195,11 @@ SSTA_4:
   period_start: 1982
   update_frequency: "Mensual"
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.60
+  threshold_r: 0.38
+  threshold_mad: 0.70
+  description: "Anomalía de TSM en el Pacífico Ecuatorial Central-Occidental (5°N-5°S, 160°E-150°W), fundamental para identificar eventos El Niño Modoki o del Pacífico Central."
+  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
+  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
 
 SSTA_34:
   name: "Niño 3.4 SST Anomaly Index"
@@ -184,6 +216,9 @@ SSTA_34:
   missing_value: -99.99
   threshold_r: 0.60
   threshold_mad: 0.60
+  description: "Región estándar internacional (5°N-5°S, 170°W-120°W) para la cuantificación mensual del estado del ciclo ENOS y el acoplamiento atmósfera-océano en la cuenca del Pacífico."
+  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
+  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
 
 AtlTROP:
   name: "Tropical Atlantic SST Anomaly"
@@ -200,6 +235,9 @@ AtlTROP:
   missing_value: -99.99
   threshold_r: 0.60
   threshold_mad: 0.30
+  description: "Promedio de anomalías térmicas en la franja ecuatorial y tropical del Océano Atlántico (10°S-10°N), modulando la convección regional y la convergencia de vientos alisios."
+  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
+  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
 
 SAtl:
   name: "South Atlantic SST Anomaly"
@@ -216,6 +254,9 @@ SAtl:
   missing_value: -99.99
   threshold_r: 0.60
   threshold_mad: 0.30
+  description: "Anomalías superficiales del Atlántico Sur Tropical (Ecuador a 20°S, 30°E a 60°W), polo sur del dipolo meridional atlántico que condiciona el desplazamiento latitudinal de la ZCIT."
+  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
+  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
 
 NAtl:
   name: "North Atlantic SST Anomaly"
@@ -232,6 +273,9 @@ NAtl:
   missing_value: -99.99
   threshold_r: 0.60
   threshold_mad: 0.30
+  description: "Anomalías térmicas de la banda tropical septentrional del Atlántico (5°N-20°N, 30°E-60°W), sector de desarrollo ciclónico principal del Atlántico."
+  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
+  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
 
 CAR:
   name: "Caribbean SST Anomaly Index"
@@ -249,6 +293,9 @@ CAR:
   missing_value: -99.99
   threshold_r: 0.60
   threshold_mad: 0.30
+  description: "Anomalía promedio de TSM en el Mar Caribe (10°N-20°N, 85°W-60°W), regulador directo del contenido de calor y humedad que ingresa a Centroamérica y la intensidad del Chorro de Bajo Nivel del Caribe."
+  reference: "Enfield, D. B., & Alfaro, E. J. (1999). The dependence of Caribbean rainfall on the interaction of the tropical Atlantic and Pacific Oceans. Journal of Climate, 12(7), 2093-2103."
+  doi: "10.1175/1520-0442(1999)012<2093:TDOCRO>2.0.CO;2"
 
 WHWP:
   name: "Western Hemisphere Warm Pool"
@@ -266,6 +313,9 @@ WHWP:
   missing_value: -99.99
   threshold_r: 0.60
   threshold_mad: 0.60
+  description: "Superficie oceánica con TSM superior a 28.5°C en el Pacífico Oriental Tropical, Golfo de México y Mar Caribe, modulando la convección profunda y la temporada de lluvias en Mesoamérica."
+  reference: "Wang, C., & Enfield, D. B. (2001). The tropical Western Hemisphere warm pool. Geophysical Research Letters, 28(8), 1635-1638."
+  doi: "10.1029/2000GL011763"
 
 PNA:
   name: "Pacific-North American Pattern"
@@ -283,6 +333,9 @@ PNA:
   missing_value: -99.90
   threshold_r: 0.60
   threshold_mad: 0.60
+  description: "Modo de teleconexión atmosférica troposférica que vincula las anomalías térmicas del Pacífico con la posición del chorro polar y dorsales/vaguadas en Norteamérica y Centroamérica."
+  reference: "Wallace, J. M., & Gutzler, D. S. (1981). Teleconnections in the geopotential height field during the Northern Hemisphere winter. Monthly Weather Review, 109(4), 784-812."
+  doi: "10.1175/1520-0493(1981)109<0784:TITGHF>2.0.CO;2"
 
 SOI:
   name: "Southern Oscillation Index"
@@ -299,7 +352,10 @@ SOI:
   update_frequency: "Mensual"
   missing_value: -99.99
   threshold_r: 0.60
-  threshold_mad: 0.60
+  threshold_mad: 0.30
+  description: "Índice barométrico calculado a partir de la diferencia estandarizada de presión a nivel del mar entre Tahiti y Darwin, midiendo la componente atmosférica de la oscilación de Walker."
+  reference: "Ropelewski, C. F., & Jones, P. D. (1987). An extension of the Tahiti-Darwin Southern Oscillation Index. Monthly Weather Review, 115(9), 2161-2165."
+  doi: "10.1175/1520-0493(1987)115<2161:AEOTTS>2.0.CO;2"
 
 AMO_CSU:
   name: "Atlantic Multidecadal Oscillation (Colorado State University)"
@@ -316,4 +372,7 @@ AMO_CSU:
   update_frequency: "Mensual"
   missing_value: -99.99
   threshold_r: 0.60
-  threshold_mad: 0.60
+  threshold_mad: 0.30
+  description: "Serie de la Oscilación Multidecadal del Atlántico con remoción de tendencia lineal calculada por el Tropical Meteorology Project de la Universidad Estatal de Colorado."
+  reference: "Klotzbach, P. J., & Gray, W. M. (2008). Extended range forecast of Atlantic seasonal hurricane activity and verification of 1996-2008 forecasts. Weather and Forecasting, 24(5), 1392-1408."
+  doi: "10.1175/2009WAF2222235.1"

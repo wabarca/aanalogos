@@ -26,10 +26,16 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(len(res.anios_candidatos), 0)
 
     def test_target_year_exclusion(self):
-        """Verificar que el año objetivo jamás aparezca como candidato."""
-        res = calcular_analogos(2015, 10, ["AMO", "PDO"], oscilaciones_cargadas=self.oscilaciones)
-        self.assertNotIn(2015, res.anios_candidatos)
-        self.assertNotIn(2015, res.tabla_coincidencias.index)
+        """Verificar que el año objetivo jamás aparezca como candidato (tanto para N=6 como N=12)."""
+        # Evaluación con ventana de 6 meses
+        res_6m = calcular_analogos(2015, 10, ["AMO", "PDO"], longitud_ventana=6, oscilaciones_cargadas=self.oscilaciones)
+        self.assertNotIn(2015, res_6m.anios_candidatos)
+        self.assertNotIn(2015, res_6m.tabla_coincidencias.index)
+
+        # Evaluación con ventana de 12 meses
+        res_12m = calcular_analogos(2015, 10, ["AMO", "PDO"], longitud_ventana=12, oscilaciones_cargadas=self.oscilaciones)
+        self.assertNotIn(2015, res_12m.anios_candidatos)
+        self.assertNotIn(2015, res_12m.tabla_coincidencias.index)
 
     def test_sentinels_isolation(self):
         """Verificar que valores sentinela (-99.99) se conviertan a NaN e invaliden la ventana."""

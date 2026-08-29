@@ -45,13 +45,16 @@ def limpiar_datos_indice(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def validar_vector_ventana(vector: list | np.ndarray | None) -> bool:
+def validar_vector_ventana(vector: list | np.ndarray | None, longitud_esperada: int | None = None) -> bool:
     """
-    Verifica si un vector de 6 meses es numéricamente válido (sin NaNs ni infinitos).
+    Verifica si un vector de ventana es numéricamente válido (sin NaNs ni infinitos).
+    Si se especifica `longitud_esperada`, comprueba que la longitud coincida exactamente.
     """
     if vector is None:
         return False
-    if len(vector) != 6:
+    if longitud_esperada is not None and len(vector) != int(longitud_esperada):
+        return False
+    elif len(vector) == 0:
         return False
     arr = np.array(vector, dtype=float)
     if np.isnan(arr).any() or np.isinf(arr).any():

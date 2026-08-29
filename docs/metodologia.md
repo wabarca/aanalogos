@@ -1,100 +1,75 @@
-# Metodología Climatológica de Selección de Años Análogos
-
-
+# Metodología Científica de Selección de Años Análogos Climáticos
 
 ## Contenido
 
-1. [Concepto y Fundamento Climatológico de los Años Análogos](#concepto-y-fundamento-climatológico-de-los-años-análogos)
-2. [Definición y Construcción de la Ventana Temporal](#definición-y-construcción-de-la-ventana-temporal)
-3. [Universo de Candidatos e Intersección Temporal](#universo-de-candidatos-e-intersección-temporal)
-4. [Métricas Estadísticas de Similitud](#métricas-estadísticas-de-similitud)
-5. [Criterio de Coincidencia y Ranking Multivariado](#criterio-de-coincidencia-y-ranking-multivariado)
-6. [Tratamiento de Datos Faltantes y Valores Sentinela](#tratamiento-de-datos-faltantes-y-valores-sentinela)
-
----
-## 1. Concepto y Fundamento Climatológico de los Años Análogos
-
-El método de **Años Análogos** es una técnica empírico-estadística ampliamente utilizada en la climatología aplicada y los servicios meteorológicos e hidrológicos operativos para el apoyo a la **predicción climática estacional y subsustancial**.
-
-### 1.1 Fundamento Físico
-El sistema climático global exhibe variabilidad en múltiples escalas temporales (intraestacional, interanual y multidecadal), gobernada en gran medida por la interacción océano-atmósfera y los modos acoplados de gran escala (como el evento El Niño-Oscilación del Sur - ENOS, la Oscilación Decadal del Pacífico - PDO, y la Oscilación Multidecadal del Atlántico - AMO).
-
-La hipótesis central del método establece que **si el estado y la trayectoria reciente de los principales forzantes oceánicos y atmosféricos de gran escala en un año objetivo son similares a los observados en un año histórico determinado, la evolución climática regional subsiguiente (e.g. régimen de precipitación, temperatura y eventos extremos) tenderá a comportarse de forma análoga a la de dicho año histórico**.
-
-### 1.2 Utilidad Operativa y Alcance
-* **Apoyo a la toma de decisiones:** Permite a los meteorólogos y tomadores de decisión disponer de escenarios históricos concretos de impacto (e.g. sequías, temporadas de huracanes activas, inundaciones) asociados a patrones oceánicos similares.
-* **Complemento a los modelos numéricos:** Sirve como herramienta diagnóstica independiente frente a los pronósticos dinámicos globales (modelos globales de circulación general, GCMs).
-
-### 1.3 Limitaciones Científicas Críticas
-1. **No determinismo:** Un año análogo **no constituye por sí mismo un pronóstico determinista**. La no-linealidad intrínseca de la atmósfera y el calentamiento global antropogénico pueden modular la respuesta regional aun cuando los índices oceánicos muestren alta coincidencia.
-2. **Dependencia de la longitud de registro:** La base empírica está acotada a las décadas con observaciones instrumentales homogéneas (usualmente desde 1950 o 1982).
-3. **Sensibilidad a la selección de índices y sobreajuste:** Seleccionar un número excesivo de índices puede reducir artificialmente el universo de años análogos a cero, o seleccionar candidatos por azar. La selección debe responder a un criterio físico justificado para la región de interés.
+1. [Fundamentos y Justificación Climatológica](#1-fundamentos-y-justificación-climatológica)
+2. [Ventanas Temporales: Metodológica Histórica (6 meses) vs Operacional (12 meses)](#2-ventanas-temporales-metodológica-histórica-6-meses-vs-operacional-12-meses)
+3. [Construcción de Vectores y Exclusión Estricta del Año Objetivo](#3-construcción-de-vectores-y-exclusión-estricta-del-año-objetivo)
+4. [Métricas Estadísticas de Similitud (Pearson y MAD)](#4-métricas-estadísticas-de-similitud-pearson-y-mad)
+5. [Criterio Booleano de Coincidencia y Ranking Multivariado](#5-criterio-booleano-de-coincidencia-y-ranking-multivariado)
+6. [Modos de Análisis: Operacional, Reanálisis Retrospectivo y Backtesting](#6-modos-de-análisis-operacional-reanálisis-retrospectivo-y-backtesting)
+7. [Tratamiento de Datos Faltantes y Aislamiento de Sentinelas](#7-tratamiento-de-datos-faltantes-y-aislamiento-de-sentinelas)
+8. [Preservación del Algoritmo y Extensiones Operacionales](#8-preservación-del-algoritmo-y-extensiones-operacionales)
+9. [Limitaciones Metodológicas y Consideraciones Físicas](#9-limitaciones-metodológicas-y-consideraciones-físicas)
 
 ---
 
-## 2. Definición y Construcción de la Ventana Temporal
+## 1. Fundamentos y Justificación Climatológica
 
-La metodología evalúa la evolución temporal del sistema mediante una **ventana retrospectiva móvil de seis meses consecutivos**, culminando en el **mes objetivo ($m_{\text{obj}}$)** del **año objetivo ($Y_{\text{obj}}$)**.
+El método de **años análogos climatológicos** es una técnica empírica multivariada ampliamente utilizada en los servicios meteorológicos e hidrológicos nacionales para la predicción climática estacional. Su principio físico rector establece que configuraciones oceánicas y patrones de teleconexión atmosférica globales similares en el pasado tienden a producir respuestas climáticas regionales semejantes en los meses subsiguientes.
 
-### 2.1 Ventanas Intra-anuales ($m_{\text{obj}} \ge 6$)
-Cuando el mes objetivo es igual o posterior a junio, la ventana semestral se encuentra contenida en su totalidad dentro del mismo año calendario:
-$$\mathbf{x}(Y) = \left[ x(Y, m_{\text{obj}}-5), \, x(Y, m_{\text{obj}}-4), \, x(Y, m_{\text{obj}}-3), \, x(Y, m_{\text{obj}}-2), \, x(Y, m_{\text{obj}}-1), \, x(Y, m_{\text{obj}}) \right]$$
-
-* **Ejemplo ($Y_{\text{obj}} = 2015, m_{\text{obj}} = 10$ - Octubre):**
-  $$\mathbf{x}_{\text{target}} = [\text{MAY}(2015), \text{JUN}(2015), \text{JUL}(2015), \text{AGO}(2015), \text{SET}(2015), \text{OCT}(2015)]$$
-
-### 2.2 Ventanas Interanuales que Cruzan Año ($m_{\text{obj}} < 6$)
-Cuando el mes objetivo es anterior a junio (enero a mayo), los seis meses retrospectivos cruzan la frontera de diciembre/enero, abarcando los últimos meses del año precedente ($Y-1$) y los primeros meses del año de cierre ($Y$).
-**Regla Metodológica Invariante:** El candidato se etiqueta **estrictamente con el año de cierre $Y$**:
-$$\mathbf{x}(Y) = \left[ x(Y-1, m_{\text{obj}}+7), \, \dots, \, x(Y-1, 12), \, x(Y, 1), \, \dots, \, x(Y, m_{\text{obj}}) \right]$$
-
-* **Ejemplo ($Y_{\text{obj}} = 2015, m_{\text{obj}} = 2$ - Febrero):**
-  $$\mathbf{x}_{\text{target}} = [\text{SET}(2014), \text{OCT}(2014), \text{NOV}(2014), \text{DIC}(2014), \text{ENE}(2015), \text{FEB}(2015)]$$
+El sistema evalúa de manera conjunta hasta **19 índices y oscilaciones climáticas** del Océano Pacífico, Atlántico, Ártico y la atmósfera global.
 
 ---
 
-## 3. Universo de Candidatos e Intersección Temporal
+## 2. Ventanas Temporales: Metodológica Histórica (6 meses) vs Operacional (12 meses)
 
-El conjunto de años históricos evaluados por el motor ($\mathcal{H}_{\text{candidatos}}$) se obtiene mediante un filtrado estricto:
+El sistema distingue formalmente dos longitudes de ventana retrospectiva móvil:
 
-```
-Años Totales Disponibles en Archivos
-                ↓
-Filtrado de Ventana Completa (6 meses continuos observados, sin NaNs ni sentinelas)
-                ↓
-Intersección Temporal Común (H_común = ⋂ de ventanas válidas de todos los índices seleccionados)
-                ↓
-Exclusión del Año Objetivo (Y_cand ≠ Y_obj)
-                ↓
-Universo Final de Años Candidatos (H_candidatos)
-```
+* **Ventana Metodológica Histórica ($N = 6$ meses):** Corresponde a la configuración científica original utilizada para validar la metodología heredada y el benchmark oficial de referencia.
+* **Ventana Operacional Retrospectiva ($N = 12$ meses):** Corresponde a una extensión operacional incorporada para evaluar el ciclo anual completo previo al período de pronóstico en la rutina institucional.
 
-### 3.1 Exclusión del Año Objetivo
-El año objetivo **jamás** se incluye como candidato de sí mismo ($Y_{\text{cand}} \neq Y_{\text{obj}}$). Incluirlo generaría una correlación trivial $r = 1.0000$ y $\text{MAD} = 0.0000$, distorsionando el ranking.
+### Reglas de Construcción y Cruce Interanual
+Sea $Y$ el año de evaluación y $m \in \{1, \dots, 12\}$ el mes objetivo de cierre:
+
+1. **Caso Intra-anual ($m \ge N$):** Los $N$ meses pertenecen íntegramente al mismo año $Y$, extrayendo las columnas desde $(m - N + 1)$ hasta $m$.
+2. **Caso Interanual ($m < N$):** La ventana cruza el cambio de año. Se extraen $(N - m)$ meses del año previo $Y - 1$ (columnas desde $13 - N + m$ hasta $12$) y $m$ meses del año actual $Y$ (columnas desde $1$ hasta $m$).
+3. **Etiquetado:** El vector resultante de longitud $N$ queda indexado y etiquetado con el **año de cierre $Y$**.
 
 ---
 
-## 4. Métricas Estadísticas de Similitud
+## 3. Construcción de Vectores y Exclusión Estricta del Año Objetivo
 
-Para cada índice seleccionado $k$ y cada año candidato $Y_{\text{cand}} \in \mathcal{H}_{\text{candidatos}}$, se calculan dos métricas complementarias entre el vector candidato $\mathbf{x}$ y el vector objetivo $\mathbf{y}$:
+Para un año y mes objetivo ($Y_{\text{obj}}, m_{\text{obj}}$), se extrae el vector objetivo $\mathbf{y} \in \mathbb{R}^N$.
+
+### Exclusión Estricta del Año Objetivo
+El año objetivo **jamás** se incluye dentro del universo de años candidatos:
+$$Y_{\text{cand}} \neq Y_{\text{obj}}$$
+Incluirlo generaría una correlación trivial $r = 1.0000$ y $\text{MAD} = 0.0000$, distorsionando el ranking estadístico. Esta exclusión aplica idénticamente para $N=6$ y $N=12$.
+
+---
+
+## 4. Métricas Estadísticas de Similitud (Pearson y MAD)
+
+Para cada índice seleccionado $k$ y cada año candidato $Y_{\text{cand}}$, se calculan dos métricas complementarias entre el vector candidato $\mathbf{x}$ y el vector objetivo $\mathbf{y}$:
 
 ### 4.1 Coeficiente de Correlación Lineal de Pearson ($r$)
-Evalúa la **similitud en la tendencia, forma y sincronía temporal** de la oscilación durante los seis meses:
-$$r = \frac{\sum_{i=1}^{6} (x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{6} (x_i - \bar{x})^2} \sqrt{\sum_{i=1}^{6} (y_i - \bar{y})^2}}$$
+Evalúa la **sincronía, fase y tendencia temporal** de la oscilación durante los $N$ meses:
+$$r = \frac{\sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{N} (x_i - \bar{x})^2} \sqrt{\sum_{i=1}^{N} (y_i - \bar{y})^2}}$$
 
 * $r \in [-1, 1]$.
-* $r > 0$ indica que ambas trayectorias evolucionaron en la misma dirección temporal (calentamiento/enfriamiento relativo sincronizado).
+* $r > 0$ indica que ambas trayectorias evolucionaron en la misma dirección temporal.
 
 ### 4.2 Distancia Absoluta Media (MAD)
-En esta implementación climatológica, **MAD representa la diferencia absoluta media (Mean Absolute Difference) entre los valores de ambos vectores**, evaluando la **cercanía en magnitud y amplitud física de la anomalía**:
-$$\text{MAD} = \frac{1}{6} \sum_{i=1}^{6} |x_i - y_i|$$
+En esta formulación climatológica, **MAD representa la diferencia absoluta media (Mean Absolute Difference)** entre los valores de ambos vectores, evaluando la **cercanía en magnitud física y amplitud de la anomalía**:
+$$\text{MAD} = \frac{1}{N} \sum_{i=1}^{N} |x_i - y_i|$$
 
 * $\text{MAD} \ge 0$.
-* Valores pequeños de MAD aseguran que no solo coincida la tendencia, sino que las anomalías térmicas o báricas posean intensidades comparables en magnitud absoluta.
+* Valores pequeños de MAD aseguran que las anomalías térmicas o báricas posean intensidades comparables en magnitud absoluta.
 
 ---
 
-## 5. Criterio de Coincidencia y Ranking Multivariado
+## 5. Criterio Booleano de Coincidencia y Ranking Multivariado
 
 ### 5.1 Criterio Booleano de Coincidencia Univariada
 Un año histórico $Y_{\text{cand}}$ se declara **coincidente** para el índice $k$ si y solo si cumple simultáneamente ambas condiciones umbral:
@@ -112,14 +87,36 @@ Los años análogos se ordenan en forma **descendente por la columna `Total`**, 
 
 ---
 
-## 6. Tratamiento de Datos Faltantes y Valores Sentinela
+## 6. Modos de Análisis: Operacional, Reanálisis Retrospectivo y Backtesting
 
-1. **Sentinelas de Fuentes Oficiales:** Códigos como `-99.99`, `-99.90`, `99.99`, `-999.0` representan ausencia de medición y son convertidos inmediatamente a `NaN`.
-2. **Aislamiento Estricto:** Si alguno de los 6 meses de la ventana de un año candidato contiene `NaN`, la ventana se considera incompleta y el año queda **excluido de la evaluación estadística**.
-3. **Cero Imputación Arbitraria:** La metodología prohíbe rellenar datos faltantes con ceros o medias artificiales para preservar la estricta pureza observacional.
+1. **Modo Operacional:** Determina automáticamente el año actual y el último mes publicado según la regla de publicación ($M+1$), aplicando la ventana de 12 meses.
+2. **Modo Reanálisis Retrospectivo Completo:** Evalúa el año objetivo $Y_{\text{obj}}$ frente a **todo el registro histórico** ($Y_{\text{cand}} \neq Y_{\text{obj}}$, incluyendo años posteriores a $Y_{\text{obj}}$). Responde a la pregunta: *¿Qué años de todo el registro histórico guardan similitud física con el caso estudiado?*
+3. **Modo Reproducción Histórica / Backtesting:** Aplica el corte estricto $Y_{\text{cand}} \le Y_{\text{obj}}$ ($Y_{\text{cand}} \neq Y_{\text{obj}}$). Responde a la pregunta: *¿Qué años análogos habrían podido identificarse en tiempo real utilizando únicamente datos disponibles hasta el año objetivo?*
+
+---
+
+## 7. Tratamiento de Datos Faltantes y Aislamiento de Sentinelas
+
+1. **Sentinelas Oficiales:** Valores como `-99.99`, `-99.90`, `99.99`, `-999.0` se transforman en `NaN`.
+2. **Aislamiento Estricto:** Si algún mes de la ventana contiene `NaN`, la ventana se invalida y el año queda excluido de la evaluación.
+3. **Cero Imputación Artificial:** Se prohíbe rellenar datos faltantes para preservar la pureza observacional.
+
+---
+
+## 8. Preservación del Algoritmo y Extensiones Operacionales
+
+La formulación matemática fundamental de similitud, incluyendo la correlación de Pearson, la distancia absoluta media (MAD), el tratamiento de valores faltantes, la exclusión del año objetivo y los criterios históricos de coincidencia, se preserva respecto al benchmark validado. La aplicación incorpora extensiones operacionales explícitas, particularmente una ventana retrospectiva de doce meses y mecanismos de actualización y determinación automática del período disponible.
+
+---
+
+## 9. Limitaciones Metodológicas y Consideraciones Físicas
+
+1. **Herramienta de Diagnóstico:** El método identifica análogos históricos estadísticos; no constituye por sí mismo un pronóstico determinista.
+2. **No Estacionariedad y Cambio Climático:** Tendencias de calentamiento global pueden alterar los patrones de respuesta regional ante anomalías de TSM equivalentes.
+3. **Intersección Temporal:** A mayor cantidad de índices seleccionados, el universo candidato común se acota al registro del índice más corto.
 
 ---
 
 ### Navegación
 
-**[← Índice de documentación](README.md)** · **[Siguiente →](validacion_climatologica.md)**
+**[← Anterior](README.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](manual_usuario.md)**

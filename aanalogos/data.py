@@ -3,11 +3,12 @@ Módulo de descarga, parsing y carga de series temporales de oscilaciones climá
 """
 
 import os
+import tempfile
 import urllib.request
 import requests
 import pandas as pd
 import numpy as np
-from typing import Dict, Optional
+from typing import Dict, Optional, Any, Callable
 
 try:
     from bs4 import BeautifulSoup
@@ -18,52 +19,66 @@ from .config import FUENTES_DATOS
 from .quality import limpiar_datos_indice
 
 
-def descarga_segura(url: str, ruta_salida: str, timeout: int = 5) -> None:
-    """Descarga un archivo desde una URL si no existe localmente."""
-    if os.path.exists(ruta_salida):
-        return
+def descarga_segura(url: str, ruta_salida: str, timeout: int = 10) -> bool:
+    """Descarga un archivo desde una URL si no existe localmente o para actualización."""
     try:
         req = urllib.request.Request(
             url,
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AAnalogos/3.1"}
         )
         with urllib.request.urlopen(req, timeout=timeout) as response:
+            if response.status != 200:
+                return False
+            data = response.read()
+            if len(data) < 50:
+                return False
             with open(ruta_salida, "wb") as f:
-                f.write(response.read())
+                f.write(data)
+        return True
     except Exception:
-        pass
+        return False
 
 
-def acomodaParaCSV(ruta_entrada: str, ruta_salida: str) -> None:
-    if not os.path.exists(ruta_entrada) or os.path.exists(ruta_salida):
-        return
-    with open(ruta_entrada, "r") as ptr:
-        lineas = ptr.readlines()
-
-    with open(ruta_salida, "w") as ptr:
-        if ruta_entrada.endswith("dataSSTA.txt"):
-            ptr.write("YEAR,MONTH,NINO1+2,ANOM1+2,NINO3,ANOM3,NINO4,ANOM4,NINO3.4,ANOM3.4")
-        elif ruta_entrada.endswith("dataSSTOI.txt"):
-            ptr.write("YEAR,MONTH,NAtl,ANOM_NAtl,SAtl,ANOM_SAtl,TROP,ANOM_TROP")
-        else:
-            ptr.write("YEAR,ENE,FEB,MAR,ABR,MAY,JUN,JUL,AGO,SET,OCT,NOV,DIC")
-
-        for linea in lineas[1:]:
-            linea_tokens = [v for v in linea.strip().split(" ") if v != ""]
-            if not linea_tokens:
-                continue
-            ptr.write("\n" + ",".join(linea_tokens))
-
-
-def acomodaParaCSV_2(url: str, archivocreado: str) -> None:
-    if os.path.exists(archivocreado):
-        return
+def acomodaParaCSV(ruta_entrada: str, ruta_salida: str) -> bool:
+    """Convierte matriz de texto espacio-separada a CSV estructurado."""
+    if not os.path.exists(ruta_entrada):
+        return False
     try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-        r = requests.get(url, headers=headers, timeout=5)
+        with open(ruta_entrada, "r", encoding="utf-8", errors="ignore") as ptr:
+            lineas = ptr.readlines()
+
+        if not lineas:
+            return False
+
+        with open(ruta_salida, "w", encoding="utf-8", newline="\n") as ptr:
+            if ruta_entrada.endswith("dataSSTA.txt"):
+                ptr.write("YEAR,MONTH,NINO1+2,ANOM1+2,NINO3,ANOM3,NINO4,ANOM4,NINO3.4,ANOM3.4")
+            elif ruta_entrada.endswith("dataSSTOI.txt"):
+                ptr.write("YEAR,MONTH,NAtl,ANOM_NAtl,SAtl,ANOM_SAtl,TROP,ANOM_TROP")
+            else:
+                ptr.write("YEAR,ENE,FEB,MAR,ABR,MAY,JUN,JUL,AGO,SET,OCT,NOV,DIC")
+
+            for linea in lineas[1:]:
+                linea_tokens = [v for v in linea.strip().split(" ") if v != ""]
+                if not linea_tokens:
+                    continue
+                ptr.write("\n" + ",".join(linea_tokens))
+        return True
+    except Exception:
+        return False
+
+
+def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
+    """Extrae tablas HTML (ej. ONI o AMO_CSU) y genera matriz de texto."""
+    try:
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AAnalogos/3.1"}
+        r = requests.get(url, headers=headers, timeout=10)
+        if r.status_code != 200:
+            return False
+
         soup = BeautifulSoup(r.text, "html.parser") if BeautifulSoup else None
         if soup is None:
-            return
+            return False
 
         if archivocreado.endswith("dataONI.txt"):
             table = soup.find("table", attrs={"border": "1"})
@@ -73,56 +88,180 @@ def acomodaParaCSV_2(url: str, archivocreado: str) -> None:
             table = None
 
         if table is not None:
-            with open(archivocreado, "w") as file:
+            with open(archivocreado, "w", encoding="utf-8") as file:
                 if archivocreado.endswith("dataAMO_CSU.txt"):
                     file.write("YEAR ENE FEB MAR ABR MAY JUN JUL AGO SET OCT NOV DIC\n")
                 for row in table.find_all("tr")[0:]:
                     valores = [cell.get_text(strip=True) for cell in row.find_all("td")]
                     if valores:
                         file.write(" ".join(valores) + "\n")
+            return True
+        return False
     except Exception:
-        pass
+        return False
 
 
-def acomodaParaCSV_3(archivo_descargado: str, archivo_creado: str) -> None:
-    if not os.path.exists(archivo_descargado) or os.path.exists(archivo_creado):
-        return
-    archivo = pd.read_csv(archivo_descargado)
-    anios = [archivo["YEAR"][i] for i in range(0, len(archivo), 12)]
+def acomodaParaCSV_3(archivo_descargado: str, archivo_creado: str) -> bool:
+    """Reestructura series compuestas (SSTA / SSTOI) a matrices mensuales individuales."""
+    if not os.path.exists(archivo_descargado):
+        return False
+    try:
+        archivo = pd.read_csv(archivo_descargado)
+        if len(archivo) == 0:
+            return False
+        anios = [archivo["YEAR"].iloc[i] for i in range(0, len(archivo), 12)]
 
-    col_target = None
-    if "SSTA_12" in archivo_creado:
-        col_target = "ANOM1+2"
-    elif "SSTA_3" in archivo_creado:
-        col_target = "ANOM3"
-    elif "SSTA_4" in archivo_creado:
-        col_target = "ANOM4"
-    elif "SSTA_34" in archivo_creado:
-        col_target = "ANOM3.4"
-    elif "AtlTROP" in archivo_creado:
-        col_target = "ANOM_TROP"
-    elif "SAtl" in archivo_creado:
-        col_target = "ANOM_SAtl"
-    elif "NAtl" in archivo_creado:
-        col_target = "ANOM_NAtl"
+        col_target = None
+        if "SSTA_12" in archivo_creado:
+            col_target = "ANOM1+2"
+        elif "SSTA_3" in archivo_creado:
+            col_target = "ANOM3"
+        elif "SSTA_4" in archivo_creado:
+            col_target = "ANOM4"
+        elif "SSTA_34" in archivo_creado:
+            col_target = "ANOM3.4"
+        elif "AtlTROP" in archivo_creado:
+            col_target = "ANOM_TROP"
+        elif "SAtl" in archivo_creado:
+            col_target = "ANOM_SAtl"
+        elif "NAtl" in archivo_creado:
+            col_target = "ANOM_NAtl"
 
-    if col_target is None or col_target not in archivo.columns:
-        return
+        if col_target is None or col_target not in archivo.columns:
+            return False
 
-    data = archivo[col_target].tolist()
-    padsize = (12 - (len(data) % 12)) % 12
-    if padsize > 0:
-        data_arr = np.pad(np.array(data, dtype=float), (0, padsize), constant_values=np.nan).reshape((-1, 12))
-    else:
-        data_arr = np.array(data, dtype=float).reshape((-1, 12))
+        data = archivo[col_target].tolist()
+        padsize = (12 - (len(data) % 12)) % 12
+        if padsize > 0:
+            data_arr = np.pad(np.array(data, dtype=float), (0, padsize), constant_values=np.nan).reshape((-1, 12))
+        else:
+            data_arr = np.array(data, dtype=float).reshape((-1, 12))
 
-    df_anios = pd.DataFrame(anios, columns=["YEAR"])
-    df_meses = pd.DataFrame(
-        data_arr,
-        columns=["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SET", "OCT", "NOV", "DIC"]
-    )
-    salida = pd.concat([df_anios, df_meses], axis=1)
-    salida.to_csv(archivo_creado, index=False)
+        df_anios = pd.DataFrame(anios, columns=["YEAR"])
+        df_meses = pd.DataFrame(
+            data_arr,
+            columns=["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SET", "OCT", "NOV", "DIC"]
+        )
+        salida = pd.concat([df_anios, df_meses], axis=1)
+        salida.to_csv(archivo_creado, index=False)
+        return True
+    except Exception:
+        return False
+
+
+def verificar_y_descargar_datos(
+    data_dir: str = ".",
+    force_update: bool = False,
+    progress_callback: Optional[Callable[[str, int, int], None]] = None
+) -> Dict[str, dict]:
+    """
+    Verifica la existencia e integridad de los archivos CSV para las 19 series climáticas.
+    Si faltan archivos o si `force_update=True`, descarga y procesa de forma atómica y no destructiva.
+    """
+    def _resolver_directorio_salida():
+        cands = [
+            os.path.join(data_dir, "data"),
+            data_dir,
+            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"),
+        ]
+        for c in cands:
+            if os.path.exists(c) and os.path.isdir(c):
+                return c
+        os.makedirs(os.path.join(data_dir, "data"), exist_ok=True)
+        return os.path.join(data_dir, "data")
+
+    out_dir = _resolver_directorio_salida()
+    resultados = {}
+    total = len(FUENTES_DATOS)
+
+    for idx, (codigo, meta) in enumerate(FUENTES_DATOS.items()):
+        if progress_callback:
+            progress_callback(codigo, idx + 1, total)
+
+        csv_name = meta.get("csv", f"data{codigo}.csv")
+        txt_name = meta.get("txt", f"data{codigo}.txt")
+        target_csv = os.path.join(out_dir, csv_name)
+        target_txt = os.path.join(out_dir, txt_name)
+        url = meta.get("url")
+
+        csv_existe = os.path.exists(target_csv) and os.path.getsize(target_csv) > 100
+
+        if csv_existe and not force_update:
+            resultados[codigo] = {
+                "status": "disponible",
+                "mensaje": "Archivo disponible e íntegro",
+                "archivo": target_csv
+            }
+            continue
+
+        if not url:
+            resultados[codigo] = {
+                "status": "sin_url",
+                "mensaje": "No posee URL de descarga automática configurada",
+                "archivo": target_csv if csv_existe else None
+            }
+            continue
+
+        # Proceso de descarga atómica
+        try:
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                tmp_txt = os.path.join(tmp_dir, txt_name)
+                tmp_csv = os.path.join(tmp_dir, csv_name)
+
+                # Descargar
+                if "ONI" in codigo or "AMO_CSU" in codigo:
+                    ok = acomodaParaCSV_2(url, tmp_txt)
+                else:
+                    ok = descarga_segura(url, tmp_txt)
+
+                if not ok or not os.path.exists(tmp_txt) or os.path.getsize(tmp_txt) < 50:
+                    resultados[codigo] = {
+                        "status": "error_descarga",
+                        "mensaje": "Fallo al descargar fuente remota (se preservó dato local si existía)",
+                        "archivo": target_csv if csv_existe else None
+                    }
+                    continue
+
+                # Procesar a CSV
+                if any(k in codigo for k in ["SSTA", "AtlTROP", "SAtl", "NAtl"]):
+                    # Requiere paso intermedio con dataSSTA.csv o dataSSTOI.csv
+                    tmp_inter_csv = os.path.join(tmp_dir, "inter.csv")
+                    acomodaParaCSV(tmp_txt, tmp_inter_csv)
+                    acomodaParaCSV_3(tmp_inter_csv, tmp_csv)
+                else:
+                    acomodaParaCSV(tmp_txt, tmp_csv)
+
+                # Validar integridad del CSV generado
+                if os.path.exists(tmp_csv) and os.path.getsize(tmp_csv) > 100:
+                    df_test = pd.read_csv(tmp_csv)
+                    if len(df_test) >= 10 and "YEAR" in df_test.columns:
+                        # Reemplazo atómico
+                        with open(tmp_csv, "rb") as f_in, open(target_csv, "wb") as f_out:
+                            f_out.write(f_in.read())
+                        with open(tmp_txt, "rb") as f_in, open(target_txt, "wb") as f_out:
+                            f_out.write(f_in.read())
+
+                        resultados[codigo] = {
+                            "status": "actualizado",
+                            "mensaje": "Descargado y validado exitosamente",
+                            "archivo": target_csv
+                        }
+                        continue
+
+            resultados[codigo] = {
+                "status": "error_formato",
+                "mensaje": "El archivo descargado no superó la prueba de formato CSV",
+                "archivo": target_csv if csv_existe else None
+            }
+
+        except Exception as e:
+            resultados[codigo] = {
+                "status": "error",
+                "mensaje": f"Excepción durante actualización: {str(e)}",
+                "archivo": target_csv if csv_existe else None
+            }
+
+    return resultados
 
 
 def cargar_todas_oscilaciones(data_dir: str = ".") -> Dict[str, pd.DataFrame]:

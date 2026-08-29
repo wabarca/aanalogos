@@ -26,6 +26,7 @@ La documentación está organizada de forma modular y secuencial para facilitar 
 * [**Manual de Mantenimiento y Operaciones**](mantenimiento.md): Procedimientos para la actualización periódica de series, control de calidad, inspección de logs y respaldo.
 
 ### 4. Informes de Auditoría y Certificación
+* [**Auditoría de Lógica Temporal y Solapamiento de Ventanas**](auditoria_temporal_metodologica.md): Dictamen formal sobre ventanas de 12 meses, independencia temporal ($W_{\text{cand}} \cap W_{\text{obj}} = \emptyset$), reanálisis y causalidad en backtesting.
 * [**Auditoría Histórica de Fases 1 y 2**](auditoria.md): Registro de las auditorías previas de refactorización y validación.
 * [**Auditoría Final de Cierre**](auditoria_final_cierre.md): Evaluación independiente de consistencia metodológica, bibliográfica, de seguridad y dictamen institucional.
 * [**Auditoría Estructural del Repositorio**](auditoria_repositorio.md): Informe de saneamiento, organización de directorios y control de exclusiones Git.
