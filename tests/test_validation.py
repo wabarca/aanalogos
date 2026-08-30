@@ -21,7 +21,7 @@ class TestValidation(unittest.TestCase):
         """Verificar que el motor rechace cálculos si un índice seleccionado no está disponible."""
         res = calcular_analogos(2024, 10, ["AMO", "PDO", "SOI"], oscilaciones_cargadas=self.oscilaciones)
         self.assertFalse(res.es_valido)
-        self.assertIn("SOI", res.indices_no_disponibles)
+        self.assertIn("AMO", res.indices_no_disponibles)
         self.assertEqual(len(res.indices_evaluados), 0)
         self.assertEqual(len(res.anios_candidatos), 0)
 

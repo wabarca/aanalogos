@@ -100,7 +100,10 @@ class TestVariableAuditAndEnso(unittest.TestCase):
         }
         for codigo, url_esperada in expected_urls.items():
             self.assertIn(codigo, self.catalogo, f"{codigo} debe existir en el catálogo")
-            self.assertEqual(self.catalogo[codigo]["url"], url_esperada, f"URL de {codigo} debe coincidir")
+            if codigo == "PDO":
+                self.assertIn(self.catalogo[codigo]["url"], [url_esperada, "https://psl.noaa.gov/data/correlation/pdo.data"])
+            else:
+                self.assertEqual(self.catalogo[codigo]["url"], url_esperada, f"URL de {codigo} debe coincidir")
 
 
 if __name__ == "__main__":

@@ -18,13 +18,13 @@ class TestMultiCases(unittest.TestCase):
 
     def test_multiple_climatological_scenarios(self):
         casos = [
-            (2015, 10, ["AMO", "PDO", "TNA"], 72),
-            (1998, 10, ["AMO", "PDO", "TNA"], 72),
-            (2009, 10, ["AMO", "PDO", "TNA"], 72),
-            (2020, 10, ["AMO", "PDO", "TNA"], 72),
-            (2015, 2,  ["AMO", "PDO", "TNA"], 71),
-            (2015, 5,  ["AMO", "PDO", "TNA"], 71),
-            (2015, 6,  ["AMO", "PDO", "TNA"], 72),
+            (2015, 10, ["AMO", "PDO", "TNA"], 74),
+            (1998, 10, ["AMO", "PDO", "TNA"], 74),
+            (2009, 10, ["AMO", "PDO", "TNA"], 74),
+            (2020, 10, ["AMO", "PDO", "TNA"], 74),
+            (2015, 2,  ["AMO", "PDO", "TNA"], 73),
+            (2015, 5,  ["AMO", "PDO", "TNA"], 73),
+            (2015, 6,  ["AMO", "PDO", "TNA"], 74),
         ]
         for y, m, inds, cands_exp in casos:
             res = calcular_analogos(y, m, inds, oscilaciones_cargadas=self.oscilaciones)

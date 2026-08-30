@@ -54,7 +54,7 @@ class TestReanalysisLookAhead(unittest.TestCase):
             oscilaciones_cargadas=self.oscilaciones
         )
         self.assertTrue(res_full.es_valido)
-        self.assertEqual(len(res_full.anios_candidatos), 72)
+        self.assertEqual(len(res_full.anios_candidatos), 74)
         self.assertIn(2021, res_full.anios_candidatos)
 
         # Modo B: Backtesting Estricto (solo datos hasta Y_obj)

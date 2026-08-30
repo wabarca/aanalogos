@@ -3,12 +3,14 @@ Módulo de descarga, parsing y carga de series temporales de oscilaciones climá
 """
 
 import os
+import re
+import ssl
 import tempfile
 import urllib.request
 import requests
 import pandas as pd
 import numpy as np
-from typing import Dict, Optional, Any, Callable
+from typing import Dict, Optional, Any, Callable, Tuple, List, Union
 
 try:
     from bs4 import BeautifulSoup
@@ -19,14 +21,17 @@ from .config import FUENTES_DATOS
 from .quality import limpiar_datos_indice
 
 
-def descarga_segura(url: str, ruta_salida: str, timeout: int = 10) -> bool:
+def descarga_segura(url: str, ruta_salida: str, timeout: int = 30) -> bool:
     """Descarga un archivo desde una URL si no existe localmente o para actualización."""
     try:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
         req = urllib.request.Request(
             url,
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AAnalogos/3.1"}
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AAnalogos/3.2"}
         )
-        with urllib.request.urlopen(req, timeout=timeout) as response:
+        with urllib.request.urlopen(req, context=ctx, timeout=timeout) as response:
             if response.status != 200:
                 return False
             data = response.read()
@@ -39,8 +44,62 @@ def descarga_segura(url: str, ruta_salida: str, timeout: int = 10) -> bool:
         return False
 
 
+def parse_linea_matriz_mensual(linea: str) -> Optional[list]:
+    """
+    Parsea de forma robusta y no destructiva una línea de texto de matrices mensuales (NOAA PSL/CPC).
+    Filtra encabezados (ej. '1948 2026'), sentinelas aislados y notas al pie sin depender de on_bad_lines='skip'.
+    Separa correctamente valores compactos pegados (ej. '-2.4-999.9').
+    """
+    line_clean = linea.strip()
+    if not line_clean:
+        return None
+
+    # Tokenizar números incluyendo compactos como -2.4-999.9
+    tokens = re.findall(r'[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?', line_clean)
+    if not tokens or len(tokens) < 2:
+        return None
+
+    first_tok = tokens[0]
+    if not (first_tok.isdigit() and len(first_tok) == 4):
+        return None
+    year_val = int(first_tok)
+    if not (1800 <= year_val <= 2100):
+        return None
+
+    # Si es una línea de encabezado PSL con año de inicio y fin (ej. '1948 2026')
+    if len(tokens) <= 3 and tokens[1].isdigit() and len(tokens[1]) == 4 and 1800 <= int(tokens[1]) <= 2100:
+        return None
+
+    # Verificar que el segundo token original no sea una palabra de una cita textual (ej. '2001 : The tropical...')
+    raw_words = line_clean.split()
+    if len(raw_words) >= 2:
+        try:
+            val_m1 = float(raw_words[1])
+            if len(raw_words) <= 3 and 1800 <= val_m1 <= 2100:
+                return None
+        except ValueError:
+            return None
+
+    # Extraer hasta 12 valores numéricos para los meses
+    month_vals = []
+    for tok in tokens[1:13]:
+        try:
+            month_vals.append(float(tok))
+        except ValueError:
+            break
+
+    if not month_vals:
+        return None
+
+    # Si el año está parcialmente publicado (ej. 2026 con 5 meses), rellenar con np.nan
+    if len(month_vals) < 12:
+        month_vals = month_vals + [np.nan] * (12 - len(month_vals))
+
+    return [year_val] + month_vals
+
+
 def acomodaParaCSV(ruta_entrada: str, ruta_salida: str) -> bool:
-    """Convierte matriz de texto espacio-separada a CSV estructurado soportando años parciales."""
+    """Convierte matriz de texto espacio-separada a CSV estructurado soportando años parciales y notas al pie."""
     if not os.path.exists(ruta_entrada):
         return False
     try:
@@ -50,50 +109,84 @@ def acomodaParaCSV(ruta_entrada: str, ruta_salida: str) -> bool:
         if not lineas:
             return False
 
-        with open(ruta_salida, "w", encoding="utf-8", newline="\n") as ptr:
-            if ruta_entrada.endswith("dataSSTA.txt"):
-                ptr.write("YEAR,MONTH,NINO1+2,ANOM1+2,NINO3,ANOM3,NINO4,ANOM4,NINO3.4,ANOM3.4")
-            elif ruta_entrada.endswith("dataSSTOI.txt"):
-                ptr.write("YEAR,MONTH,NAtl,ANOM_NAtl,SAtl,ANOM_SAtl,TROP,ANOM_TROP")
-            else:
-                ptr.write("YEAR,ENE,FEB,MAR,ABR,MAY,JUN,JUL,AGO,SET,OCT,NOV,DIC")
+        # Caso especial 1: Archivo CSU CSV directo (Year,Jan,Feb,...)
+        primera_linea = lineas[0].strip().lower()
+        if "year" in primera_linea and "," in primera_linea:
+            df_csu = pd.read_csv(ruta_entrada)
+            cols_csu = list(df_csu.columns)
+            # Mapear nombres de columnas a YEAR + ENE..DIC
+            mapa_csu = {cols_csu[0]: "YEAR"}
+            meses_oficiales = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SET", "OCT", "NOV", "DIC"]
+            for idx_m, m_orig in enumerate(cols_csu[1:13]):
+                mapa_csu[m_orig] = meses_oficiales[idx_m]
+            df_csu = df_csu.rename(columns=mapa_csu)
+            df_csu.to_csv(ruta_salida, index=False)
+            return True
 
-            for linea in lineas[1:]:
-                linea_tokens = [v for v in linea.strip().split(" ") if v != ""]
-                if not linea_tokens:
-                    continue
-                # Si la fila corresponde a matriz mensual y tiene menos de 13 tokens (ej. año parcial 2026 con 5 meses),
-                # rellenar con cadenas vacías para que pandas las interprete como NaN
-                if not (ruta_entrada.endswith("dataSSTA.txt") or ruta_entrada.endswith("dataSSTOI.txt")):
-                    if len(linea_tokens) < 13:
-                        linea_tokens = linea_tokens + [""] * (13 - len(linea_tokens))
-                    elif len(linea_tokens) > 13:
-                        linea_tokens = linea_tokens[:13]
-                ptr.write("\n" + ",".join(linea_tokens))
+        # Caso especial 2: Archivos compuestos SSTA / SSTOI
+        if ruta_entrada.endswith("dataSSTA.txt") or ruta_entrada.endswith("dataSSTOI.txt"):
+            with open(ruta_salida, "w", encoding="utf-8", newline="\n") as ptr:
+                if ruta_entrada.endswith("dataSSTA.txt"):
+                    ptr.write("YEAR,MONTH,NINO1+2,ANOM1+2,NINO3,ANOM3,NINO4,ANOM4,NINO3.4,ANOM3.4")
+                else:
+                    ptr.write("YEAR,MONTH,NAtl,ANOM_NAtl,SAtl,ANOM_SAtl,TROP,ANOM_TROP")
+
+                for linea in lineas[1:]:
+                    linea_tokens = [v for v in linea.strip().split() if v != ""]
+                    if not linea_tokens or len(linea_tokens) < 4:
+                        continue
+                    if linea_tokens[0].isdigit() and len(linea_tokens[0]) == 4 and linea_tokens[1].isdigit():
+                        ptr.write("\n" + ",".join(linea_tokens))
+            return True
+
+        # Caso estándar: Matrices mensuales espacio-separadas de PSL/CPC
+        filas_procesadas = []
+        for linea in lineas:
+            row = parse_linea_matriz_mensual(linea)
+            if row is not None:
+                filas_procesadas.append(row)
+
+        if not filas_procesadas:
+            return False
+
+        meses_cols = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SET", "OCT", "NOV", "DIC"]
+        df_out = pd.DataFrame(filas_procesadas, columns=["YEAR"] + meses_cols)
+        df_out["YEAR"] = df_out["YEAR"].astype(int)
+        df_out.to_csv(ruta_salida, index=False)
         return True
     except Exception:
         return False
 
 
 def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
-    """Extrae tablas HTML (ej. ONIv5, ONIv6, RONI o AMO_CSU) y genera matriz de texto soportando años parciales."""
+    """Extrae tablas HTML (ONIv5, ONIv6, RONI) o directas CSV (AMO_CSU) y genera matriz de texto estructurada."""
     try:
         req = urllib.request.Request(
             url,
             headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AAnalogos/3.2"}
         )
-        with urllib.request.urlopen(req, timeout=15) as response:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        with urllib.request.urlopen(req, context=ctx, timeout=15) as response:
             if response.status != 200:
                 return False
-            html_text = response.read().decode("utf-8", errors="ignore")
+            raw_data = response.read()
+            html_text = raw_data.decode("utf-8", errors="ignore")
 
-        if not html_text or len(html_text) < 100:
+        if not html_text or len(html_text) < 50:
             return False
 
         fname = os.path.basename(archivocreado)
 
-        # 1. Extracción con expresiones regulares estándar (sin dependencia de bs4)
-        import re
+        # 1. Si la respuesta es un CSV directo (ej. Colorado State University AMO)
+        if "year" in html_text.splitlines()[0].lower() and "," in html_text.splitlines()[0]:
+            with open(archivocreado, "w", encoding="utf-8") as file:
+                file.write(html_text)
+            return True
+
+        # 2. Extracción con expresiones regulares estándar para tablas HTML
         rows = re.findall(r'<tr[^>]*>(.*?)</tr>', html_text, re.DOTALL | re.IGNORECASE)
         parsed_rows = []
 
@@ -102,7 +195,6 @@ def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
             clean_cells = [re.sub(r'<[^>]+>', '', c).strip() for c in cells]
             if clean_cells and re.match(r'^\d{4}$', clean_cells[0]):
                 year_val = int(clean_cells[0])
-                # Aceptar filas válidas incluso si el año está parcialmente publicado (>= 2 celdas: año + meses disponibles)
                 if 1850 <= year_val <= 2100 and len(clean_cells) >= 2:
                     padded = clean_cells + ["-99.99"] * max(0, 13 - len(clean_cells))
                     sanitized = [padded[0]]
@@ -121,7 +213,7 @@ def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
                     file.write(" ".join(row_vals) + "\n")
             return True
 
-        # 2. Fallback a BeautifulSoup si está instalado
+        # 3. Fallback a BeautifulSoup si está instalado
         if BeautifulSoup:
             soup = BeautifulSoup(html_text, "html.parser")
             table = soup.find("table", attrs={"id": "roni-v5-table2"}) or \
@@ -198,13 +290,75 @@ def acomodaParaCSV_3(archivo_descargado: str, archivo_creado: str) -> bool:
         return False
 
 
+def _contar_anios_validos(df: Optional[pd.DataFrame]) -> int:
+    """Cuenta el número de registros anuales válidos (1800-2100) en un DataFrame."""
+    if df is None or df.empty or "YEAR" not in df.columns:
+        return 0
+    years_num = pd.to_numeric(df["YEAR"], errors="coerce").dropna()
+    valid_years = years_num[(years_num >= 1800) & (years_num <= 2100)]
+    return len(valid_years)
+
+
+def validar_estructura_serie(df: pd.DataFrame, codigo: str, df_previo: Optional[pd.DataFrame] = None) -> Tuple[bool, str]:
+    """
+    Ejecuta una validación estructural, temporal y numérica rigurosa sobre una serie climatológica mensual.
+    Retorna (es_valido, mensaje_diagnostico).
+    """
+    if df is None or not isinstance(df, pd.DataFrame) or df.empty:
+        return False, f"La serie {codigo} generó un DataFrame vacío o inválido."
+
+    meses_esperados = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SET", "OCT", "NOV", "DIC"]
+    cols_faltantes = [col for col in (["YEAR"] + meses_esperados) if col not in df.columns]
+    if cols_faltantes:
+        return False, f"Estructura incompleta: faltan las columnas {cols_faltantes}."
+
+    # Validar que existan suficientes años de registro (mínimo 10 años)
+    if len(df) < 10:
+        return False, f"Cobertura insuficiente: la serie contiene solo {len(df)} registros anuales (mínimo 10 requeridos)."
+
+    # Validar que los años sean enteros únicos y estrictamente crecientes
+    anios = df["YEAR"].tolist()
+    try:
+        anios_int = [int(y) for y in anios]
+    except (ValueError, TypeError):
+        return False, "La columna 'YEAR' contiene valores no enteros o inválidos."
+
+    if len(anios_int) != len(set(anios_int)):
+        return False, "La columna 'YEAR' contiene años duplicados."
+
+    if anios_int != sorted(anios_int):
+        return False, "Los registros de 'YEAR' no se encuentran en orden cronológico estrictamente ascendente."
+
+    # Validar que las columnas mensuales sean numéricas
+    for m in meses_esperados:
+        if not pd.api.types.is_numeric_dtype(df[m]):
+            return False, f"La columna del mes '{m}' contiene valores no convertibles a numéricos."
+
+    # Validar no-regresión temporal frente a versión previa local (comparando solo años válidos)
+    if df_previo is not None and not df_previo.empty and "YEAR" in df_previo.columns:
+        len_prev = _contar_anios_validos(df_previo)
+        len_curr = _contar_anios_validos(df)
+        if len_prev > 0 and len_curr < len_prev - 1:
+            return False, f"Pérdida de registros históricos detectada: la versión descargada tiene {len_curr} años vs {len_prev} años locales válidos."
+
+        years_prev_num = pd.to_numeric(df_previo["YEAR"], errors="coerce").dropna()
+        valid_prev = years_prev_num[(years_prev_num >= 1800) & (years_prev_num <= 2100)]
+        if len(valid_prev) > 0:
+            max_prev = int(valid_prev.max())
+            max_curr = int(df["YEAR"].max())
+            if max_curr < max_prev - 1:
+                return False, f"Inconsistencia temporal: el último año descargado ({max_curr}) es anterior al año local previo ({max_prev})."
+
+    return True, "Validación estructural, temporal y numérica superada exitosamente."
+
+
 def verificar_y_descargar_datos(
     data_dir: str = ".",
     force_update: bool = False,
     progress_callback: Optional[Callable[[str, int, int], None]] = None
 ) -> Dict[str, dict]:
     """
-    Verifica la existencia e integridad de los archivos CSV para las 19 series climáticas.
+    Verifica la existencia e integridad de los archivos CSV para las 21 series climáticas.
     Si faltan archivos o si `force_update=True`, descarga y procesa de forma atómica y no destructiva.
     """
     def _resolver_directorio_salida():
@@ -251,6 +405,14 @@ def verificar_y_descargar_datos(
             }
             continue
 
+        # Cargar versión local previa para validación comparativa no destructiva
+        df_previo = None
+        if csv_existe:
+            try:
+                df_previo = pd.read_csv(target_csv)
+            except Exception:
+                df_previo = None
+
         # Proceso de descarga atómica
         try:
             with tempfile.TemporaryDirectory() as tmp_dir:
@@ -266,47 +428,68 @@ def verificar_y_descargar_datos(
                 if not ok or not os.path.exists(tmp_txt) or os.path.getsize(tmp_txt) < 50:
                     resultados[codigo] = {
                         "status": "error_descarga",
-                        "mensaje": "Fallo al descargar fuente remota (se preservó dato local si existía)",
+                        "mensaje": "Fallo al conectar o descargar desde la fuente remota oficial (se preservó la copia local anterior).",
                         "archivo": target_csv if csv_existe else None
                     }
                     continue
 
                 # Procesar a CSV
                 if any(k in codigo for k in ["SSTA", "AtlTROP", "SAtl", "NAtl"]):
-                    # Requiere paso intermedio con dataSSTA.csv o dataSSTOI.csv
                     tmp_inter_csv = os.path.join(tmp_dir, "inter.csv")
-                    acomodaParaCSV(tmp_txt, tmp_inter_csv)
-                    acomodaParaCSV_3(tmp_inter_csv, tmp_csv)
-                else:
-                    acomodaParaCSV(tmp_txt, tmp_csv)
-
-                # Validar integridad del CSV generado
-                if os.path.exists(tmp_csv) and os.path.getsize(tmp_csv) > 100:
-                    df_test = pd.read_csv(tmp_csv)
-                    if len(df_test) >= 10 and "YEAR" in df_test.columns:
-                        # Reemplazo atómico
-                        with open(tmp_csv, "rb") as f_in, open(target_csv, "wb") as f_out:
-                            f_out.write(f_in.read())
-                        with open(tmp_txt, "rb") as f_in, open(target_txt, "wb") as f_out:
-                            f_out.write(f_in.read())
-
+                    ok_inter = acomodaParaCSV(tmp_txt, tmp_inter_csv)
+                    if not ok_inter or not os.path.exists(tmp_inter_csv):
                         resultados[codigo] = {
-                            "status": "actualizado",
-                            "mensaje": "Descargado y validado exitosamente",
-                            "archivo": target_csv
+                            "status": "error_formato",
+                            "mensaje": f"No fue posible convertir el archivo compuesto de {codigo} a formato tabular intermedio.",
+                            "archivo": target_csv if csv_existe else None
+                        }
+                        continue
+                    ok_trans = acomodaParaCSV_3(tmp_inter_csv, tmp_csv)
+                    if not ok_trans or not os.path.exists(tmp_csv):
+                        resultados[codigo] = {
+                            "status": "error_formato",
+                            "mensaje": f"No fue posible extraer la columna de anomalía para {codigo} de la fuente compuesta.",
+                            "archivo": target_csv if csv_existe else None
+                        }
+                        continue
+                else:
+                    ok_trans = acomodaParaCSV(tmp_txt, tmp_csv)
+                    if not ok_trans or not os.path.exists(tmp_csv):
+                        resultados[codigo] = {
+                            "status": "error_formato",
+                            "mensaje": f"No fue posible transformar el archivo de texto de {codigo} a matriz CSV.",
+                            "archivo": target_csv if csv_existe else None
                         }
                         continue
 
-            resultados[codigo] = {
-                "status": "error_formato",
-                "mensaje": "El archivo descargado no superó la prueba de formato CSV",
-                "archivo": target_csv if csv_existe else None
-            }
+                # Validar integridad estructural y temporal del CSV generado
+                df_test = pd.read_csv(tmp_csv)
+                valido, msg_val = validar_estructura_serie(df_test, codigo, df_previo=df_previo)
+
+                if valido:
+                    # Reemplazo atómico seguro
+                    with open(tmp_csv, "rb") as f_in, open(target_csv, "wb") as f_out:
+                        f_out.write(f_in.read())
+                    with open(tmp_txt, "rb") as f_in, open(target_txt, "wb") as f_out:
+                        f_out.write(f_in.read())
+
+                    resultados[codigo] = {
+                        "status": "actualizado",
+                        "mensaje": "Descargado, parseado y validado exitosamente sin pérdida de registros.",
+                        "archivo": target_csv
+                    }
+                    continue
+                else:
+                    resultados[codigo] = {
+                        "status": "error_validacion",
+                        "mensaje": f"La fuente descargada no superó la validación ({msg_val}). La versión local anterior se conserva sin modificaciones.",
+                        "archivo": target_csv if csv_existe else None
+                    }
 
         except Exception as e:
             resultados[codigo] = {
                 "status": "error",
-                "mensaje": f"Excepción durante actualización: {str(e)}",
+                "mensaje": f"Inconsistencia durante la actualización: {str(e)}. La versión local anterior se conserva sin modificaciones.",
                 "archivo": target_csv if csv_existe else None
             }
 
@@ -335,19 +518,19 @@ def cargar_todas_oscilaciones(data_dir: str = ".") -> Dict[str, pd.DataFrame]:
     # 1. AMO
     f_amo = _resolver_ruta("dataAMO.csv")
     if os.path.exists(f_amo):
-        oscilaciones["AMO"] = limpiar_datos_indice(pd.read_csv(f_amo, skipfooter=4, engine="python", skiprows=[1, 2]))
+        oscilaciones["AMO"] = limpiar_datos_indice(pd.read_csv(f_amo))
 
     # 2. AO
     f_ao = _resolver_ruta("dataAO.csv")
     if os.path.exists(f_ao):
         oscilaciones["AO"] = limpiar_datos_indice(pd.read_csv(f_ao))
 
-    # 3. MEI
+    # 3. MEI (Unión histórica de MEI v1 + MEI v2)
     f_mei1 = _resolver_ruta("dataMEI_1.csv")
     f_mei2 = _resolver_ruta("dataMEI_2.csv")
     if os.path.exists(f_mei1) and os.path.exists(f_mei2):
         df_mei1 = pd.read_csv(f_mei1)
-        df_mei2 = pd.read_csv(f_mei2, skipfooter=4, engine="python")
+        df_mei2 = pd.read_csv(f_mei2)
         oscilaciones["MEI"] = limpiar_datos_indice(pd.concat([df_mei1, df_mei2], sort=False, ignore_index=True))
 
     # 4. ONIv5, ONIv6, RONI
@@ -366,17 +549,17 @@ def cargar_todas_oscilaciones(data_dir: str = ".") -> Dict[str, pd.DataFrame]:
     # 5. NAO
     f_nao = _resolver_ruta("dataNAO.csv")
     if os.path.exists(f_nao):
-        oscilaciones["NAO"] = limpiar_datos_indice(pd.read_csv(f_nao, skipfooter=3, engine="python", skiprows=[1, 2]))
+        oscilaciones["NAO"] = limpiar_datos_indice(pd.read_csv(f_nao))
 
     # 6. PDO
     f_pdo = _resolver_ruta("dataPDO.csv")
     if os.path.exists(f_pdo):
-        oscilaciones["PDO"] = limpiar_datos_indice(pd.read_csv(f_pdo, skiprows=[i for i in range(1, 98)]))
+        oscilaciones["PDO"] = limpiar_datos_indice(pd.read_csv(f_pdo))
 
     # 7. TNA
     f_tna = _resolver_ruta("dataTNA.csv")
     if os.path.exists(f_tna):
-        oscilaciones["TNA"] = limpiar_datos_indice(pd.read_csv(f_tna, skipfooter=7, engine="python", skiprows=[1, 2]))
+        oscilaciones["TNA"] = limpiar_datos_indice(pd.read_csv(f_tna))
 
     # 8-14. SSTA & AtlTROP
     for s_name in ["SSTA_12", "SSTA_3", "SSTA_4", "SSTA_34", "AtlTROP", "SAtl", "NAtl"]:
@@ -387,22 +570,22 @@ def cargar_todas_oscilaciones(data_dir: str = ".") -> Dict[str, pd.DataFrame]:
     # 15. CAR
     f_car = _resolver_ruta("dataCAR.csv")
     if os.path.exists(f_car):
-        oscilaciones["CAR"] = limpiar_datos_indice(pd.read_csv(f_car, skipfooter=7, engine="python"))
+        oscilaciones["CAR"] = limpiar_datos_indice(pd.read_csv(f_car))
 
     # 16. WHWP
     f_whwp = _resolver_ruta("dataWHWP.csv")
     if os.path.exists(f_whwp):
-        oscilaciones["WHWP"] = limpiar_datos_indice(pd.read_csv(f_whwp, skipfooter=8, engine="python", skiprows=[1, 2]))
+        oscilaciones["WHWP"] = limpiar_datos_indice(pd.read_csv(f_whwp))
 
     # 17. PNA
     f_pna = _resolver_ruta("dataPNA.csv")
     if os.path.exists(f_pna):
-        oscilaciones["PNA"] = limpiar_datos_indice(pd.read_csv(f_pna, skipfooter=3, engine="python", skiprows=[1, 2]))
+        oscilaciones["PNA"] = limpiar_datos_indice(pd.read_csv(f_pna))
 
     # 18. SOI
     f_soi = _resolver_ruta("dataSOI.csv")
     if os.path.exists(f_soi):
-        oscilaciones["SOI"] = limpiar_datos_indice(pd.read_csv(f_soi, skiprows=[i for i in range(1, 88)], skipfooter=9, engine="python"))
+        oscilaciones["SOI"] = limpiar_datos_indice(pd.read_csv(f_soi))
 
     # 19. AMO_CSU
     f_csu = _resolver_ruta("dataAMO_CSU.csv")

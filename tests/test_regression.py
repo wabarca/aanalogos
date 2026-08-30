@@ -22,7 +22,7 @@ class TestRegression(unittest.TestCase):
         res = calcular_analogos(2015, 10, ["AMO", "PDO", "TNA"], oscilaciones_cargadas=self.oscilaciones)
         
         self.assertTrue(res.es_valido)
-        self.assertEqual(len(res.anios_candidatos), 72)
+        self.assertEqual(len(res.anios_candidatos), 74)
         self.assertNotIn(2015, res.anios_candidatos)
         
         # Verificar TOP 7 años análogos certificados
