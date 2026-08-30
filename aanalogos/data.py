@@ -40,7 +40,7 @@ def descarga_segura(url: str, ruta_salida: str, timeout: int = 10) -> bool:
 
 
 def acomodaParaCSV(ruta_entrada: str, ruta_salida: str) -> bool:
-    """Convierte matriz de texto espacio-separada a CSV estructurado."""
+    """Convierte matriz de texto espacio-separada a CSV estructurado soportando años parciales."""
     if not os.path.exists(ruta_entrada):
         return False
     try:
@@ -62,6 +62,13 @@ def acomodaParaCSV(ruta_entrada: str, ruta_salida: str) -> bool:
                 linea_tokens = [v for v in linea.strip().split(" ") if v != ""]
                 if not linea_tokens:
                     continue
+                # Si la fila corresponde a matriz mensual y tiene menos de 13 tokens (ej. año parcial 2026 con 5 meses),
+                # rellenar con cadenas vacías para que pandas las interprete como NaN
+                if not (ruta_entrada.endswith("dataSSTA.txt") or ruta_entrada.endswith("dataSSTOI.txt")):
+                    if len(linea_tokens) < 13:
+                        linea_tokens = linea_tokens + [""] * (13 - len(linea_tokens))
+                    elif len(linea_tokens) > 13:
+                        linea_tokens = linea_tokens[:13]
                 ptr.write("\n" + ",".join(linea_tokens))
         return True
     except Exception:
@@ -69,7 +76,7 @@ def acomodaParaCSV(ruta_entrada: str, ruta_salida: str) -> bool:
 
 
 def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
-    """Extrae tablas HTML (ej. ONIv5, ONIv6, RONI o AMO_CSU) y genera matriz de texto."""
+    """Extrae tablas HTML (ej. ONIv5, ONIv6, RONI o AMO_CSU) y genera matriz de texto soportando años parciales."""
     try:
         req = urllib.request.Request(
             url,
@@ -95,8 +102,16 @@ def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
             clean_cells = [re.sub(r'<[^>]+>', '', c).strip() for c in cells]
             if clean_cells and re.match(r'^\d{4}$', clean_cells[0]):
                 year_val = int(clean_cells[0])
-                if 1850 <= year_val <= 2100 and len(clean_cells) >= 13:
-                    parsed_rows.append(clean_cells[:13])
+                # Aceptar filas válidas incluso si el año está parcialmente publicado (>= 2 celdas: año + meses disponibles)
+                if 1850 <= year_val <= 2100 and len(clean_cells) >= 2:
+                    padded = clean_cells + ["-99.99"] * max(0, 13 - len(clean_cells))
+                    sanitized = [padded[0]]
+                    for c in padded[1:13]:
+                        if c and c != "-" and c.replace(".", "", 1).replace("-", "", 1).isdigit():
+                            sanitized.append(c)
+                        else:
+                            sanitized.append("-99.99")
+                    parsed_rows.append(sanitized)
 
         if parsed_rows:
             with open(archivocreado, "w", encoding="utf-8") as file:
@@ -119,8 +134,15 @@ def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
                         file.write("YEAR ENE FEB MAR ABR MAY JUN JUL AGO SET OCT NOV DIC\n")
                     for row in table.find_all("tr"):
                         valores = [cell.get_text(strip=True) for cell in row.find_all(["td", "th"])]
-                        if valores and valores[0].isdigit() and 1850 <= int(valores[0]) <= 2100 and len(valores) >= 13:
-                            file.write(" ".join(valores[:13]) + "\n")
+                        if valores and valores[0].isdigit() and 1850 <= int(valores[0]) <= 2100 and len(valores) >= 2:
+                            padded = valores + ["-99.99"] * max(0, 13 - len(valores))
+                            sanitized = [padded[0]]
+                            for c in padded[1:13]:
+                                if c and c != "-" and c.replace(".", "", 1).replace("-", "", 1).isdigit():
+                                    sanitized.append(c)
+                                else:
+                                    sanitized.append("-99.99")
+                            file.write(" ".join(sanitized) + "\n")
                 return True
 
         return False
@@ -129,14 +151,14 @@ def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
 
 
 def acomodaParaCSV_3(archivo_descargado: str, archivo_creado: str) -> bool:
-    """Reestructura series compuestas (SSTA / SSTOI) a matrices mensuales individuales."""
+    """Reestructura series compuestas (SSTA / SSTOI) a matrices mensuales individuales soportando años parciales."""
     if not os.path.exists(archivo_descargado):
         return False
     try:
         archivo = pd.read_csv(archivo_descargado)
         if len(archivo) == 0:
             return False
-        anios = [archivo["YEAR"].iloc[i] for i in range(0, len(archivo), 12)]
+        anios = list(dict.fromkeys(archivo["YEAR"]))
 
         col_target = None
         if "SSTA_12" in archivo_creado:

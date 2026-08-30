@@ -676,7 +676,7 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
         if indice_sel in ["SSTA_12", "SSTA_3", "SSTA_4", "SSTA_34", "AtlTROP", "SAtl", "NAtl"]:
             tab_matriz, tab_compuesto = st.tabs(["Matriz Mensual (Utilizada por Motor)", "Fuente Compuesta Original (SST Absoluta vs Anomalía)"])
             with tab_matriz:
-                st.dataframe(df_filtered.style.format(precision=2, na_rep="-"), use_container_width=True, height=350)
+                st.dataframe(df_filtered.style.format(precision=2, na_rep="NaN"), use_container_width=True, height=350)
             with tab_compuesto:
                 raw_filename = "dataSSTA.csv" if "SSTA" in indice_sel else "dataSSTOI.csv"
                 raw_path = os.path.join(DATA_DIR, raw_filename)
@@ -688,7 +688,7 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
                 else:
                     st.warning(f"No se encontró el archivo compuesto {raw_filename} en el almacenamiento local.")
         else:
-            st.dataframe(df_filtered.style.format(precision=2, na_rep="-"), use_container_width=True, height=350)
+            st.dataframe(df_filtered.style.format(precision=2, na_rep="NaN"), use_container_width=True, height=350)
 
     else:
         st.error(
