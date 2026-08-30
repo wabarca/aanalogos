@@ -17,7 +17,9 @@ class TestVariableAuditAndEnso(unittest.TestCase):
         self.oscilaciones = cargar_todas_oscilaciones()
 
     def test_enso_series_presence(self):
-        """Verificar que ONIv5, ONIv6 y RONI existan como series independientes."""
+        """Verificar que ONIv5, ONIv6 y RONI existan como series independientes y ONI genérico no exista."""
+        self.assertNotIn("ONI", self.catalogo, "'ONI' genérico no debe existir en el catálogo")
+        self.assertNotIn("ONI", self.oscilaciones, "'ONI' genérico no debe existir en las oscilaciones cargadas")
         for enso_id in ["ONIv5", "ONIv6", "RONI"]:
             self.assertIn(enso_id, self.catalogo, f"{enso_id} debe estar en el catálogo")
             self.assertIn(enso_id, self.oscilaciones, f"{enso_id} debe estar cargada en oscilaciones")

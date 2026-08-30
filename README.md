@@ -12,7 +12,7 @@
 
 La formulación matemática fundamental de similitud, incluyendo la correlación de Pearson, la distancia absoluta media (MAD), el tratamiento de valores faltantes, la exclusión del año objetivo y los criterios históricos de coincidencia, se preserva respecto al benchmark validado. La aplicación incorpora extensiones operacionales explícitas, particularmente una ventana retrospectiva de doce meses y mecanismos de actualización y determinación automática del período disponible.
 
-La aplicación evalúa de forma simultánea hasta **22 índices oceánicos y atmosféricos** (Pacífico, Atlántico, Ártico y atmósfera global), comparando la trayectoria reciente frente al registro histórico mediante **correlación de Pearson ($r$)** y **diferencia absoluta media (MAD)** con estricta validación de anomalías térmicas y barométricas.
+La aplicación evalúa de forma simultánea hasta **21 índices oceánicos y atmosféricos** (Pacífico, Atlántico, Ártico y atmósfera global), comparando la trayectoria reciente frente al registro histórico mediante **correlación de Pearson ($r$)** y **diferencia absoluta media (MAD)** con estricta validación de anomalías térmicas y barométricas.
 
 ---
 
@@ -21,27 +21,26 @@ La aplicación evalúa de forma simultánea hasta **22 índices oceánicos y atm
 * 🌦️ **Operación Automática:** Detección dinámica del año actual y del último mes operacional disponible respetando la regla de publicación ($M+1$) con ventana de 12 meses predeterminada.
 * 🕰️ **Reanálisis y Backtesting:** Soporte para reanálisis retrospectivo completo frente a todo el registro histórico y backtesting estricto con corte temporal ($Y_{\text{cand}} \le Y_{\text{obj}}$).
 * 📐 **Ventana Paramétrica (12 vs 6 Meses):** Soporte operacional para ciclo anual completo (12 meses) y ventana metodológica histórica (6 meses).
-* 📊 **Explorador de Índices y Tablas:** Fichas técnicas, metadatos, fuentes oficiales, DOIs, series temporales interactivas y tablas de datos históricos con descarga en CSV para las 22 oscilaciones.
+* 📊 **Explorador de Índices y Tablas:** Fichas técnicas, metadatos, fuentes oficiales, DOIs, series temporales interactivas y tablas de datos históricos con descarga en CSV para las 21 oscilaciones.
 * 📚 **Metodología Integrada:** Documentación científica interactiva con fórmulas KaTeX y explicación física de cada métrica y tipología de variable.
 * 🔄 **Actualización Atómica:** Descarga y validación no destructiva de las fuentes remotas oficiales (NOAA/CPC/PSL/CSU).
 * ⚙️ **Umbrales Configurables:** Personalización de criterios de coincidencia por índice con trazabilidad y botón de restauración oficial.
-* 🛡️ **Rigor Científico Certificado:** Precisión `float64` nativa, aislamiento de valores sentinela (`-99.99`), exclusión del año objetivo ($Y_{\text{cand}} \neq Y_{\text{obj}}$), verificación de anomalías térmicas y suite automatizada de 31 pruebas unitarias.
+* 🛡️ **Rigor Científico Certificado:** Precisión `float64` nativa, aislamiento de valores sentinela (`-99.99`), exclusión del año objetivo ($Y_{\text{cand}} \neq Y_{\text{obj}}$), verificación de anomalías térmicas y suite automatizada de 32 pruebas unitarias.
 
 ---
 
-## 22 Índices Climáticos Integrados
+## 21 Índices Climáticos Integrados
 
 | Pacífico & ENOS | Atlántico & Caribe | Atmósfera & Hemisferio Norte |
 | :--- | :--- | :--- |
-| **ONI** (Oceanic Niño Index Estándar) | **AMO** (Kaplan SST) | **AO** (Arctic Oscillation) |
-| **ONIv5** (ONI basado en ERSSTv5) | **AMO_CSU** (Colorado State Univ.) | **NAO** (North Atlantic Oscillation) |
-| **ONIv6** (ONI basado en ERSSTv6) | **TNA** (Tropical Northern Atlantic) | **PNA** (Pacific-North American) |
-| **RONI** (Relative Oceanic Niño Index) | **CAR** (Caribbean SST Index) | |
-| **MEI** (Multivariate ENSO v2) | **AtlTROP** (Tropical Atlantic) | |
-| **SOI** (Southern Oscillation Index) | **NAtl** (North Atlantic) | |
-| **SSTA_12** (Niño 1+2) | **SAtl** (South Atlantic) | |
-| **SSTA_3** (Niño 3) | **WHWP** (Western Hemisphere Warm Pool) | |
-| **SSTA_4** (Niño 4) | | |
+| **ONIv5** (ONI basado en ERSSTv5) | **AMO** (Kaplan SST) | **AO** (Arctic Oscillation) |
+| **ONIv6** (ONI basado en ERSSTv6) | **AMO_CSU** (Colorado State Univ.) | **NAO** (North Atlantic Oscillation) |
+| **RONI** (Relative Oceanic Niño Index) | **TNA** (Tropical Northern Atlantic) | **PNA** (Pacific-North American) |
+| **MEI** (Multivariate ENSO v2) | **CAR** (Caribbean SST Index) | |
+| **SOI** (Southern Oscillation Index) | **AtlTROP** (Tropical Atlantic) | |
+| **SSTA_12** (Niño 1+2) | **NAtl** (North Atlantic) | |
+| **SSTA_3** (Niño 3) | **SAtl** (South Atlantic) | |
+| **SSTA_4** (Niño 4) | **WHWP** (Western Hemisphere Warm Pool) | |
 | **SSTA_34** (Niño 3.4) | | |
 
 ---

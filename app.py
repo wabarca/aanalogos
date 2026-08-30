@@ -148,14 +148,14 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
     default_indices = [
         NOMBRES_LEGIBLES.get("PDO", "PDO"),
         NOMBRES_LEGIBLES.get("TNA", "TNA"),
-        NOMBRES_LEGIBLES.get("ONI", "ONI"),
+        NOMBRES_LEGIBLES.get("ONIv5", "ONIv5"),
     ]
 
     indices_seleccionados_str = st.sidebar.multiselect(
         "Selección de Índices / Oscilaciones:",
         options=list(NOMBRES_LEGIBLES.values()),
         default=[
-            NOMBRES_LEGIBLES[k] for k in ["PDO", "TNA", "ONI"] if k in NOMBRES_LEGIBLES
+            NOMBRES_LEGIBLES[k] for k in ["PDO", "TNA", "ONIv5"] if k in NOMBRES_LEGIBLES
         ],
         help="Seleccione una o más oscilaciones climáticas para el análisis multivariado.",
     )

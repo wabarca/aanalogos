@@ -78,33 +78,6 @@ MEI:
     K. (2019). The Multivariate ENSO Index Version 2. International Journal of Climatology,
     39(8), 3467-3482.
   doi: 10.1002/joc.6033
-ONI:
-  name: Oceanic Niño Index (Estándar Operacional)
-  acronym: ONI
-  institution: NOAA Climate Prediction Center (CPC)
-  url: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/
-  filename_csv: dataONI.csv
-  filename_txt: dataONI.txt
-  format: seasonal_running_mean
-  region: Pacífico Niño 3.4 (5°N-5°S, 120°-170°W)
-  variable: Media móvil trimestral de Anomalía TSM (°C)
-  variable_type: anomalía
-  variable_column: DJF..NDJ (Medias móviles centradas)
-  exact_variable_used: Anomalía de TSM en media móvil de 3 meses (°C)
-  units: °C
-  period_start: 1950
-  update_frequency: Mensual
-  missing_value: -99.99
-  threshold_r: 0.6
-  threshold_mad: 0.6
-  description: Indicador estándar operacional de NOAA para clasificar episodios cálidos
-    (El Niño) y fríos (La Niña) mediante la media móvil trimestral de anomalías térmicas
-    en la región Niño 3.4.
-  reference: 'Huang, B., Thorne, P. W., Banzon, V. F., Boyer, T., Chepurin, G., Lawrimore,
-    J. H., ... & Zhang, H. M. (2017). Extended Reconstructed Sea Surface Temperature,
-    Version 5 (ERSSTv5): Upgrades, Validations, and Intercomparisons. Journal of Climate,
-    30(20), 8179-8205.'
-  doi: 10.1175/JCLI-D-16-0836.1
 ONIv5:
   name: Oceanic Niño Index (ERSSTv5)
   acronym: ONIv5

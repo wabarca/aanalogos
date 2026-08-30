@@ -69,7 +69,7 @@ def acomodaParaCSV(ruta_entrada: str, ruta_salida: str) -> bool:
 
 
 def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
-    """Extrae tablas HTML (ej. ONI, ONIv5, ONIv6, RONI o AMO_CSU) y genera matriz de texto."""
+    """Extrae tablas HTML (ej. ONIv5, ONIv6, RONI o AMO_CSU) y genera matriz de texto."""
     try:
         req = urllib.request.Request(
             url,
@@ -328,28 +328,18 @@ def cargar_todas_oscilaciones(data_dir: str = ".") -> Dict[str, pd.DataFrame]:
         df_mei2 = pd.read_csv(f_mei2, skipfooter=4, engine="python")
         oscilaciones["MEI"] = limpiar_datos_indice(pd.concat([df_mei1, df_mei2], sort=False, ignore_index=True))
 
-    # 4. ONI, ONIv5, ONIv6, RONI
-    f_oni = _resolver_ruta("dataONI.csv")
-    if os.path.exists(f_oni):
-        oscilaciones["ONI"] = limpiar_datos_indice(pd.read_csv(f_oni))
-
+    # 4. ONIv5, ONIv6, RONI
     f_oniv5 = _resolver_ruta("dataONIv5.csv")
     if os.path.exists(f_oniv5):
         oscilaciones["ONIv5"] = limpiar_datos_indice(pd.read_csv(f_oniv5))
-    elif "ONI" in oscilaciones:
-        oscilaciones["ONIv5"] = oscilaciones["ONI"].copy()
 
     f_oniv6 = _resolver_ruta("dataONIv6.csv")
     if os.path.exists(f_oniv6):
         oscilaciones["ONIv6"] = limpiar_datos_indice(pd.read_csv(f_oniv6))
-    elif "ONI" in oscilaciones:
-        oscilaciones["ONIv6"] = oscilaciones["ONI"].copy()
 
     f_roni = _resolver_ruta("dataRONI.csv")
     if os.path.exists(f_roni):
         oscilaciones["RONI"] = limpiar_datos_indice(pd.read_csv(f_roni))
-    elif "ONI" in oscilaciones:
-        oscilaciones["RONI"] = oscilaciones["ONI"].copy()
 
     # 5. NAO
     f_nao = _resolver_ruta("dataNAO.csv")

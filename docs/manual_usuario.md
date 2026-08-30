@@ -42,7 +42,7 @@ La barra lateral izquierda permite alternar entre las 5 secciones principales de
 
 ## 3. Sección 2: Explorador de Índices Climáticos
 
-Permite seleccionar cualquiera de las 22 oscilaciones climáticas para inspeccionar:
+Permite seleccionar cualquiera de las 21 oscilaciones climáticas para inspeccionar:
 * **Ficha Técnica y Auditoría:** Nombre completo, institución responsable, región, variable física, tipo de variable (`anomalía`, `índice`, `índice estandarizado`, `índice derivado`), variable exacta utilizada en el cálculo de años análogos, columna fuente, unidades y DOI.
 * **Evolución Temporal:** Gráfico interactivo mensual con filtros temporales (*Todo el registro*, *Últimos 10 años*, *Últimos 5 años*, *Rango personalizado*).
 * **Tabla de Datos Históricos Interactiva:**
@@ -65,7 +65,7 @@ Sección didáctica integrada que explica a los especialistas meteorológicos lo
 
 ## 5. Sección 4: Estado y Actualización de Datos
 
-* **Panel de Cobertura:** Indicador global de salud (ej. `22 / 22 series disponibles`).
+* **Panel de Cobertura:** Indicador global de salud (ej. `21 / 21 series disponibles`).
 * **Tabla de Diagnóstico e Inventario:** Primer año, último año, último mes publicado, tipo de variable, variable en motor y estado de cada serie.
 * **Botón ↻ Actualizar índices:** Descarga atómica y no destructiva desde las fuentes de NOAA/CPC/PSL/CSU sin riesgo de corromper series locales si falla la conexión.
 

@@ -12,7 +12,6 @@ UMBRAL_SENTINELA_MAX = 50.0
 # Umbrales específicos validados para cada oscilación climática
 # Estructura: indice -> (r_minimo, mad_maximo)
 UMBRALES_OSCILACIONES = {
-    "ONI": (0.6, 0.6),
     "ONIv5": (0.6, 0.6),
     "ONIv6": (0.6, 0.6),
     "RONI": (0.6, 0.6),
@@ -45,7 +44,6 @@ FUENTES_DATOS = {
     "AMO": {"url": "https://psl.noaa.gov/data/correlation/amon.us.data", "txt": "dataAMO.txt", "csv": "dataAMO.csv"},
     "AO": {"url": "https://www.cpc.ncep.noaa.gov/products/precip/CWlink/daily_ao_index/monthly.ao.index.b50.current.ascii.table", "txt": "dataAO.txt", "csv": "dataAO.csv"},
     "MEI": {"url": "https://psl.noaa.gov/enso/mei/data/meiv2.data", "txt": "dataMEI_2.txt", "csv": "dataMEI_2.csv"},
-    "ONI": {"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/", "txt": "dataONI.txt", "csv": "dataONI.csv"},
     "ONIv5": {"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v5/", "txt": "dataONIv5.txt", "csv": "dataONIv5.csv"},
     "ONIv6": {"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/", "txt": "dataONIv6.txt", "csv": "dataONIv6.csv"},
     "RONI": {"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/", "txt": "dataRONI.txt", "csv": "dataRONI.csv"},

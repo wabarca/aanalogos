@@ -2,7 +2,7 @@
 
 ## Contenido
 
-1. [Inventario Maestro de las 22 Series Climáticas](#1-inventario-maestro-de-las-22-series-climáticas)
+1. [Inventario Maestro de las 21 Series Climáticas](#1-inventario-maestro-de-las-21-series-climáticas)
 2. [Auditoría de Variables y Selección de Anomalías](#2-auditoría-de-variables-y-selección-de-anomalías)
 3. [Fichas Estructuradas por Índice](#3-fichas-estructuradas-por-índice)
    * [3.1 Familia ENSO (Pacífico Tropical)](#31-familia-enso-pacífico-tropical)
@@ -13,16 +13,15 @@
 
 ---
 
-## 1. Inventario Maestro de las 22 Series Climáticas
+## 1. Inventario Maestro de las 21 Series Climáticas
 
-El sistema **AAnalogos** integra 22 series climáticas operacionales con identificación inequívoca de la variable exacta utilizada en los cálculos matemáticos:
+El sistema **AAnalogos** integra 21 series climáticas operacionales con identificación inequívoca de la variable exacta utilizada en los cálculos matemáticos:
 
 | Código | Nombre Científico | Institución | Tipo de Variable | Variable en Motor | Columna Fuente | Unidades | $r_{\text{umbral}}$ | $\text{MAD}_{\text{umbral}}$ |
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: | :---: | :---: |
 | **AMO** | Atlantic Multidecadal Oscillation | NOAA PSL | Anomalía | Anomalía mensual TSM desestacionalizada y sin tendencia | Matriz ENE..DIC | °C | 0.60 | 0.30 |
 | **AO** | Arctic Oscillation | NOAA CPC | Índice estandarizado | Anomalía geopotencial 1000 hPa estandarizada | Matriz ENE..DIC | Estandarizado | 0.40 | 1.00 |
 | **MEI** | Multivariate ENSO Index v2 | NOAA PSL | Índice estandarizado | Combinación multivariada EOF estandarizada | Matriz ENE..DIC | Estandarizado | 0.40 | 0.50 |
-| **ONI** | Oceanic Niño Index (Estándar) | NOAA CPC | Anomalía | Media móvil trimestral anomalía TSM Niño 3.4 | Medias DJF..NDJ | °C | 0.60 | 0.60 |
 | **ONIv5** | Oceanic Niño Index (ERSSTv5) | NOAA CPC | Anomalía | Media trimestral anomalía TSM basada en ERSSTv5 | Medias DJF..NDJ | °C | 0.60 | 0.60 |
 | **ONIv6** | Oceanic Niño Index (ERSSTv6) | NOAA CPC | Anomalía | Media trimestral anomalía TSM basada en ERSSTv6 | Medias DJF..NDJ | °C | 0.60 | 0.60 |
 | **RONI** | Relative Oceanic Niño Index | NOAA CPC | Índice derivado | Anomalía relativa Niño 3.4 ajustada por fondo tropical | Medias DJF..NDJ | °C | 0.60 | 0.60 |
@@ -153,7 +152,7 @@ Las fuentes oficiales de NOAA CPC publican matrices multivariable con columnas d
 Los umbrales predeterminados fueron calibrados empíricamente en la metodología de referencia para equilibrar sensibilidad y especificidad física:
 
 * Oscilaciones térmicas atlánticas de baja frecuencia (AMO, TNA, AMO_CSU): $r \ge 0.50\text{--}0.60$, $\text{MAD} \le 0.30\ ^\circ\text{C}$.
-* Índices de anomalía superficial del Pacífico (ONI, ONIv5, ONIv6, RONI, SSTA): $r \ge 0.60$, $\text{MAD} \le 0.60\ ^\circ\text{C}$.
+* Índices de anomalía superficial del Pacífico (ONIv5, ONIv6, RONI, SSTA): $r \ge 0.60$, $\text{MAD} \le 0.60\ ^\circ\text{C}$.
 * Teleconexiones barométricas y patrones de onda (AO, NAO, PNA, SOI, PDO): $r \ge 0.40\text{--}0.60$, $\text{MAD} \le 0.60\text{--}1.00$.
 
 ---

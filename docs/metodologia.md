@@ -19,7 +19,7 @@
 
 El método de **años análogos climatológicos** es una técnica empírica multivariada ampliamente utilizada en los servicios meteorológicos e hidrológicos nacionales para la predicción climática estacional. Su principio físico rector establece que configuraciones oceánicas y patrones de teleconexión atmosférica globales similares en el pasado tienden a producir respuestas climáticas regionales semejantes en los meses subsiguientes.
 
-El sistema evalúa de manera conjunta hasta **22 índices y oscilaciones climáticas** del Océano Pacífico, Atlántico, Ártico y la atmósfera global.
+El sistema evalúa de manera conjunta hasta **21 índices y oscilaciones climáticas** del Océano Pacífico, Atlántico, Ártico y la atmósfera global.
 
 ---
 
@@ -139,7 +139,7 @@ Todas las extensiones operacionales (12 meses, nuevas series ENSO, umbrales pers
 ## 10. Limitaciones Metodológicas y Consideraciones Físicas
 
 * Los años análogos identifican analogías estadísticas en el forzamiento climático de gran escala; su interpretación debe combinarse con el conocimiento sinóptico local del pronosticador.
-* En escenarios de forzamiento antropogénico acelerado, índices como `RONI` complementan a `ONI` para discernir el gradiente baroclínico tropical respecto al calentamiento global homogéneo.
+* En escenarios de forzamiento antropogénico acelerado, índices como `RONI` complementan a `ONIv5` y `ONIv6` para discernir el gradiente baroclínico tropical respecto al calentamiento global homogéneo.
 
 ---
 
