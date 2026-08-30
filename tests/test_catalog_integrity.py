@@ -42,5 +42,19 @@ class TestCatalogIntegrity(unittest.TestCase):
         self.assertIn("Variable en Motor", df_health.columns)
 
 
+    def test_sources_health_status_when_sources_are_empty_or_missing(self):
+        """Verificar que obtener_estado_fuentes funcione determinísticamente sin UnboundLocalError cuando no hay datos."""
+        # Probar con diccionario completamente vacío
+        df_health_empty = obtener_estado_fuentes({})
+        self.assertEqual(len(df_health_empty), 21)
+        self.assertIn("Estado", df_health_empty.columns)
+        for _, row in df_health_empty.iterrows():
+            self.assertIn(row["Estado"], ["No descargado", "Error", "Disponible", "Cobertura Parcial"])
+            self.assertEqual(row["Primer Año"], "-")
+            self.assertEqual(row["Último Año"], "-")
+            self.assertEqual(row["Último Mes"], "-")
+            self.assertEqual(row["Años Registrados"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

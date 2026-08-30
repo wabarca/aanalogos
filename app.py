@@ -41,6 +41,58 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# Estilo CSS Institucional Verde (MARN El Salvador)
+st.markdown(
+    """
+    <style>
+    /* Tipografía y jerarquía visual institucional */
+    h1, h2, h3 {
+        color: #1b5e20 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    /* Botones primarios en verde institucional */
+    div.stButton > button[kind="primary"], div.stButton > button:first-child {
+        background-color: #2e7d32;
+        color: white;
+        border-radius: 6px;
+        border: 1px solid #1b5e20;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    div.stButton > button:hover {
+        background-color: #1b5e20;
+        border-color: #0d3311;
+        color: white;
+    }
+
+    /* Pestañas (tabs) activas con acento verde */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        color: #1b5e20 !important;
+        border-bottom-color: #2e7d32 !important;
+        font-weight: 600;
+    }
+
+    /* Tarjetas de métricas con superficie verde claro suave */
+    div[data-testid="metric-container"] {
+        background-color: #f4f8f5;
+        border: 1px solid #c8e6c9;
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    div[data-testid="metric-container"] label {
+        color: #2e7d32 !important;
+        font-weight: 600;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 # 1. Cargar catálogo de índices estructurado
 @st.cache_data(show_spinner=False)
@@ -320,9 +372,9 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
             df_tabla = resultado.tabla_coincidencias.copy()
             # Indicador de Coincidencia (Coincide: Sí / No)
             df_tabla["Coincide"] = df_tabla["Total"].apply(lambda t: "Sí" if t > 0 else "No")
-            # Resaltar filas con coincidencias
+            # Resaltar filas con coincidencias mediante degradado verde institucional
             st.dataframe(
-                df_tabla.style.background_gradient(subset=["Total"], cmap="YlOrRd"),
+                df_tabla.style.background_gradient(subset=["Total"], cmap="YlGn"),
                 use_container_width=True,
                 height=400,
             )
@@ -335,9 +387,10 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                 ax.bar(
                     df_plot.index.astype(str),
                     df_plot["Total"],
-                    color="#D9381E",
-                    edgecolor="black",
-                    alpha=0.85,
+                    color="#2e7d32",
+                    edgecolor="#1b5e20",
+                    linewidth=0.8,
+                    alpha=0.9,
                 )
                 ax.set_title(
                     f"Años Análogos Principales (Año Objetivo: {resultado.year_objetivo}, Mes: {NOMBRES_MESES[resultado.mes_objetivo - 1]})",
@@ -383,8 +436,8 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
             if not anios_a_graficar:
                 st.info("ℹ️ Seleccione al menos un año candidato en el menú superior para visualizar las curvas temporales.")
             else:
-                colores_candidatos = ["#d62728", "#2ca02c", "#ff7f0e", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
-                estilos_linea = ["--", "-.", ":", "--", "-.", ":", "--", "-.", ":"]
+                colores_candidatos = ["#2e7d32", "#1976d2", "#d97706", "#7c3aed", "#0891b2", "#c026d3", "#65a30d", "#57534e"]
+                estilos_linea = ["--", "-.", ":", "--", "-.", ":", "--", "-."]
 
                 fig_comp, axes = plt.subplots(
                     len(resultado.indices_evaluados),
@@ -409,7 +462,7 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                         v_obj,
                         marker="o",
                         linewidth=2.4,
-                        color="#1f77b4",
+                        color="#004d40",
                         label=f"Objetivo ({resultado.year_objetivo})",
                         zorder=5,
                     )
@@ -637,14 +690,19 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
         df_ts = pd.DataFrame({"Fecha": fechas, "Valor": valores}).dropna()
 
         fig_ts, ax_ts = plt.subplots(figsize=(14, 4.5))
-        ax_ts.plot(df_ts["Fecha"], df_ts["Valor"], color="#1f77b4", linewidth=1.4)
-        ax_ts.axhline(0, color="black", linestyle="--", linewidth=0.8, alpha=0.7)
+        ax_ts.plot(df_ts["Fecha"], df_ts["Valor"], color="#2e7d32", linewidth=1.5)
+        ax_ts.fill_between(df_ts["Fecha"], df_ts["Valor"], 0, where=(df_ts["Valor"] >= 0), color="#81c784", alpha=0.35, label="Anomalía positiva / Fase activa")
+        ax_ts.fill_between(df_ts["Fecha"], df_ts["Valor"], 0, where=(df_ts["Valor"] < 0), color="#90a4ae", alpha=0.35, label="Anomalía negativa / Fase inactiva")
+        ax_ts.axhline(0, color="#37474f", linestyle="--", linewidth=0.8, alpha=0.8)
         ax_ts.set_title(
             f"Serie Mensual: {meta.get('name', indice_sel)} ({y_start}–{y_end})",
             fontsize=12,
+            fontweight="bold",
+            color="#1b5e20",
         )
         ax_ts.set_ylabel(f"Valor ({meta.get('units', 'u')})", fontsize=10)
         ax_ts.grid(True, linestyle=":", alpha=0.6)
+        ax_ts.legend(loc="upper left", framealpha=0.9, fontsize=9)
         plt.tight_layout()
         st.pyplot(fig_ts)
         plt.close(fig_ts)
@@ -818,7 +876,7 @@ elif seccion_seleccionada == "📈 Estado de Datos":
         df_salud = obtener_estado_fuentes(oscilaciones_disponibles, CATALOGO)
 
         todos_ok = all(
-            v["status"] in ["OK", "Sin cambios"] for v in res_update.values()
+            v["status"] in ["OK", "Sin cambios", "actualizado", "disponible"] for v in res_update.values()
         )
         if todos_ok:
             st.success("✓ Índices actualizados correctamente.")

@@ -189,12 +189,47 @@ def obtener_estado_fuentes(
                         ultimo_mes_num = m
                         break
 
+            if ultimo_mes_num == 0:
+                for y_back in range(y_max - 1, y_min - 1, -1):
+                    df_prev = df[df["YEAR"] == y_back]
+                    if len(df_prev) > 0:
+                        for m in range(12, 0, -1):
+                            val = df_prev.iloc[0, m]
+                            if pd.notna(val) and UMBRAL_SENTINELA_MIN <= float(val) <= UMBRAL_SENTINELA_MAX:
+                                ultimo_mes_num = m
+                                y_max = y_back
+                                break
+                    if ultimo_mes_num > 0:
+                        break
+
             ultimo_mes_str = f"{NOMBRES_MESES[ultimo_mes_num - 1]} ({y_max})" if ultimo_mes_num > 0 else f"Sin datos ({y_max})"
             estado = "Disponible" if total_anios >= 30 else "Cobertura Parcial"
         else:
             y_min = "-"
             y_max = "-"
+            ultimo_mes_str = "-"
             total_anios = 0
+
+            # Determinar si existe el archivo en disco pero no pudo ser cargado (Error) o si no existe (No descargado)
+            csv_name = meta.get("filename_csv", f"data{codigo}.csv")
+            txt_name = meta.get("filename_txt", f"data{codigo}.txt")
+            if data_dir and data_dir != ".":
+                candidatos_dir = [data_dir, os.path.join(data_dir, "data")]
+            else:
+                candidatos_dir = [
+                    "data",
+                    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"),
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    "."
+                ]
+            archivo_existe = False
+            for d in candidatos_dir:
+                if (csv_name and os.path.exists(os.path.join(d, csv_name))) or (txt_name and os.path.exists(os.path.join(d, txt_name))):
+                    archivo_existe = True
+                    break
+
+            estado = "Error" if archivo_existe else "No descargado"
+
         variable_type = meta.get("variable_type", "anomalía")
         col_usada = meta.get("variable_column", "ENE..DIC")
         exact_var = meta.get("exact_variable_used", variable)
