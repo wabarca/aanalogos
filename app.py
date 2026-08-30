@@ -534,7 +534,16 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
         st.markdown(f"**Nombre Completo:** {meta.get('name', indice_sel)}")
         st.markdown(f"**Acrónimo:** `{indice_sel}`")
         st.markdown(
-            f"**Variable Climatológica:** {meta.get('variable', 'No especificada')}"
+            f"**Variable Física:** {meta.get('variable', 'No especificada')}"
+        )
+        st.markdown(
+            f"**Tipo de Variable:** `{meta.get('variable_type', 'anomalía').capitalize()}`"
+        )
+        st.markdown(
+            f"**Variable Utilizada en Motor:** **{meta.get('exact_variable_used', meta.get('variable'))}**"
+        )
+        st.markdown(
+            f"**Columna / Campo Fuente:** `{meta.get('variable_column', 'Matriz Mensual')}`"
         )
         st.markdown(
             f"**Región de Referencia:** {meta.get('region', 'No especificada')}"
@@ -553,11 +562,11 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
             f"**Umbral Metodológico MAD ($\\text{{MAD}}_{{\\text{{umbral}}}}$):** `{mad_def:.2f}`"
         )
         st.markdown(
-            f"**Fuente Operacional de Datos:** {meta.get('institution', 'No especificada')}"
+            f"**Fuente Operacional:** {meta.get('institution', 'No especificada')}"
         )
         if meta.get("url"):
             st.markdown(
-                f"**Enlace de Descarga:** [{meta.get('url')}]({meta.get('url')})"
+                f"**Enlace Oficial:** [{meta.get('url')}]({meta.get('url')})"
             )
         if meta.get("reference"):
             st.markdown(f"**Referencia Científica:** *{meta.get('reference')}*")
@@ -574,13 +583,14 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
 
     st.divider()
 
-    # Visualización de la Serie Temporal
-    st.subheader(f"📈 Evolución Temporal del Índice {indice_sel}")
+    # Visualización de la Serie Temporal y Datos Tabulares
     if (
         indice_sel in oscilaciones_disponibles
         and oscilaciones_disponibles[indice_sel] is not None
     ):
         df_ind = oscilaciones_disponibles[indice_sel].copy()
+
+        st.subheader(f"📈 Evolución Temporal del Índice {indice_sel}")
 
         # Filtro de rango de años
         filtro_tiempo = st.radio(
@@ -638,6 +648,47 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
         plt.tight_layout()
         st.pyplot(fig_ts)
         plt.close(fig_ts)
+
+        st.divider()
+
+        # Sección C: Tabla de Datos Históricos Interactiva
+        st.subheader(f"📋 Tabla de Datos Históricos — {indice_sel}")
+        st.info(
+            f"📌 **Variable exacta utilizada en el cálculo de años análogos:** "
+            f"**`{meta.get('exact_variable_used', meta.get('variable'))}`** "
+            f"(Columna / Campo: `{meta.get('variable_column', 'Matriz Mensual')}`)."
+        )
+
+        col_tbl_ctrl1, col_tbl_ctrl2 = st.columns([3, 1])
+        with col_tbl_ctrl1:
+            st.caption(f"Mostrando {len(df_filtered)} registros anuales correspondientes al período {y_start}–{y_end}.")
+        with col_tbl_ctrl2:
+            csv_export = df_filtered.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label=f"💾 Descargar CSV ({indice_sel})",
+                data=csv_export,
+                file_name=f"{indice_sel}_{y_start}_{y_end}.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+
+        # Si es un índice SSTA o Atlántico con archivo compuesto, permitir ver vista matricial o compuesta
+        if indice_sel in ["SSTA_12", "SSTA_3", "SSTA_4", "SSTA_34", "AtlTROP", "SAtl", "NAtl"]:
+            tab_matriz, tab_compuesto = st.tabs(["Matriz Mensual (Utilizada por Motor)", "Fuente Compuesta Original (SST Absoluta vs Anomalía)"])
+            with tab_matriz:
+                st.dataframe(df_filtered.style.format(precision=2, na_rep="-"), use_container_width=True, height=350)
+            with tab_compuesto:
+                raw_filename = "dataSSTA.csv" if "SSTA" in indice_sel else "dataSSTOI.csv"
+                raw_path = os.path.join(DATA_DIR, raw_filename)
+                if os.path.exists(raw_path):
+                    df_raw = pd.read_csv(raw_path)
+                    df_raw_filtered = df_raw[(df_raw["YEAR"] >= y_start) & (df_raw["YEAR"] <= y_end)]
+                    st.caption(f"Archivo fuente: `{raw_filename}` — Observe que el motor climatológico selecciona estrictamente la columna de anomalía `{meta.get('variable_column')}`.")
+                    st.dataframe(df_raw_filtered, use_container_width=True, height=350)
+                else:
+                    st.warning(f"No se encontró el archivo compuesto {raw_filename} en el almacenamiento local.")
+        else:
+            st.dataframe(df_filtered.style.format(precision=2, na_rep="-"), use_container_width=True, height=350)
 
     else:
         st.error(
@@ -784,20 +835,21 @@ elif seccion_seleccionada == "📈 Estado de Datos":
             )
         st.dataframe(pd.DataFrame(res_rows), use_container_width=True)
 
-    st.subheader("📋 Inventario Detallado de Fuentes")
+    st.subheader("📋 Inventario Detallado de Fuentes y Variables")
+    cols_salud_show = [
+        "Código",
+        "Nombre",
+        "Estado",
+        "Primer Año",
+        "Último Año",
+        "Último Mes",
+        "Años Registrados",
+        "Tipo de Variable",
+        "Variable en Motor",
+        "Institución",
+    ]
     st.dataframe(
-        df_salud[
-            [
-                "Código",
-                "Nombre",
-                "Estado",
-                "Primer Año",
-                "Último Año",
-                "Último Mes",
-                "Años Registrados",
-                "Institución",
-            ]
-        ],
+        df_salud[[c for c in cols_salud_show if c in df_salud.columns]],
         use_container_width=True,
         height=450,
     )

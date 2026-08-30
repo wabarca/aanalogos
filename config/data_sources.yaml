@@ -1,378 +1,567 @@
-# ==============================================================================
-# MANIFIESTO DE FUENTES DE DATOS CLIMÁTICAS (AANALOGOS)
-# Catálogo Maestro de Índices y Oscilaciones Climáticas
-# Ministerio de Medio Ambiente y Recursos Naturales (MARN), El Salvador
-# ==============================================================================
-
 AMO:
-  name: "Atlantic Multidecadal Oscillation (Kaplan SST)"
-  acronym: "AMO"
-  institution: "NOAA Physical Sciences Laboratory (PSL)"
-  url: "https://psl.noaa.gov/data/correlation/amon.us.data"
-  filename_csv: "dataAMO.csv"
-  filename_txt: "dataAMO.txt"
-  format: "monthly_matrix"
-  region: "Atlántico Norte (0° a 70°N)"
-  variable: "Anomalía de Temperatura Superficial del Mar (°C)"
-  units: "°C"
+  name: Atlantic Multidecadal Oscillation (Kaplan SST)
+  acronym: AMO
+  institution: NOAA Physical Sciences Laboratory (PSL)
+  url: https://psl.noaa.gov/data/correlation/amon.us.data
+  filename_csv: dataAMO.csv
+  filename_txt: dataAMO.txt
+  format: monthly_matrix
+  region: Atlántico Norte (0° a 70°N)
+  variable: Anomalía de Temperatura Superficial del Mar sin tendencia (°C)
+  variable_type: anomalía
+  variable_column: ENE..DIC (Matriz mensual)
+  exact_variable_used: Anomalía mensual de TSM desestacionalizada y sin tendencia
+    lineal (°C)
+  units: °C
   period_start: 1950
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.30
-  description: "Variabilidad multidecadal de la temperatura superficial del mar en el Atlántico Norte. Modula la actividad ciclónica tropical en la cuenca del Atlántico y los regímenes de precipitación estacional en Centroamérica."
-  reference: "Enfield, D. B., Mestas-Nuñez, A. M., & Trimble, P. J. (2001). The Atlantic Multidecadal Oscillation and its relation to rainfall and river flows in the continental U.S. Geophysical Research Letters, 28(10), 2077-2080."
-  doi: "10.1029/2000GL012745"
-
+  threshold_r: 0.6
+  threshold_mad: 0.3
+  description: Variabilidad multidecadal de la temperatura superficial del mar en
+    el Atlántico Norte. Modula la actividad ciclónica tropical en la cuenca del Atlántico
+    y los regímenes de precipitación estacional en Centroamérica.
+  reference: Enfield, D. B., Mestas-Nuñez, A. M., & Trimble, P. J. (2001). The Atlantic
+    Multidecadal Oscillation and its relation to rainfall and river flows in the continental
+    U.S. Geophysical Research Letters, 28(10), 2077-2080.
+  doi: 10.1029/2000GL012745
 AO:
-  name: "Arctic Oscillation"
-  acronym: "AO"
-  institution: "NOAA Climate Prediction Center (CPC)"
-  url: "https://www.cpc.ncep.noaa.gov/products/precip/CWlink/daily_ao_index/monthly.ao.index.b50.current.ascii.table"
-  filename_csv: "dataAO.csv"
-  filename_txt: "dataAO.txt"
-  format: "monthly_matrix"
-  region: "Ártico / Hemisferio Norte (20°N a 90°N)"
-  variable: "Anomalía de Geopotencial en 1000 hPa"
-  units: "Estandarizado"
+  name: Arctic Oscillation
+  acronym: AO
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://www.cpc.ncep.noaa.gov/products/precip/CWlink/daily_ao_index/monthly.ao.index.b50.current.ascii.table
+  filename_csv: dataAO.csv
+  filename_txt: dataAO.txt
+  format: monthly_matrix
+  region: Ártico / Hemisferio Norte (20°N a 90°N)
+  variable: Anomalía de Geopotencial en 1000 hPa proyectada sobre el primer modo EOF
+  variable_type: índice estandarizado
+  variable_column: ENE..DIC (Matriz mensual)
+  exact_variable_used: Índice estandarizado mensual de oscilación ártica (adimensional)
+  units: Estandarizado
   period_start: 1950
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -999.0
-  threshold_r: 0.40
-  threshold_mad: 1.00
-  description: "Modo dominante de variabilidad de la circulación troposférica en latitudes medias y altas del Hemisferio Norte. Condiciona la intensidad del vórtice polar y la incursión de frentes fríos hacia Centroamérica durante la temporada seca."
-  reference: "Thompson, D. W., & Wallace, J. M. (1998). The Arctic Oscillation signature in the wintertime geopotential height and temperature fields. Geophysical Research Letters, 25(9), 1297-1300."
-  doi: "10.1029/98GL00950"
-
+  threshold_r: 0.4
+  threshold_mad: 1.0
+  description: Modo dominante de variabilidad de la circulación troposférica en latitudes
+    medias y altas del Hemisferio Norte. Condiciona la intensidad del vórtice polar
+    y la incursión de frentes fríos hacia Centroamérica durante la temporada seca.
+  reference: Thompson, D. W., & Wallace, J. M. (1998). The Arctic Oscillation signature
+    in the wintertime geopotential height and temperature fields. Geophysical Research
+    Letters, 25(9), 1297-1300.
+  doi: 10.1029/98GL00950
 MEI:
-  name: "Multivariate ENSO Index Version 2"
-  acronym: "MEI"
-  institution: "NOAA Physical Sciences Laboratory (PSL)"
-  url: "https://psl.noaa.gov/enso/mei/data/meiv2.data"
-  filename_csv: "dataMEI_2.csv"
-  filename_txt: "dataMEI_2.txt"
-  format: "monthly_matrix"
-  region: "Pacífico Tropical"
-  variable: "Combinación multivariada (SLP, SST, vientos zonales/meridionales, OLR)"
-  units: "Estandarizado"
+  name: Multivariate ENSO Index Version 2
+  acronym: MEI
+  institution: NOAA Physical Sciences Laboratory (PSL)
+  url: https://psl.noaa.gov/enso/mei/data/meiv2.data
+  filename_csv: dataMEI_2.csv
+  filename_txt: dataMEI_2.txt
+  format: monthly_matrix
+  region: Pacífico Tropical (30°S-30°N, 100°E-70°W)
+  variable: Combinación multivariada EOF (SLP, SST, vientos zonales/meridionales,
+    OLR)
+  variable_type: índice estandarizado
+  variable_column: ENE..DIC (Bimensual emparejado a meses)
+  exact_variable_used: Índice multivariado estandarizado del acoplamiento océano-atmósfera
+  units: Estandarizado
   period_start: 1950
-  update_frequency: "Bimensual / Mensual"
+  update_frequency: Bimensual / Mensual
   missing_value: -999.0
-  threshold_r: 0.40
-  threshold_mad: 0.50
-  description: "Índice multivariado que integra seis variables atmosféricas y oceánicas sobre el Pacífico Tropical para monitorear de forma holística el acoplamiento océano-atmósfera del fenómeno ENOS."
-  reference: "Zhang, T., Hoell, A., Perlwitz, J., Eischeid, J., Murray, D., & Wolter, K. (2019). The Multivariate ENSO Index Version 2. International Journal of Climatology, 39(8), 3467-3482."
-  doi: "10.1002/joc.6033"
-
+  threshold_r: 0.4
+  threshold_mad: 0.5
+  description: Índice multivariado que integra seis variables atmosféricas y oceánicas
+    sobre el Pacífico Tropical para monitorear de forma holística el acoplamiento
+    océano-atmósfera del fenómeno ENOS.
+  reference: Zhang, T., Hoell, A., Perlwitz, J., Eischeid, J., Murray, D., & Wolter,
+    K. (2019). The Multivariate ENSO Index Version 2. International Journal of Climatology,
+    39(8), 3467-3482.
+  doi: 10.1002/joc.6033
 ONI:
-  name: "Oceanic Niño Index"
-  acronym: "ONI"
-  institution: "NOAA Climate Prediction Center (CPC)"
-  url: "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/"
-  filename_csv: "dataONI.csv"
-  filename_txt: "dataONI.txt"
-  format: "seasonal_running_mean"
-  region: "Pacífico Niño 3.4 (5°N-5°S, 120°-170°W)"
-  variable: "Media móvil de 3 meses de Anomalía TSM ERSST.v5 (°C)"
-  units: "°C"
+  name: Oceanic Niño Index (Estándar Operacional)
+  acronym: ONI
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/
+  filename_csv: dataONI.csv
+  filename_txt: dataONI.txt
+  format: seasonal_running_mean
+  region: Pacífico Niño 3.4 (5°N-5°S, 120°-170°W)
+  variable: Media móvil trimestral de Anomalía TSM (°C)
+  variable_type: anomalía
+  variable_column: DJF..NDJ (Medias móviles centradas)
+  exact_variable_used: Anomalía de TSM en media móvil de 3 meses (°C)
+  units: °C
   period_start: 1950
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.60
-  description: "Indicador estándar operacional de NOAA para clasificar episodios cálidos (El Niño) y fríos (La Niña) mediante la media móvil trimestral de anomalías térmicas en la región Niño 3.4."
-  reference: "Huang, B., Thorne, P. W., Banzon, V. F., Boyer, T., Chepurin, G., Lawrimore, J. H., ... & Zhang, H. M. (2017). Extended Reconstructed Sea Surface Temperature, Version 5 (ERSSTv5): Upgrades, Validations, and Intercomparisons. Journal of Climate, 30(20), 8179-8205."
-  doi: "10.1175/JCLI-D-16-0836.1"
-
+  threshold_r: 0.6
+  threshold_mad: 0.6
+  description: Indicador estándar operacional de NOAA para clasificar episodios cálidos
+    (El Niño) y fríos (La Niña) mediante la media móvil trimestral de anomalías térmicas
+    en la región Niño 3.4.
+  reference: 'Huang, B., Thorne, P. W., Banzon, V. F., Boyer, T., Chepurin, G., Lawrimore,
+    J. H., ... & Zhang, H. M. (2017). Extended Reconstructed Sea Surface Temperature,
+    Version 5 (ERSSTv5): Upgrades, Validations, and Intercomparisons. Journal of Climate,
+    30(20), 8179-8205.'
+  doi: 10.1175/JCLI-D-16-0836.1
+ONIv5:
+  name: Oceanic Niño Index (ERSSTv5)
+  acronym: ONIv5
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v5/
+  filename_csv: dataONIv5.csv
+  filename_txt: dataONIv5.txt
+  format: seasonal_running_mean
+  region: Pacífico Niño 3.4 (5°N-5°S, 120°-170°W)
+  variable: Media móvil trimestral de Anomalía TSM ERSST.v5 (°C)
+  variable_type: anomalía
+  variable_column: DJF..NDJ (Medias móviles centradas ERSST.v5)
+  exact_variable_used: Anomalía térmica trimestral calculada a partir de ERSSTv5 (°C)
+  units: °C
+  period_start: 1950
+  update_frequency: Mensual
+  missing_value: -99.99
+  threshold_r: 0.6
+  threshold_mad: 0.6
+  description: Versión histórica de referencia del ONI calculada con el producto de
+    temperatura superficial del mar ERSST versión 5 de NOAA con climatología base
+    de 30 años centrada.
+  reference: Huang, B., Thorne, P. W., et al. (2017). Extended Reconstructed Sea Surface
+    Temperature, Version 5 (ERSSTv5). Journal of Climate, 30(20), 8179-8205.
+  doi: 10.1175/JCLI-D-16-0836.1
+ONIv6:
+  name: Oceanic Niño Index (ERSSTv6)
+  acronym: ONIv6
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/
+  filename_csv: dataONIv6.csv
+  filename_txt: dataONIv6.txt
+  format: seasonal_running_mean
+  region: Pacífico Niño 3.4 (5°N-5°S, 120°-170°W)
+  variable: Media móvil trimestral de Anomalía TSM ERSST.v6 (°C)
+  variable_type: anomalía
+  variable_column: DJF..NDJ (Medias móviles centradas ERSST.v6)
+  exact_variable_used: Anomalía térmica trimestral calculada a partir de ERSSTv6 (°C)
+  units: °C
+  period_start: 1950
+  update_frequency: Mensual
+  missing_value: -99.99
+  threshold_r: 0.6
+  threshold_mad: 0.6
+  description: Nueva versión oficial del ONI basada en la reconstrucción ERSST versión
+    6, que incorpora correcciones avanzadas en bias de boyas y altimetría satelital.
+  reference: 'Huang, B., et al. (2025). Extended Reconstructed Sea Surface Temperature,
+    Version 6 (ERSSTv6): Upgrades and Intercomparisons. Journal of Climate, 38(4),
+    945-965.'
+  doi: 10.1175/JCLI-D-23-0707.1
+RONI:
+  name: Relative Oceanic Niño Index (ERSSTv6)
+  acronym: RONI
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/
+  filename_csv: dataRONI.csv
+  filename_txt: dataRONI.txt
+  format: seasonal_running_mean
+  region: Pacífico Niño 3.4 relativo a la media del cinturón tropical (20°N-20°S)
+  variable: Anomalía relativa de TSM Niño 3.4 menos la anomalía media tropical global
+    (°C)
+  variable_type: índice derivado
+  variable_column: DJF..NDJ (Media trimestral relativa ajustada)
+  exact_variable_used: Anomalía relativa trimestral ajustada por la varianza del calentamiento
+    global de fondo (°C)
+  units: °C
+  period_start: 1950
+  update_frequency: Mensual
+  missing_value: -99.99
+  threshold_r: 0.6
+  threshold_mad: 0.6
+  description: Índice de NOAA CPC que descuenta el calentamiento global homogéneo
+    de los trópicos para aislar el gradiente zonal neto y el verdadero forzamiento
+    convectivo del ENOS.
+  reference: Van Oldenborgh, G. J., et al. (2021). Pathways of global warming impacts
+    on ENSO teleconnections. Journal of Climate, 34(7), 2633-2647.
+  doi: 10.1175/JCLI-D-20-0588.1
 NAO:
-  name: "North Atlantic Oscillation"
-  acronym: "NAO"
-  institution: "NOAA Climate Prediction Center (CPC) / PSL"
-  url: "https://psl.noaa.gov/data/correlation/nao.data"
-  filename_csv: "dataNAO.csv"
-  filename_txt: "dataNAO.txt"
-  format: "monthly_matrix"
-  region: "Atlántico Norte (Baja de Islandia vs Alta de Azores)"
-  variable: "Diferencia de presión a nivel del mar normalizada"
-  units: "Estandarizado"
+  name: North Atlantic Oscillation
+  acronym: NAO
+  institution: NOAA Climate Prediction Center (CPC) / PSL
+  url: https://psl.noaa.gov/data/correlation/nao.data
+  filename_csv: dataNAO.csv
+  filename_txt: dataNAO.txt
+  format: monthly_matrix
+  region: Atlántico Norte (Baja de Islandia vs Alta de Azores)
+  variable: Diferencia de presión a nivel del mar normalizada
+  variable_type: índice estandarizado
+  variable_column: ENE..DIC (Matriz mensual)
+  exact_variable_used: Índice de teleconexión estandarizado de la Oscilación del Atlántico
+    Norte
+  units: Estandarizado
   period_start: 1950
-  update_frequency: "Mensual"
-  missing_value: -99.90
-  threshold_r: 0.60
-  threshold_mad: 0.80
-  description: "Fluctuación a gran escala en la masa atmosférica entre la Baja de Islandia y la Alta de las Azores, modulando la intensidad de los vientos alisios del Atlántico y el transporte de humedad hacia el Caribe."
-  reference: "Hurrell, J. W. (1995). Decadal trends in the North Atlantic Oscillation: Regional temperatures and precipitation. Science, 269(5224), 676-679."
-  doi: "10.1126/science.269.5224.676"
-
+  update_frequency: Mensual
+  missing_value: -99.9
+  threshold_r: 0.5
+  threshold_mad: 0.6
+  description: Dipolo de presión atmosférica entre la Baja de Islandia y el Anticiclón
+    de las Azores. Modula la trayectoria de borrascas atlánticas, la intensidad de
+    los vientos alisios y el flujo de humedad hacia el Caribe.
+  reference: 'Hurrell, J. W. (1995). Decadal trends in the North Atlantic Oscillation:
+    regional temperatures and precipitation. Science, 269(5224), 676-679.'
+  doi: 10.1126/science.269.5224.676
 PDO:
-  name: "Pacific Decadal Oscillation"
-  acronym: "PDO"
-  institution: "NCEI NOAA / University of Washington"
-  url: "https://www.ncei.noaa.gov/pub/data/cmb/ersst/v5/index/ersst.v5.pdo.dat"
-  filename_csv: "dataPDO.csv"
-  filename_txt: "dataPDO.txt"
-  format: "monthly_matrix"
-  region: "Pacífico Norte (al norte de 20°N)"
-  variable: "Patrón espacial empírico dominante (EOF 1) de anomalías TSM"
-  units: "Estandarizado"
-  period_start: 1946
-  update_frequency: "Mensual"
-  missing_value: 99.99
-  threshold_r: 0.40
-  threshold_mad: 0.60
-  description: "Patrón recurrente de variabilidad climática decadal del Pacífico Norte que modula la respuesta regional del ENOS y la temperatura del Pacífico nororiental sobre escalas interanuales y multidecadales."
-  reference: "Mantua, N. J., Hare, S. R., Zhang, Y., Wallace, J. M., & Francis, R. C. (1997). A Pacific interdecadal climate oscillation with impacts on salmon production. Bulletin of the American Meteorological Society, 78(6), 1069-1080."
-  doi: "10.1175/1520-0477(1997)078<1069:APICOW>2.0.CO;2"
-
+  name: Pacific Decadal Oscillation
+  acronym: PDO
+  institution: NOAA National Centers for Environmental Information (NCEI) / PSL
+  url: https://www.ncei.noaa.gov/pub/data/cmb/ersst/v5/index/ersst.v5.pdo.dat
+  filename_csv: dataPDO.csv
+  filename_txt: dataPDO.txt
+  format: monthly_matrix
+  region: Pacífico Norte (al norte de 20°N)
+  variable: Primer modo EOF de anomalías mensuales de TSM en el Pacífico Norte
+  variable_type: índice estandarizado
+  variable_column: ENE..DIC (Matriz mensual)
+  exact_variable_used: Serie temporal del componente principal EOF1 estandarizado
+  units: Estandarizado
+  period_start: 1950
+  update_frequency: Mensual
+  missing_value: -99.99
+  threshold_r: 0.6
+  threshold_mad: 0.6
+  description: Patrón recurrente de variabilidad oceánica en el Pacífico Norte con
+    fases de 20 a 30 años. Interactúa constructiva o destructivamente con el ENOS
+    modulando sus impactos hidroclimáticos en el istmo centroamericano.
+  reference: Mantua, N. J., Hare, S. R., Zhang, Y., Wallace, J. M., & Francis, R.
+    C. (1997). A Pacific interdecadal climate oscillation with impacts on salmon production.
+    Bulletin of the American Meteorological Society, 78(6), 1069-1079.
+  doi: 10.1175/1520-0477(1997)078<1069:APICOW>2.0.CO;2
 TNA:
-  name: "Tropical Northern Atlantic Index"
-  acronym: "TNA"
-  institution: "NOAA Physical Sciences Laboratory (PSL)"
-  url: "https://psl.noaa.gov/data/correlation/tna.data"
-  filename_csv: "dataTNA.csv"
-  filename_txt: "dataTNA.txt"
-  format: "monthly_matrix"
-  region: "Atlántico Norte Tropical (5.5°N a 23.5°N, 15°W a 57.5°W)"
-  variable: "Anomalía promedio de TSM (°C)"
-  units: "°C"
+  name: Tropical Northern Atlantic Index
+  acronym: TNA
+  institution: NOAA Physical Sciences Laboratory (PSL)
+  url: https://psl.noaa.gov/data/correlation/tna.data
+  filename_csv: dataTNA.csv
+  filename_txt: dataTNA.txt
+  format: monthly_matrix
+  region: Atlántico Tropical Norte (5.5°N a 23.5°N, 15°W a 57.5°W)
+  variable: Anomalía promedio de Temperatura Superficial del Mar (°C)
+  variable_type: anomalía
+  variable_column: ENE..DIC (Matriz mensual)
+  exact_variable_used: Anomalía promedio de TSM en la cuenca del Atlántico Tropical
+    Norte (°C)
+  units: °C
   period_start: 1950
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.50
-  threshold_mad: 0.30
-  description: "Monitorea las anomalías superficiales de temperatura en el Atlántico Norte Tropical, sector clave para la modulación de la Zona de Convergencia Intertropical (ZCIT) y las ondas del este sobre Centroamérica."
-  reference: "Enfield, D. B., Mestas-Nuñez, A. M., Mayer, D. A., & Cid-Serrano, L. (1999). How ubiquitous is the dipole relationship in tropical Atlantic sea surface temperatures? Journal of Geophysical Research: Oceans, 104(C4), 7841-7848."
-  doi: "10.1029/1998JC900109"
-
+  threshold_r: 0.6
+  threshold_mad: 0.3
+  description: Anomalía de temperatura superficial del mar en el sector tropical del
+    Atlántico Norte. Es un forzante directo del flujo de humedad monzónico y de la
+    posición latitudinal de la Zona de Convergencia Intertropical (ZCIT).
+  reference: 'Enfield, D. B., & Alfaro, E. J. (1999). The conundrum of the warm pool
+    in the tropical Western Hemisphere: How its SST anomalies modulate rainfall in
+    Central and South America. Journal of Climate, 12(4), 1057-1075.'
+  doi: 10.1175/1520-0442(1999)012<1057:TCOTWP>2.0.CO;2
 SSTA_12:
-  name: "Niño 1+2 SST Anomaly Index"
-  acronym: "SSTA_12"
-  institution: "NOAA Climate Prediction Center (CPC)"
-  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
-  filename_csv: "dataSSTA_12.csv"
-  format: "monthly_matrix"
-  region: "Pacífico Ecuatorial Oriental (0°-10°S, 90°W-80°W)"
-  variable: "Anomalía TSM OISST.v2 (°C)"
-  units: "°C"
+  name: Niño 1+2 SST Anomaly
+  acronym: SSTA_12
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices
+  filename_csv: dataSSTA_12.csv
+  filename_txt: dataSSTA.txt
+  format: monthly_composite
+  region: Costas de Ecuador y Perú (0°-10°S, 90°-80°W)
+  variable: Anomalía mensual de Temperatura Superficial del Mar ERSST (°C)
+  variable_type: anomalía
+  variable_column: ANOM1+2 (Columna de anomalía extraída de sstoi.indices)
+  exact_variable_used: Anomalía mensual observada de TSM (°C)
+  units: °C
   period_start: 1982
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.60
-  description: "Anomalía de TSM frente a las costas de Ecuador y norte de Perú (0°-10°S, 90°W-80°W), indicativa de calentamientos costeros intensos (El Niño Costero) y su propagación termoclina."
-  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
-  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
-
+  threshold_r: 0.6
+  threshold_mad: 0.6
+  description: Anomalía térmica costera en el extremo oriental del Pacífico Ecuatorial.
+    Fundamental para detectar eventos de 'El Niño Costero' que impactan intensamente
+    los regímenes pluviométricos regionales.
+  reference: Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang,
+    W. (2002). An improved in situ and satellite SST analysis for climate. Journal
+    of Climate, 15(13), 1609-1625.
+  doi: 10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2
 SSTA_3:
-  name: "Niño 3 SST Anomaly Index"
-  acronym: "SSTA_3"
-  institution: "NOAA Climate Prediction Center (CPC)"
-  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
-  filename_csv: "dataSSTA_3.csv"
-  format: "monthly_matrix"
-  region: "Pacífico Ecuatorial Central-Oriental (5°N-5°S, 150°W-90°W)"
-  variable: "Anomalía TSM OISST.v2 (°C)"
-  units: "°C"
+  name: Niño 3 SST Anomaly
+  acronym: SSTA_3
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices
+  filename_csv: dataSSTA_3.csv
+  filename_txt: dataSSTA.txt
+  format: monthly_composite
+  region: Pacífico Oriental Ecuatorial (5°N-5°S, 150°W-90°W)
+  variable: Anomalía mensual de Temperatura Superficial del Mar ERSST (°C)
+  variable_type: anomalía
+  variable_column: ANOM3 (Columna de anomalía extraída de sstoi.indices)
+  exact_variable_used: Anomalía mensual observada de TSM (°C)
+  units: °C
   period_start: 1982
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.50
-  threshold_mad: 0.70
-  description: "Anomalía térmica en el Pacífico Ecuatorial Oriental (5°N-5°S, 150°W-90°W), región central en la caracterización clásica de eventos El Niño Canónico del Pacífico Oriental."
-  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
-  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
-
+  threshold_r: 0.6
+  threshold_mad: 0.6
+  description: Anomalía térmica en el sector oriental del Pacífico. Refleja la amplitud
+    de la variabilidad interanual del modo canónico de El Niño (El Niño Oriental /
+    EP).
+  reference: Trenberth, K. E. (1997). The definition of El Niño. Bulletin of the American
+    Meteorological Society, 78(12), 2771-2778.
+  doi: 10.1175/1520-0477(1997)078<2771:TDOEN>2.0.CO;2
 SSTA_4:
-  name: "Niño 4 SST Anomaly Index"
-  acronym: "SSTA_4"
-  institution: "NOAA Climate Prediction Center (CPC)"
-  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
-  filename_csv: "dataSSTA_4.csv"
-  format: "monthly_matrix"
-  region: "Pacífico Ecuatorial Central-Occidental (5°N-5°S, 160°E-150°W)"
-  variable: "Anomalía TSM OISST.v2 (°C)"
-  units: "°C"
+  name: Niño 4 SST Anomaly
+  acronym: SSTA_4
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices
+  filename_csv: dataSSTA_4.csv
+  filename_txt: dataSSTA.txt
+  format: monthly_composite
+  region: Pacífico Centro-Occidental Ecuatorial (5°N-5°S, 160°E-150°W)
+  variable: Anomalía mensual de Temperatura Superficial del Mar ERSST (°C)
+  variable_type: anomalía
+  variable_column: ANOM4 (Columna de anomalía extraída de sstoi.indices)
+  exact_variable_used: Anomalía mensual observada de TSM (°C)
+  units: °C
   period_start: 1982
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.38
-  threshold_mad: 0.70
-  description: "Anomalía de TSM en el Pacífico Ecuatorial Central-Occidental (5°N-5°S, 160°E-150°W), fundamental para identificar eventos El Niño Modoki o del Pacífico Central."
-  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
-  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
-
+  threshold_r: 0.6
+  threshold_mad: 0.6
+  description: Anomalía térmica en la piscina cálida del Pacífico occidental. Es el
+    índice de referencia para monitorear eventos de 'El Niño Modoki' o de calentamiento
+    central (CP).
+  reference: 'Ashok, K., Behera, S. K., Rao, S. A., Weng, H., & Yamagata, T. (2007).
+    El Niño Modoki and its possible teleconnection. Journal of Geophysical Research:
+    Oceans, 112(C11).'
+  doi: 10.1029/2006JC003798
 SSTA_34:
-  name: "Niño 3.4 SST Anomaly Index"
-  acronym: "SSTA_34"
-  institution: "NOAA Climate Prediction Center (CPC)"
-  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
-  filename_csv: "dataSSTA_34.csv"
-  format: "monthly_matrix"
-  region: "Pacífico Ecuatorial Central (5°N-5°S, 170°W-120°W)"
-  variable: "Anomalía TSM OISST.v2 (°C)"
-  units: "°C"
+  name: Niño 3.4 SST Anomaly
+  acronym: SSTA_34
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices
+  filename_csv: dataSSTA_34.csv
+  filename_txt: dataSSTA.txt
+  format: monthly_composite
+  region: Pacífico Centro-Oriental Ecuatorial (5°N-5°S, 170°W-120°W)
+  variable: Anomalía mensual de Temperatura Superficial del Mar ERSST (°C)
+  variable_type: anomalía
+  variable_column: ANOM3.4 (Columna de anomalía extraída de sstoi.indices)
+  exact_variable_used: Anomalía mensual observada de TSM (°C)
+  units: °C
   period_start: 1982
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.60
-  description: "Región estándar internacional (5°N-5°S, 170°W-120°W) para la cuantificación mensual del estado del ciclo ENOS y el acoplamiento atmósfera-océano en la cuenca del Pacífico."
-  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
-  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
-
+  threshold_r: 0.6
+  threshold_mad: 0.6
+  description: Región central de acoplamiento atmósfera-océano para la definición
+    internacional del ciclo ENOS. Clave para el análisis de años análogos estacionales.
+  reference: Barnston, A. G., Chelliah, M., & Goldenberg, S. B. (1997). Documentation
+    of a highly ENSO-related SST region in the equatorial Pacific. Atmosphere-Ocean,
+    35(3), 367-383.
+  doi: 10.1080/07055900.1997.9649597
 AtlTROP:
-  name: "Tropical Atlantic SST Anomaly"
-  acronym: "AtlTROP"
-  institution: "NOAA Climate Prediction Center (CPC)"
-  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
-  filename_csv: "dataAtlTROP.csv"
-  format: "monthly_matrix"
-  region: "Atlántico Ecuatorial y Tropical (10°S a 10°N, 0° a 360°)"
-  variable: "Anomalía TSM OISST.v2 (°C)"
-  units: "°C"
+  name: Tropical Atlantic SST Anomaly
+  acronym: AtlTROP
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://ftp.cpc.ncep.noaa.gov/wd52dg/data/indices/sstoi.atl.indices
+  filename_csv: dataAtlTROP.csv
+  filename_txt: dataSSTOI.txt
+  format: monthly_composite
+  region: Atlántico Tropical Global (20°N-20°S, 100°W-20°E)
+  variable: Anomalía mensual de Temperatura Superficial del Mar (°C)
+  variable_type: anomalía
+  variable_column: ANOM_TROP (Columna de anomalía extraída de sstoi.atl.indices)
+  exact_variable_used: Anomalía mensual observada de TSM (°C)
+  units: °C
   period_start: 1982
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.30
-  description: "Promedio de anomalías térmicas en la franja ecuatorial y tropical del Océano Atlántico (10°S-10°N), modulando la convección regional y la convergencia de vientos alisios."
-  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
-  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
-
+  threshold_r: 0.6
+  threshold_mad: 0.4
+  description: Promedio de anomalías de temperatura superficial en toda la franja
+    tropical del Atlántico. Controla el contenido de calor y la convección profunda
+    tropical.
+  reference: Servain, J. (1991). Simple climatic indices for the tropical Atlantic
+    Ocean and some applications. Tellus A, 43(1), 59-71.
+  doi: 10.3402/tellusa.v43i1.11913
 SAtl:
-  name: "South Atlantic SST Anomaly"
-  acronym: "SAtl"
-  institution: "NOAA Climate Prediction Center (CPC)"
-  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
-  filename_csv: "dataSAtl.csv"
-  format: "monthly_matrix"
-  region: "Atlántico Sur (Eq a 20°S, 30°E a 60°W)"
-  variable: "Anomalía TSM OISST.v2 (°C)"
-  units: "°C"
+  name: South Atlantic SST Anomaly
+  acronym: SAtl
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://ftp.cpc.ncep.noaa.gov/wd52dg/data/indices/sstoi.atl.indices
+  filename_csv: dataSAtl.csv
+  filename_txt: dataSSTOI.txt
+  format: monthly_composite
+  region: Atlántico Sur Tropical (0°-20°S, 40°W-20°E)
+  variable: Anomalía mensual de Temperatura Superficial del Mar (°C)
+  variable_type: anomalía
+  variable_column: ANOM_SAtl (Columna de anomalía extraída de sstoi.atl.indices)
+  exact_variable_used: Anomalía mensual observada de TSM (°C)
+  units: °C
   period_start: 1982
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.30
-  description: "Anomalías superficiales del Atlántico Sur Tropical (Ecuador a 20°S, 30°E a 60°W), polo sur del dipolo meridional atlántico que condiciona el desplazamiento latitudinal de la ZCIT."
-  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
-  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
-
+  threshold_r: 0.6
+  threshold_mad: 0.4
+  description: Anomalía térmica en el Atlántico Tropical Sur. Modula el gradiente
+    meridional interhemisférico (dipolo atlántico) y la posición meridional de la
+    ZCIT.
+  reference: Zebiak, S. E. (1993). Air-sea interaction in the equatorial Atlantic
+    region. Journal of Climate, 6(8), 1567-1586.
+  doi: 10.1175/1520-0442(1993)006<1567:AIITER>2.0.CO;2
 NAtl:
-  name: "North Atlantic SST Anomaly"
-  acronym: "NAtl"
-  institution: "NOAA Climate Prediction Center (CPC)"
-  url: "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
-  filename_csv: "dataNAtl.csv"
-  format: "monthly_matrix"
-  region: "Atlántico Norte (5°N a 20°N, 30°E a 60°W)"
-  variable: "Anomalía TSM OISST.v2 (°C)"
-  units: "°C"
+  name: North Atlantic SST Anomaly
+  acronym: NAtl
+  institution: NOAA Climate Prediction Center (CPC)
+  url: https://ftp.cpc.ncep.noaa.gov/wd52dg/data/indices/sstoi.atl.indices
+  filename_csv: dataNAtl.csv
+  filename_txt: dataSSTOI.txt
+  format: monthly_composite
+  region: Atlántico Norte Tropical (5°N-20°N, 60°W-20°W)
+  variable: Anomalía mensual de Temperatura Superficial del Mar (°C)
+  variable_type: anomalía
+  variable_column: ANOM_NAtl (Columna de anomalía extraída de sstoi.atl.indices)
+  exact_variable_used: Anomalía mensual observada de TSM (°C)
+  units: °C
   period_start: 1982
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.30
-  description: "Anomalías térmicas de la banda tropical septentrional del Atlántico (5°N-20°N, 30°E-60°W), sector de desarrollo ciclónico principal del Atlántico."
-  reference: "Reynolds, R. W., Rayner, N. A., Smith, T. M., Stokes, D. C., & Wang, W. (2002). An improved in situ and satellite SST analysis for climate. Journal of Climate, 15(13), 1609-1625."
-  doi: "10.1175/1520-0442(2002)015<1609:AIISAS>2.0.CO;2"
-
+  threshold_r: 0.6
+  threshold_mad: 0.4
+  description: Anomalía térmica en la Región de Desarrollo Principal (MDR) de huracanes
+    del Atlántico Norte. Correlaciona fuertemente con la temporada de lluvias de Centroamérica.
+  reference: Goldenberg, S. B., & Shapiro, L. J. (1996). Physical mechanisms for the
+    observed vertical wind shear anomalies in the Atlantic hurricane basin. J. Climate,
+    9(6), 1169-1187.
+  doi: 10.1175/1520-0442(1996)009<1169:PMFTOV>2.0.CO;2
 CAR:
-  name: "Caribbean SST Anomaly Index"
-  acronym: "CAR"
-  institution: "NOAA Physical Sciences Laboratory (PSL)"
-  url: "https://psl.noaa.gov/data/correlation/car.data"
-  filename_csv: "dataCAR.csv"
-  filename_txt: "dataCAR.txt"
-  format: "monthly_matrix"
-  region: "Mar Caribe (10°N-20°N, 85°W-60°W)"
-  variable: "Anomalía TSM (°C)"
-  units: "°C"
+  name: Caribbean SST Index
+  acronym: CAR
+  institution: NOAA Physical Sciences Laboratory (PSL)
+  url: https://psl.noaa.gov/data/correlation/CAR_ersst.data
+  filename_csv: dataCAR.csv
+  filename_txt: dataCAR.txt
+  format: monthly_matrix
+  region: Mar Caribe (10°N a 22°N, 85°W a 60°W)
+  variable: Anomalía de Temperatura Superficial del Mar ERSST (°C)
+  variable_type: anomalía
+  variable_column: ENE..DIC (Matriz mensual)
+  exact_variable_used: Anomalía promedio mensual de TSM en el Mar Caribe (°C)
+  units: °C
   period_start: 1950
-  update_frequency: "Histórico (hasta 2020)"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.30
-  description: "Anomalía promedio de TSM en el Mar Caribe (10°N-20°N, 85°W-60°W), regulador directo del contenido de calor y humedad que ingresa a Centroamérica y la intensidad del Chorro de Bajo Nivel del Caribe."
-  reference: "Enfield, D. B., & Alfaro, E. J. (1999). The dependence of Caribbean rainfall on the interaction of the tropical Atlantic and Pacific Oceans. Journal of Climate, 12(7), 2093-2103."
-  doi: "10.1175/1520-0442(1999)012<2093:TDOCRO>2.0.CO;2"
-
+  threshold_r: 0.6
+  threshold_mad: 0.3
+  description: Anomalía térmica en la cuenca del Mar Caribe. Fuente primaria de humedad
+    y calor latente que modula la intensidad del Chorro de Bajos Niveles del Caribe
+    (CLLJ) y la canícula.
+  reference: Taylor, M. A., Enfield, D. B., & Chen, A. A. (2002). Influence of the
+    tropical Atlantic versus the tropical Pacific on Caribbean rainfall. J. Geophys.
+    Res., 107(C9), 3127.
+  doi: 10.1029/2001JC001097
 WHWP:
-  name: "Western Hemisphere Warm Pool"
-  acronym: "WHWP"
-  institution: "NOAA Physical Sciences Laboratory (PSL)"
-  url: "https://psl.noaa.gov/data/correlation/whwp.data"
-  filename_csv: "dataWHWP.csv"
-  filename_txt: "dataWHWP.txt"
-  format: "monthly_matrix"
-  region: "Pacífico Oriental Tropical y Atlántico Tropical (TSM > 28.5°C)"
-  variable: "Anomalía del área de la piscina cálida (10^6 km²)"
-  units: "10^6 km²"
+  name: Western Hemisphere Warm Pool
+  acronym: WHWP
+  institution: NOAA Physical Sciences Laboratory (PSL)
+  url: https://psl.noaa.gov/data/correlation/whwp.data
+  filename_csv: dataWHWP.csv
+  filename_txt: dataWHWP.txt
+  format: monthly_matrix
+  region: Piscina Cálida del Hemisferio Occidental (Pacífico Oriental + Caribe + Golfo
+    de México)
+  variable: Extensión superficial de agua con TSM > 28.5 °C (10^6 km^2)
+  variable_type: anomalía
+  variable_column: ENE..DIC (Matriz mensual)
+  exact_variable_used: Anomalía del área de la piscina cálida (10^6 km²)
+  units: 10^6 km^2
   period_start: 1950
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.60
-  description: "Superficie oceánica con TSM superior a 28.5°C en el Pacífico Oriental Tropical, Golfo de México y Mar Caribe, modulando la convección profunda y la temporada de lluvias en Mesoamérica."
-  reference: "Wang, C., & Enfield, D. B. (2001). The tropical Western Hemisphere warm pool. Geophysical Research Letters, 28(8), 1635-1638."
-  doi: "10.1029/2000GL011763"
-
+  threshold_r: 0.6
+  threshold_mad: 0.4
+  description: Superficie oceánica con temperaturas superiores a 28.5 °C en el Pacífico
+    Oriental y Atlántico Tropical. Es la segunda piscina cálida más grande del planeta.
+  reference: Wang, C., & Enfield, D. B. (2001). The tropical Western Hemisphere warm
+    pool. Geophysical Research Letters, 28(8), 1635-1638.
+  doi: 10.1029/2000GL011763
 PNA:
-  name: "Pacific-North American Pattern"
-  acronym: "PNA"
-  institution: "NOAA Climate Prediction Center (CPC) / PSL"
-  url: "https://psl.noaa.gov/data/correlation/pna.data"
-  filename_csv: "dataPNA.csv"
-  filename_txt: "dataPNA.txt"
-  format: "monthly_matrix"
-  region: "Pacífico Norte y Norteamérica"
-  variable: "Patrón de teleconexión de geopotencial 500 hPa"
-  units: "Estandarizado"
+  name: Pacific-North American Pattern
+  acronym: PNA
+  institution: NOAA Climate Prediction Center (CPC) / PSL
+  url: https://psl.noaa.gov/data/correlation/pna.data
+  filename_csv: dataPNA.csv
+  filename_txt: dataPNA.txt
+  format: monthly_matrix
+  region: Pacífico Norte y Norteamérica (20°N a 70°N)
+  variable: Patrón de teleconexión de geopotencial en 500 hPa
+  variable_type: índice estandarizado
+  variable_column: ENE..DIC (Matriz mensual)
+  exact_variable_used: Índice de teleconexión estandarizado PNA (adimensional)
+  units: Estandarizado
   period_start: 1950
-  update_frequency: "Mensual"
-  missing_value: -99.90
-  threshold_r: 0.60
-  threshold_mad: 0.60
-  description: "Modo de teleconexión atmosférica troposférica que vincula las anomalías térmicas del Pacífico con la posición del chorro polar y dorsales/vaguadas en Norteamérica y Centroamérica."
-  reference: "Wallace, J. M., & Gutzler, D. S. (1981). Teleconnections in the geopotential height field during the Northern Hemisphere winter. Monthly Weather Review, 109(4), 784-812."
-  doi: "10.1175/1520-0493(1981)109<0784:TITGHF>2.0.CO;2"
-
+  update_frequency: Mensual
+  missing_value: -99.9
+  threshold_r: 0.5
+  threshold_mad: 0.7
+  description: Patrón de ondas planetarias en la troposfera media sobre el Pacífico
+    y América del Norte. Modula la intensidad de dorsales y vaguadas que inducen empujes
+    fríos hacia Centroamérica.
+  reference: Wallace, J. M., & Gutzler, D. S. (1981). Teleconnections in the geopotential
+    height field during the Northern Hemisphere winter. Monthly Weather Review, 109(4),
+    784-812.
+  doi: 10.1175/1520-0493(1981)109<0784:TITGHF>2.0.CO;2
 SOI:
-  name: "Southern Oscillation Index"
-  acronym: "SOI"
-  institution: "NOAA Climate Prediction Center (CPC) / PSL"
-  url: "https://psl.noaa.gov/data/correlation/soi.data"
-  filename_csv: "dataSOI.csv"
-  filename_txt: "dataSOI.txt"
-  format: "monthly_matrix"
-  region: "Pacífico Sur (Tahiti vs Darwin)"
-  variable: "Diferencia de presión a nivel del mar normalizada"
-  units: "Estandarizado"
-  period_start: 1953
-  update_frequency: "Mensual"
+  name: Southern Oscillation Index
+  acronym: SOI
+  institution: NOAA Climate Prediction Center (CPC) / PSL
+  url: https://psl.noaa.gov/data/correlation/soi.data
+  filename_csv: dataSOI.csv
+  filename_txt: dataSOI.txt
+  format: monthly_matrix
+  region: Pacífico Sur (Tahití vs Darwin, Australia)
+  variable: Diferencia de anomalías estandarizadas de presión a nivel del mar (SLP)
+  variable_type: índice estandarizado
+  variable_column: ENE..DIC (Matriz mensual)
+  exact_variable_used: Índice de Oscilación del Sur estandarizado de Troup/Trenberth
+  units: Estandarizado
+  period_start: 1951
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.30
-  description: "Índice barométrico calculado a partir de la diferencia estandarizada de presión a nivel del mar entre Tahiti y Darwin, midiendo la componente atmosférica de la oscilación de Walker."
-  reference: "Ropelewski, C. F., & Jones, P. D. (1987). An extension of the Tahiti-Darwin Southern Oscillation Index. Monthly Weather Review, 115(9), 2161-2165."
-  doi: "10.1175/1520-0493(1987)115<2161:AEOTTS>2.0.CO;2"
-
+  threshold_r: 0.5
+  threshold_mad: 0.8
+  description: Componente atmosférico del fenómeno ENOS calculado como la fluctuación
+    barométrica entre Tahití y Darwin. Valores persistentemente negativos señalan
+    condiciones El Niño.
+  reference: Troup, A. J. (1965). The 'southern oscillation'. Quarterly Journal of
+    the Royal Meteorological Society, 91(390), 490-506.
+  doi: 10.1002/qj.49709139009
 AMO_CSU:
-  name: "Atlantic Multidecadal Oscillation (Colorado State University)"
-  acronym: "AMO_CSU"
-  institution: "Colorado State University (CSU) Tropical Meteorology Project"
-  url: "https://tropical.colostate.edu/amo.html"
-  filename_csv: "dataAMO_CSU.csv"
-  filename_txt: "dataAMO_CSU.txt"
-  format: "monthly_matrix"
-  region: "Atlántico Norte (0°-60°N, 80°W-0°)"
-  variable: "Anomalía TSM filtrada/destrended (°C)"
-  units: "°C"
+  name: CSU Atlantic Multidecadal Oscillation
+  acronym: AMO_CSU
+  institution: Colorado State University (CSU) Tropical Meteorology Project
+  url: https://tropical.colostate.edu/Forecast/downloadable/csu_amo.csv
+  filename_csv: dataAMO_CSU.csv
+  filename_txt: dataAMO_CSU.txt
+  format: csv_table
+  region: Atlántico Norte Tropical y Subtropical (10°N a 60°N)
+  variable: Anomalía de TSM desestacionalizada y filtrada (°C)
+  variable_type: anomalía
+  variable_column: ENE..DIC (Matriz mensual CSU)
+  exact_variable_used: Anomalía mensual de TSM del Atlántico Norte según formulación
+    CSU (°C)
+  units: °C
   period_start: 1950
-  update_frequency: "Mensual"
+  update_frequency: Mensual
   missing_value: -99.99
-  threshold_r: 0.60
-  threshold_mad: 0.30
-  description: "Serie de la Oscilación Multidecadal del Atlántico con remoción de tendencia lineal calculada por el Tropical Meteorology Project de la Universidad Estatal de Colorado."
-  reference: "Klotzbach, P. J., & Gray, W. M. (2008). Extended range forecast of Atlantic seasonal hurricane activity and verification of 1996-2008 forecasts. Weather and Forecasting, 24(5), 1392-1408."
-  doi: "10.1175/2009WAF2222235.1"
+  threshold_r: 0.6
+  threshold_mad: 0.3
+  description: Serie de la Oscilación Multidecadal del Atlántico mantenida por el
+    equipo de pronóstico de huracanes de la Universidad Estatal de Colorado (CSU).
+  reference: Klotzbach, P. J., & Gray, W. M. (2008). Multidecadal variability in North
+    Atlantic tropical cyclone activity. Journal of Climate, 21(15), 3929-3935.
+  doi: 10.1175/2008JCLI2162.1

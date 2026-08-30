@@ -9,10 +9,13 @@ LONGITUD_VENTANA = 6  # Retrocompatibilidad
 UMBRAL_SENTINELA_MIN = -50.0
 UMBRAL_SENTINELA_MAX = 50.0
 
-# Umbrales específicos validados para cada una de las 19 oscilaciones
+# Umbrales específicos validados para cada oscilación climática
 # Estructura: indice -> (r_minimo, mad_maximo)
 UMBRALES_OSCILACIONES = {
     "ONI": (0.6, 0.6),
+    "ONIv5": (0.6, 0.6),
+    "ONIv6": (0.6, 0.6),
+    "RONI": (0.6, 0.6),
     "AMO": (0.6, 0.3),
     "SOI": (0.6, 0.3),
     "AMO_CSU": (0.6, 0.3),
@@ -43,8 +46,11 @@ FUENTES_DATOS = {
     "AO": {"url": "https://www.cpc.ncep.noaa.gov/products/precip/CWlink/daily_ao_index/monthly.ao.index.b50.current.ascii.table", "txt": "dataAO.txt", "csv": "dataAO.csv"},
     "MEI": {"url": "https://psl.noaa.gov/enso/mei/data/meiv2.data", "txt": "dataMEI_2.txt", "csv": "dataMEI_2.csv"},
     "ONI": {"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/", "txt": "dataONI.txt", "csv": "dataONI.csv"},
+    "ONIv5": {"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v5/", "txt": "dataONIv5.txt", "csv": "dataONIv5.csv"},
+    "ONIv6": {"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/", "txt": "dataONIv6.txt", "csv": "dataONIv6.csv"},
+    "RONI": {"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/", "txt": "dataRONI.txt", "csv": "dataRONI.csv"},
     "NAO": {"url": "https://psl.noaa.gov/data/correlation/nao.data", "txt": "dataNAO.txt", "csv": "dataNAO.csv"},
-    "PDO": {"url": "https://www.ncei.noaa.gov/pub/data/cmb/ersst/v5/v6/index/ersst.v6.pdo.dat", "txt": "dataPDO.txt", "csv": "dataPDO.csv"},
+    "PDO": {"url": "https://www.ncei.noaa.gov/pub/data/cmb/ersst/v5/index/ersst.v5.pdo.dat", "txt": "dataPDO.txt", "csv": "dataPDO.csv"},
     "TNA": {"url": "https://psl.noaa.gov/data/correlation/tna.data", "txt": "dataTNA.txt", "csv": "dataTNA.csv"},
     "SSTA_12": {"url": "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices", "txt": "dataSSTA.txt", "csv": "dataSSTA_12.csv"},
     "SSTA_3": {"url": "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices", "txt": "dataSSTA.txt", "csv": "dataSSTA_3.csv"},
@@ -56,8 +62,8 @@ FUENTES_DATOS = {
     "CAR": {"url": "https://psl.noaa.gov/data/correlation/CAR_ersst.data", "txt": "dataCAR.txt", "csv": "dataCAR.csv"},
     "WHWP": {"url": "https://psl.noaa.gov/data/correlation/whwp.data", "txt": "dataWHWP.txt", "csv": "dataWHWP.csv"},
     "PNA": {"url": "https://psl.noaa.gov/data/correlation/pna.data", "txt": "dataPNA.txt", "csv": "dataPNA.csv"},
-    "SOI": {"url": "https://www.cpc.ncep.noaa.gov/data/indices/soi", "txt": "dataSOI.txt", "csv": "dataSOI.csv"},
-    "AMO_CSU": {"url": "https://tropical.colostate.edu/archive.html#amo", "txt": "dataAMO_CSU.txt", "csv": "dataAMO_CSU.csv"},
+    "SOI": {"url": "https://psl.noaa.gov/data/correlation/soi.data", "txt": "dataSOI.txt", "csv": "dataSOI.csv"},
+    "AMO_CSU": {"url": "https://tropical.colostate.edu/Forecast/downloadable/csu_amo.csv", "txt": "dataAMO_CSU.txt", "csv": "dataAMO_CSU.csv"},
 }
 
 

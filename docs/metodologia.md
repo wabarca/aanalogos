@@ -3,14 +3,15 @@
 ## Contenido
 
 1. [Fundamentos y Justificación Climatológica](#1-fundamentos-y-justificación-climatológica)
-2. [Ventanas Temporales: Metodológica Histórica (6 meses) vs Operacional (12 meses)](#2-ventanas-temporales-metodológica-histórica-6-meses-vs-operacional-12-meses)
-3. [Construcción de Vectores y Exclusión Estricta del Año Objetivo](#3-construcción-de-vectores-y-exclusión-estricta-del-año-objetivo)
-4. [Métricas Estadísticas de Similitud (Pearson y MAD)](#4-métricas-estadísticas-de-similitud-pearson-y-mad)
-5. [Criterio Booleano de Coincidencia y Ranking Multivariado](#5-criterio-booleano-de-coincidencia-y-ranking-multivariado)
-6. [Modos de Análisis: Operacional, Reanálisis Retrospectivo y Backtesting](#6-modos-de-análisis-operacional-reanálisis-retrospectivo-y-backtesting)
-7. [Tratamiento de Datos Faltantes y Aislamiento de Sentinelas](#7-tratamiento-de-datos-faltantes-y-aislamiento-de-sentinelas)
-8. [Preservación del Algoritmo y Extensiones Operacionales](#8-preservación-del-algoritmo-y-extensiones-operacionales)
-9. [Limitaciones Metodológicas y Consideraciones Físicas](#9-limitaciones-metodológicas-y-consideraciones-físicas)
+2. [Tipología y Tratamiento de Variables de Entrada](#2-tipología-y-tratamiento-de-variables-de-entrada)
+3. [Ventanas Temporales: Metodológica Histórica (6 meses) vs Operacional (12 meses)](#3-ventanas-temporales-metodológica-histórica-6-meses-vs-operacional-12-meses)
+4. [Construcción de Vectores y Exclusión Estricta del Año Objetivo](#4-construcción-de-vectores-y-exclusión-estricta-del-año-objetivo)
+5. [Métricas Estadísticas de Similitud (Pearson y MAD)](#5-métricas-estadísticas-de-similitud-pearson-y-mad)
+6. [Criterio Booleano de Coincidencia y Ranking Multivariado](#6-criterio-booleano-de-coincidencia-y-ranking-multivariado)
+7. [Modos de Análisis: Operacional, Reanálisis Retrospectivo y Backtesting](#7-modos-de-análisis-operacional-reanálisis-retrospectivo-y-backtesting)
+8. [Tratamiento de Datos Faltantes y Aislamiento de Sentinelas](#8-tratamiento-de-datos-faltantes-y-aislamiento-de-sentinelas)
+9. [Preservación del Algoritmo y Extensiones Operacionales](#9-preservación-del-algoritmo-y-extensiones-operacionales)
+10. [Limitaciones Metodológicas y Consideraciones Físicas](#10-limitaciones-metodológicas-y-consideraciones-físicas)
 
 ---
 
@@ -18,11 +19,41 @@
 
 El método de **años análogos climatológicos** es una técnica empírica multivariada ampliamente utilizada en los servicios meteorológicos e hidrológicos nacionales para la predicción climática estacional. Su principio físico rector establece que configuraciones oceánicas y patrones de teleconexión atmosférica globales similares en el pasado tienden a producir respuestas climáticas regionales semejantes en los meses subsiguientes.
 
-El sistema evalúa de manera conjunta hasta **19 índices y oscilaciones climáticas** del Océano Pacífico, Atlántico, Ártico y la atmósfera global.
+El sistema evalúa de manera conjunta hasta **22 índices y oscilaciones climáticas** del Océano Pacífico, Atlántico, Ártico y la atmósfera global.
 
 ---
 
-## 2. Ventanas Temporales: Metodológica Histórica (6 meses) vs Operacional (12 meses)
+## 2. Tipología y Tratamiento de Variables de Entrada
+
+Para garantizar la validez física de las comparaciones multivariadas, **AAnalogos** clasifica y audita estrictamente las variables de entrada según su naturaleza matemática y física:
+
+### 2.1 Variable Física Absoluta
+Magnitud directa observada en la atmósfera u océano sin remoción del ciclo estacional medio (ej. Temperatura Superficial del Mar $T \in [20, 30]\ ^\circ\text{C}$, Presión Barométrica $P \in [1000, 1025]\ \text{hPa}$).
+* **Regla Operacional:** El motor de años análogos **NUNCA** utiliza variables físicas absolutas directamente para evitar que el ciclo estacional dominante introduzca correlaciones espurias de sincronía solar.
+
+### 2.2 Anomalía Climatológica
+Desviación de una variable física respecto a su ciclo climatológico medio mensual calculado sobre un período base de 30 años (ej. 1991–2020):
+$$x'(t) = x(t) - \bar{x}_{\text{clim}}(m)$$
+* **Unidades:** Mantiene las unidades físicas originales (ej. $^{\circ}\text{C}$ para TSM, $10^6\ \text{km}^2$ para extensión oceánica).
+* **Ejemplos en el sistema:** `AMO`, `TNA`, `CAR`, `SSTA_12`, `SSTA_3`, `SSTA_4`, `SSTA_34`, `AtlTROP`, `NAtl`, `SAtl`, `WHWP`, `ONIv5`, `ONIv6`.
+
+### 2.3 Índice Climático / Teleconexión
+Serie temporal sintética diseñada para monitorear la fase y amplitud de un modo acoplado océano-atmósfera o patrón de ondas planetarias (ej. `MEI`).
+
+### 2.4 Índice Estandarizado (Normalizado)
+Anomalía dividida por la desviación estándar interanual del mes correspondiente:
+$$z(t) = \frac{x(t) - \bar{x}_{\text{clim}}(m)}{\sigma_{\text{clim}}(m)}$$
+* **Unidades:** Adimensional ($z \sim \mathcal{N}(0, 1)$).
+* **Ejemplos en el sistema:** `AO`, `NAO`, `PDO`, `PNA`, `SOI`.
+
+### 2.5 Índice Derivado (Anomalía Relativa)
+Índice donde se descuenta la señal del calentamiento global de fondo o se aíslan gradientes intercuenca:
+$$\text{RONI}(t) = \text{SSTA}_{\text{Niño 3.4}}(t) - \overline{\text{SSTA}}_{\text{Trópicos}}(t)$$
+* **Propósito:** Aislar el gradiente baroclínico zonal neto del ENOS libre de la tendencia homogénea planetaria.
+
+---
+
+## 3. Ventanas Temporales: Metodológica Histórica (6 meses) vs Operacional (12 meses)
 
 El sistema distingue formalmente dos longitudes de ventana retrospectiva móvil:
 
@@ -38,7 +69,7 @@ Sea $Y$ el año de evaluación y $m \in \{1, \dots, 12\}$ el mes objetivo de cie
 
 ---
 
-## 3. Construcción de Vectores y Exclusión Estricta del Año Objetivo
+## 4. Construcción de Vectores y Exclusión Estricta del Año Objetivo
 
 Para un año y mes objetivo ($Y_{\text{obj}}, m_{\text{obj}}$), se extrae el vector objetivo $\mathbf{y} \in \mathbb{R}^N$.
 
@@ -49,74 +80,69 @@ Incluirlo generaría una correlación trivial $r = 1.0000$ y $\text{MAD} = 0.000
 
 ---
 
-## 4. Métricas Estadísticas de Similitud (Pearson y MAD)
+## 5. Métricas Estadísticas de Similitud (Pearson y MAD)
 
 Para cada índice seleccionado $k$ y cada año candidato $Y_{\text{cand}}$, se calculan dos métricas complementarias entre el vector candidato $\mathbf{x}$ y el vector objetivo $\mathbf{y}$:
 
-### 4.1 Coeficiente de Correlación Lineal de Pearson ($r$)
+### 5.1 Coeficiente de Correlación Lineal de Pearson ($r$)
 Evalúa la **sincronía, fase y tendencia temporal** de la oscilación durante los $N$ meses:
 $$r = \frac{\sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{N} (x_i - \bar{x})^2} \sqrt{\sum_{i=1}^{N} (y_i - \bar{y})^2}}$$
 
 * $r \in [-1, 1]$.
-* $r > 0$ indica que ambas trayectorias evolucionaron en la misma dirección temporal.
+* Si la varianza de $\mathbf{x}$ o $\mathbf{y}$ es nula, $r = 0$.
 
-### 4.2 Distancia Absoluta Media (MAD)
-En esta formulación climatológica, **MAD representa la diferencia absoluta media (Mean Absolute Difference)** entre los valores de ambos vectores, evaluando la **cercanía en magnitud física y amplitud de la anomalía**:
+### 5.2 Diferencia Absoluta Media (MAD)
+Evalúa la **proximidad en magnitud física y amplitud de la anomalía**:
 $$\text{MAD} = \frac{1}{N} \sum_{i=1}^{N} |x_i - y_i|$$
 
 * $\text{MAD} \ge 0$.
-* Valores pequeños de MAD aseguran que las anomalías térmicas o báricas posean intensidades comparables en magnitud absoluta.
+* Preserva las unidades físicas del índice analizado ($^\circ\text{C}$, desv. est., $10^6\text{ km}^2$).
 
 ---
 
-## 5. Criterio Booleano de Coincidencia y Ranking Multivariado
+## 6. Criterio Booleano de Coincidencia y Ranking Multivariado
 
-### 5.1 Criterio Booleano de Coincidencia Univariada
-Un año histórico $Y_{\text{cand}}$ se declara **coincidente** para el índice $k$ si y solo si cumple simultáneamente ambas condiciones umbral:
+### 6.1 Condición de Coincidencia Univariada
+Un año candidato $Y_{\text{cand}}$ es análogo para el índice $k$ si y solo si cumple simultáneamente:
+$$C_k(Y_{\text{cand}}) = \begin{cases} 1 & \text{si } (r_k > r_{\text{umbral}, k}) \land (\text{MAD}_k < \text{MAD}_{\text{umbral}, k}) \\ 0 & \text{en caso contrario} \end{cases}$$
 
-$$C_k(Y_{\text{cand}}) = \begin{cases} 
-1 & \text{si } (r_k > r_{\text{umbral}, k}) \;\land\; (\text{MAD}_k < \text{MAD}_{\text{umbral}, k}) \\ 
-0 & \text{en caso contrario} 
-\end{cases}$$
-
-### 5.2 Conteo Total y Ranking Final
-Para una combinación de $K$ índices seleccionados, el puntaje total de coincidencia del año candidato es:
+### 6.2 Puntaje Consolidado de Coincidencia
 $$\text{Total}(Y_{\text{cand}}) = \sum_{k=1}^{K} C_k(Y_{\text{cand}}) \quad \in \{0, 1, \dots, K\}$$
 
-Los años análogos se ordenan en forma **descendente por la columna `Total`**, desempatando por el año más reciente.
+### 6.3 Criterio de Ordenamiento del Ranking
+1. **Puntaje total (`Total`):** Orden descendente.
+2. **Año (`YEAR`):** Orden descendente (los análogos más recientes tienen prioridad física en caso de empate de coincidencias).
 
 ---
 
-## 6. Modos de Análisis: Operacional, Reanálisis Retrospectivo y Backtesting
+## 7. Modos de Análisis: Operacional, Reanálisis Retrospectivo y Backtesting
 
-1. **Modo Operacional:** Determina automáticamente el año actual y el último mes publicado según la regla de publicación ($M+1$), aplicando la ventana de 12 meses.
-2. **Modo Reanálisis Retrospectivo Completo:** Evalúa el año objetivo $Y_{\text{obj}}$ frente a **todo el registro histórico** ($Y_{\text{cand}} \neq Y_{\text{obj}}$, incluyendo años posteriores a $Y_{\text{obj}}$). Responde a la pregunta: *¿Qué años de todo el registro histórico guardan similitud física con el caso estudiado?*
-3. **Modo Reproducción Histórica / Backtesting:** Aplica el corte estricto $Y_{\text{cand}} \le Y_{\text{obj}}$ ($Y_{\text{cand}} \neq Y_{\text{obj}}$). Responde a la pregunta: *¿Qué años análogos habrían podido identificarse en tiempo real utilizando únicamente datos disponibles hasta el año objetivo?*
-
----
-
-## 7. Tratamiento de Datos Faltantes y Aislamiento de Sentinelas
-
-1. **Sentinelas Oficiales:** Valores como `-99.99`, `-99.90`, `99.99`, `-999.0` se transforman en `NaN`.
-2. **Aislamiento Estricto:** Si algún mes de la ventana contiene `NaN`, la ventana se invalida y el año queda excluido de la evaluación.
-3. **Cero Imputación Artificial:** Se prohíbe rellenar datos faltantes para preservar la pureza observacional.
+1. **Modo Operacional:** Evalúa el mes cerrado más reciente ($M-1$) usando todos los años del registro histórico como candidatos.
+2. **Reanálisis Retrospectivo Completo:** Evalúa cualquier año histórico ($Y_{\text{obj}}$) comparándolo contra todos los años del catálogo histórico ($Y_{\text{cand}} \neq Y_{\text{obj}}$).
+3. **Backtesting Estricto (Sin Look-Ahead):** Restringe los años candidatos a $Y_{\text{cand}} < Y_{\text{obj}}$, emulando exactamente la información disponible en el momento histórico del pronóstico.
 
 ---
 
-## 8. Preservación del Algoritmo y Extensiones Operacionales
+## 8. Tratamiento de Datos Faltantes y Aislamiento de Sentinelas
 
-La formulación matemática fundamental de similitud, incluyendo la correlación de Pearson, la distancia absoluta media (MAD), el tratamiento de valores faltantes, la exclusión del año objetivo y los criterios históricos de coincidencia, se preserva respecto al benchmark validado. La aplicación incorpora extensiones operacionales explícitas, particularmente una ventana retrospectiva de doce meses y mecanismos de actualización y determinación automática del período disponible.
+* **Detección de Sentinelas:** Valores $\le -50.0$ o $\ge 50.0$ (`-99.99`, `-999.0`) se transforman en `NaN` e invalidan de inmediato el vector correspondiente.
+* **Integridad Multivariada (Sin Reducción Silenciosa):** Si un índice seleccionado no dispone de datos válidos para el período evaluado, el motor rechaza el cálculo e informa el índice faltante.
 
 ---
 
-## 9. Limitaciones Metodológicas y Consideraciones Físicas
+## 9. Preservación del Algoritmo y Extensiones Operacionales
 
-1. **Herramienta de Diagnóstico:** El método identifica análogos históricos estadísticos; no constituye por sí mismo un pronóstico determinista.
-2. **No Estacionariedad y Cambio Climático:** Tendencias de calentamiento global pueden alterar los patrones de respuesta regional ante anomalías de TSM equivalentes.
-3. **Intersección Temporal:** A mayor cantidad de índices seleccionados, el universo candidato común se acota al registro del índice más corto.
+Todas las extensiones operacionales (12 meses, nuevas series ENSO, umbrales personalizados) se implementaron como capas incrementales no invasivas, preservando al 100% el comportamiento matemático certificado del motor base.
+
+---
+
+## 10. Limitaciones Metodológicas y Consideraciones Físicas
+
+* Los años análogos identifican analogías estadísticas en el forzamiento climático de gran escala; su interpretación debe combinarse con el conocimiento sinóptico local del pronosticador.
+* En escenarios de forzamiento antropogénico acelerado, índices como `RONI` complementan a `ONI` para discernir el gradiente baroclínico tropical respecto al calentamiento global homogéneo.
 
 ---
 
 ### Navegación
 
-**[← Anterior](README.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](manual_usuario.md)**
+**[← Anterior: Inicio de Documentación](README.md)** · **[Índice de Documentación](README.md)** · **[Siguiente: Manual de Usuario →](manual_usuario.md)**

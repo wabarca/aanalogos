@@ -42,26 +42,32 @@ La barra lateral izquierda permite alternar entre las 5 secciones principales de
 
 ## 3. Sección 2: Explorador de Índices Climáticos
 
-Permite seleccionar cualquiera de las 19 oscilaciones para inspeccionar:
-* **Ficha Técnica:** Nombre completo, institución responsable, región, variable física, unidades y DOI.
-* **Evolución Temporal:** Gráfico interactivo mensual con filtros rápidos (*Todo el registro*, *Últimos 10 años*, *Últimos 5 años*, *Rango personalizado*).
+Permite seleccionar cualquiera de las 22 oscilaciones climáticas para inspeccionar:
+* **Ficha Técnica y Auditoría:** Nombre completo, institución responsable, región, variable física, tipo de variable (`anomalía`, `índice`, `índice estandarizado`, `índice derivado`), variable exacta utilizada en el cálculo de años análogos, columna fuente, unidades y DOI.
+* **Evolución Temporal:** Gráfico interactivo mensual con filtros temporales (*Todo el registro*, *Últimos 10 años*, *Últimos 5 años*, *Rango personalizado*).
+* **Tabla de Datos Históricos Interactiva:**
+  * Visualización completa de los registros anuales y mensuales.
+  * Resaltado explícito de la variable utilizada en el motor.
+  * Para series SST compuestas (`SSTA_12`, `SSTA_3`, `SSTA_4`, `SSTA_34`, `AtlTROP`, `SAtl`, `NAtl`), pestañas para alternar entre la matriz mensual y la tabla multivariable original (SST absoluta vs Anomalía).
+  * Botón de exportación: **💾 Descargar CSV**.
 
 ---
 
 ## 4. Sección 3: Metodología de Cálculo
 
 Sección didáctica integrada que explica a los especialistas meteorológicos los fundamentos matemáticos:
+* Tipología de variables (variables absolutas, anomalías, índices normalizados, índices derivados).
 * Ventana histórica (6 meses) vs operacional (12 meses).
-* Correlación de Pearson ($r$) y Distancia Absoluta Media (MAD).
+* Correlación de Pearson ($r$) y Diferencia Absoluta Media (MAD).
 * Criterio booleano $C_k$ y algoritmo de ranking multivariado.
 
 ---
 
 ## 5. Sección 4: Estado y Actualización de Datos
 
-* **Panel de Cobertura:** Indicador global de salud (ej. `19 / 19 series disponibles`).
-* **Tabla de Diagnóstico:** Primer año, último año, último mes publicado y estado de cada serie.
-* **Botón 🔄 Actualizar Índices Climáticos:** Descarga atómica de las fuentes de NOAA/CPC/PSL/CSU sin riesgo de corromper series existentes si falla la conexión.
+* **Panel de Cobertura:** Indicador global de salud (ej. `22 / 22 series disponibles`).
+* **Tabla de Diagnóstico e Inventario:** Primer año, último año, último mes publicado, tipo de variable, variable en motor y estado de cada serie.
+* **Botón ↻ Actualizar índices:** Descarga atómica y no destructiva desde las fuentes de NOAA/CPC/PSL/CSU sin riesgo de corromper series locales si falla la conexión.
 
 ---
 

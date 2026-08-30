@@ -195,8 +195,9 @@ def obtener_estado_fuentes(
             y_min = "-"
             y_max = "-"
             total_anios = 0
-            ultimo_mes_str = "No disponible"
-            estado = "Faltante / No descargado"
+        variable_type = meta.get("variable_type", "anomalía")
+        col_usada = meta.get("variable_column", "ENE..DIC")
+        exact_var = meta.get("exact_variable_used", variable)
 
         filas.append({
             "Código": codigo,
@@ -208,7 +209,10 @@ def obtener_estado_fuentes(
             "Años Registrados": total_anios,
             "Institución": institucion,
             "Región": region,
-            "Variable": variable,
+            "Variable Física": variable,
+            "Tipo de Variable": variable_type,
+            "Columna Fuente": col_usada,
+            "Variable en Motor": exact_var,
             "Unidad": unidad,
             "Frecuencia": frecuencia,
             "URL": url,

@@ -69,33 +69,60 @@ def acomodaParaCSV(ruta_entrada: str, ruta_salida: str) -> bool:
 
 
 def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
-    """Extrae tablas HTML (ej. ONI o AMO_CSU) y genera matriz de texto."""
+    """Extrae tablas HTML (ej. ONI, ONIv5, ONIv6, RONI o AMO_CSU) y genera matriz de texto."""
     try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AAnalogos/3.1"}
-        r = requests.get(url, headers=headers, timeout=10)
-        if r.status_code != 200:
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AAnalogos/3.2"}
+        )
+        with urllib.request.urlopen(req, timeout=15) as response:
+            if response.status != 200:
+                return False
+            html_text = response.read().decode("utf-8", errors="ignore")
+
+        if not html_text or len(html_text) < 100:
             return False
 
-        soup = BeautifulSoup(r.text, "html.parser") if BeautifulSoup else None
-        if soup is None:
-            return False
+        fname = os.path.basename(archivocreado)
 
-        if archivocreado.endswith("dataONI.txt"):
-            table = soup.find("table", attrs={"border": "1"})
-        elif archivocreado.endswith("dataAMO_CSU.txt"):
-            table = soup.find("table", attrs={"id": "amo_table"})
-        else:
-            table = None
+        # 1. Extracción con expresiones regulares estándar (sin dependencia de bs4)
+        import re
+        rows = re.findall(r'<tr[^>]*>(.*?)</tr>', html_text, re.DOTALL | re.IGNORECASE)
+        parsed_rows = []
 
-        if table is not None:
+        for row in rows:
+            cells = re.findall(r'<(?:td|th)[^>]*>(.*?)</(?:td|th)>', row, re.DOTALL | re.IGNORECASE)
+            clean_cells = [re.sub(r'<[^>]+>', '', c).strip() for c in cells]
+            if clean_cells and re.match(r'^\d{4}$', clean_cells[0]):
+                year_val = int(clean_cells[0])
+                if 1850 <= year_val <= 2100 and len(clean_cells) >= 13:
+                    parsed_rows.append(clean_cells[:13])
+
+        if parsed_rows:
             with open(archivocreado, "w", encoding="utf-8") as file:
-                if archivocreado.endswith("dataAMO_CSU.txt"):
+                if fname.endswith("dataAMO_CSU.txt"):
                     file.write("YEAR ENE FEB MAR ABR MAY JUN JUL AGO SET OCT NOV DIC\n")
-                for row in table.find_all("tr")[0:]:
-                    valores = [cell.get_text(strip=True) for cell in row.find_all("td")]
-                    if valores:
-                        file.write(" ".join(valores) + "\n")
+                for row_vals in parsed_rows:
+                    file.write(" ".join(row_vals) + "\n")
             return True
+
+        # 2. Fallback a BeautifulSoup si está instalado
+        if BeautifulSoup:
+            soup = BeautifulSoup(html_text, "html.parser")
+            table = soup.find("table", attrs={"id": "roni-v5-table2"}) or \
+                    soup.find("table", attrs={"id": "roni-v5-table"}) or \
+                    soup.find("table", attrs={"border": "1"}) or \
+                    soup.find("table", attrs={"id": "amo_table"})
+            if table is not None:
+                with open(archivocreado, "w", encoding="utf-8") as file:
+                    if fname.endswith("dataAMO_CSU.txt"):
+                        file.write("YEAR ENE FEB MAR ABR MAY JUN JUL AGO SET OCT NOV DIC\n")
+                    for row in table.find_all("tr"):
+                        valores = [cell.get_text(strip=True) for cell in row.find_all(["td", "th"])]
+                        if valores and valores[0].isdigit() and 1850 <= int(valores[0]) <= 2100 and len(valores) >= 13:
+                            file.write(" ".join(valores[:13]) + "\n")
+                return True
+
         return False
     except Exception:
         return False
@@ -301,10 +328,28 @@ def cargar_todas_oscilaciones(data_dir: str = ".") -> Dict[str, pd.DataFrame]:
         df_mei2 = pd.read_csv(f_mei2, skipfooter=4, engine="python")
         oscilaciones["MEI"] = limpiar_datos_indice(pd.concat([df_mei1, df_mei2], sort=False, ignore_index=True))
 
-    # 4. ONI
+    # 4. ONI, ONIv5, ONIv6, RONI
     f_oni = _resolver_ruta("dataONI.csv")
     if os.path.exists(f_oni):
         oscilaciones["ONI"] = limpiar_datos_indice(pd.read_csv(f_oni))
+
+    f_oniv5 = _resolver_ruta("dataONIv5.csv")
+    if os.path.exists(f_oniv5):
+        oscilaciones["ONIv5"] = limpiar_datos_indice(pd.read_csv(f_oniv5))
+    elif "ONI" in oscilaciones:
+        oscilaciones["ONIv5"] = oscilaciones["ONI"].copy()
+
+    f_oniv6 = _resolver_ruta("dataONIv6.csv")
+    if os.path.exists(f_oniv6):
+        oscilaciones["ONIv6"] = limpiar_datos_indice(pd.read_csv(f_oniv6))
+    elif "ONI" in oscilaciones:
+        oscilaciones["ONIv6"] = oscilaciones["ONI"].copy()
+
+    f_roni = _resolver_ruta("dataRONI.csv")
+    if os.path.exists(f_roni):
+        oscilaciones["RONI"] = limpiar_datos_indice(pd.read_csv(f_roni))
+    elif "ONI" in oscilaciones:
+        oscilaciones["RONI"] = oscilaciones["ONI"].copy()
 
     # 5. NAO
     f_nao = _resolver_ruta("dataNAO.csv")

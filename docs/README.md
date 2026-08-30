@@ -11,8 +11,8 @@ La documentación está organizada de forma modular y secuencial para facilitar 
 ### 1. Fundamento Científico y Climatológico
 * [**Metodología de Años Análogos**](metodologia.md): Formulación matemática, ventanas móviles de 6 meses (intra e interanuales), métricas de correlación de Pearson ($r$), distancia absoluta media (MAD), criterios de coincidencia y ordenamiento por ranking.
 * [**Validación Climatológica**](validacion_climatologica.md): Justificación física de la exclusión del año objetivo, requerimiento de ventanas completas, aislamiento de valores sentinela, tratamiento de cobertura temporal asimétrica y certificación del caso benchmark.
-* [**Fichas Técnicas de Índices Climáticos**](indices.md): Catálogo detallado de las 19 oscilaciones climáticas (definición física, cobertura histórica, dominios geográficos, períodos base climatológicos y fuentes oficiales).
-* [**Referencias Bibliográficas y Atribución**](referencias.md): 19 publicaciones científicas primarias con DOIs verificados, fuentes operacionales de datos y sección oficial de antecedentes y autoría.
+* [**Fichas Técnicas de Índices Climáticos**](indices.md): Catálogo detallado de las 22 oscilaciones climáticas (definición física, cobertura histórica, dominios geográficos, períodos base climatológicos, tipología de variables y fuentes oficiales).
+* [**Referencias Bibliográficas y Atribución**](referencias.md): 22 publicaciones científicas primarias con DOIs verificados, fuentes operacionales de datos y sección oficial de antecedentes y autoría.
 
 ### 2. Arquitectura y Uso del Sistema
 * [**Arquitectura de Software**](arquitectura.md): Estructura del paquete modular `aanalogos/`, flujo de datos por capas desacopladas, API pública e interfaz web en Streamlit.
