@@ -205,9 +205,9 @@ def obtener_estado_fuentes(
             ultimo_mes_str = f"{NOMBRES_MESES[ultimo_mes_num - 1]} ({y_max})" if ultimo_mes_num > 0 else f"Sin datos ({y_max})"
             estado = "Disponible" if total_anios >= 30 else "Cobertura Parcial"
         else:
-            y_min = "-"
-            y_max = "-"
-            ultimo_mes_str = "-"
+            y_min = pd.NA
+            y_max = pd.NA
+            ultimo_mes_str = "Sin datos"
             total_anios = 0
 
             # Determinar si existe el archivo en disco pero no pudo ser cargado (Error) o si no existe (No descargado)
@@ -254,4 +254,19 @@ def obtener_estado_fuentes(
             "DOI": doi,
         })
 
-    return pd.DataFrame(filas)
+    df_salud = pd.DataFrame(filas)
+    if not df_salud.empty:
+        df_salud["Primer Año"] = pd.to_numeric(df_salud["Primer Año"], errors="coerce").astype("Int64")
+        df_salud["Último Año"] = pd.to_numeric(df_salud["Último Año"], errors="coerce").astype("Int64")
+        df_salud["Años Registrados"] = pd.to_numeric(df_salud["Años Registrados"], errors="coerce").fillna(0).astype("int64")
+
+        columnas_texto = [
+            "Código", "Nombre", "Estado", "Último Mes", "Institución", "Región",
+            "Variable Física", "Tipo de Variable", "Columna Fuente", "Variable en Motor",
+            "Unidad", "Frecuencia", "URL", "DOI"
+        ]
+        for col_t in columnas_texto:
+            if col_t in df_salud.columns:
+                df_salud[col_t] = df_salud[col_t].fillna("").astype(str)
+
+    return df_salud

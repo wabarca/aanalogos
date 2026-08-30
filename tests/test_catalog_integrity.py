@@ -43,17 +43,23 @@ class TestCatalogIntegrity(unittest.TestCase):
 
 
     def test_sources_health_status_when_sources_are_empty_or_missing(self):
-        """Verificar que obtener_estado_fuentes funcione determinísticamente sin UnboundLocalError cuando no hay datos."""
+        """Verificar que obtener_estado_fuentes funcione determinísticamente sin UnboundLocalError y sea serializable en PyArrow."""
+        import pandas as pd
+        import pyarrow as pa
+        
         # Probar con diccionario completamente vacío
         df_health_empty = obtener_estado_fuentes({})
         self.assertEqual(len(df_health_empty), 21)
         self.assertIn("Estado", df_health_empty.columns)
         for _, row in df_health_empty.iterrows():
             self.assertIn(row["Estado"], ["No descargado", "Error", "Disponible", "Cobertura Parcial"])
-            self.assertEqual(row["Primer Año"], "-")
-            self.assertEqual(row["Último Año"], "-")
-            self.assertEqual(row["Último Mes"], "-")
+            self.assertTrue(pd.isna(row["Primer Año"]))
+            self.assertTrue(pd.isna(row["Último Año"]))
             self.assertEqual(row["Años Registrados"], 0)
+
+        # Verificar serialización directa en PyArrow sin errores de tipo mixto
+        tbl = pa.Table.from_pandas(df_health_empty)
+        self.assertEqual(tbl.num_rows, 21)
 
 
 if __name__ == "__main__":

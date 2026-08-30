@@ -41,52 +41,59 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Estilo CSS Institucional Verde (MARN El Salvador)
+# Estilo CSS Institucional — Paleta Pear & Bosque (MARN El Salvador)
 st.markdown(
     """
     <style>
     /* Tipografía y jerarquía visual institucional */
     h1, h2, h3 {
-        color: #1b5e20 !important;
+        color: #2E5D34 !important;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-weight: 700;
     }
     
-    /* Botones primarios en verde institucional */
+    /* Botones primarios en verde bosque con acento pear */
     div.stButton > button[kind="primary"], div.stButton > button:first-child {
-        background-color: #2e7d32;
-        color: white;
+        background-color: #2E5D34;
+        color: #ffffff;
         border-radius: 6px;
-        border: 1px solid #1b5e20;
-        font-weight: 500;
+        border: 1px solid #2E5D34;
+        font-weight: 600;
         transition: all 0.2s ease;
     }
     div.stButton > button:hover {
-        background-color: #1b5e20;
-        border-color: #0d3311;
-        color: white;
+        background-color: #5C8A3D;
+        border-color: #D1E231;
+        color: #ffffff;
+        box-shadow: 0 0 8px rgba(209, 226, 49, 0.4);
     }
 
-    /* Pestañas (tabs) activas con acento verde */
+    /* Pestañas (tabs) activas con acento Pear */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
     }
     .stTabs [data-baseweb="tab"][aria-selected="true"] {
-        color: #1b5e20 !important;
-        border-bottom-color: #2e7d32 !important;
-        font-weight: 600;
+        color: #2E5D34 !important;
+        border-bottom-color: #D1E231 !important;
+        border-bottom-width: 3px !important;
+        font-weight: 700;
     }
 
-    /* Tarjetas de métricas con superficie verde claro suave */
+    /* Tarjetas de métricas con fondo crema claro y borde salvia */
     div[data-testid="metric-container"] {
-        background-color: #f4f8f5;
-        border: 1px solid #c8e6c9;
+        background-color: #F4F6E8;
+        border: 1px solid #A8C686;
+        border-left: 4px solid #D1E231;
         padding: 12px 16px;
         border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        box-shadow: 0 1px 3px rgba(38, 50, 56, 0.05);
     }
     div[data-testid="metric-container"] label {
-        color: #2e7d32 !important;
+        color: #2E5D34 !important;
         font-weight: 600;
+    }
+    div[data-testid="metric-container"] [data-testid="stMetricValue"] {
+        color: #263238 !important;
     }
     </style>
     """,
@@ -301,7 +308,7 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                 )
 
     boton_calcular = st.sidebar.button(
-        "🚀 Calcular Años Análogos", type="primary", use_container_width=True
+        "🚀 Calcular Años Análogos", type="primary", width="stretch"
     )
 
     # Estado de ejecución
@@ -375,7 +382,7 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
             # Resaltar filas con coincidencias mediante degradado verde institucional
             st.dataframe(
                 df_tabla.style.background_gradient(subset=["Total"], cmap="YlGn"),
-                use_container_width=True,
+                width="stretch",
                 height=400,
             )
 
@@ -387,8 +394,8 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                 ax.bar(
                     df_plot.index.astype(str),
                     df_plot["Total"],
-                    color="#2e7d32",
-                    edgecolor="#1b5e20",
+                    color="#2E5D34",
+                    edgecolor="#5C8A3D",
                     linewidth=0.8,
                     alpha=0.9,
                 )
@@ -396,6 +403,8 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                     f"Años Análogos Principales (Año Objetivo: {resultado.year_objetivo}, Mes: {NOMBRES_MESES[resultado.mes_objetivo - 1]})",
                     fontsize=13,
                     pad=10,
+                    color="#2E5D34",
+                    fontweight="bold",
                 )
                 ax.set_ylabel("Total de Índices Coincidentes", fontsize=11)
                 ax.set_xlabel("Año Candidato Histórico", fontsize=11)
@@ -436,7 +445,7 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
             if not anios_a_graficar:
                 st.info("ℹ️ Seleccione al menos un año candidato en el menú superior para visualizar las curvas temporales.")
             else:
-                colores_candidatos = ["#2e7d32", "#1976d2", "#d97706", "#7c3aed", "#0891b2", "#c026d3", "#65a30d", "#57534e"]
+                colores_candidatos = ["#5C8A3D", "#D9A441", "#263238", "#A8C686", "#1976D2", "#8E24AA", "#00838F", "#E65100"]
                 estilos_linea = ["--", "-.", ":", "--", "-.", ":", "--", "-."]
 
                 fig_comp, axes = plt.subplots(
@@ -461,8 +470,8 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                         x_labels,
                         v_obj,
                         marker="o",
-                        linewidth=2.4,
-                        color="#004d40",
+                        linewidth=2.6,
+                        color="#2E5D34",
                         label=f"Objetivo ({resultado.year_objetivo})",
                         zorder=5,
                     )
@@ -497,6 +506,7 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                         f"Índice: {osc} ({CATALOGO.get(osc, {}).get('name', osc)})",
                         fontsize=11,
                         fontweight="bold",
+                        color="#2E5D34",
                     )
                     ax_i.set_ylabel(
                         f"Valor ({CATALOGO.get(osc, {}).get('units', 'u')})",
@@ -526,7 +536,7 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                         "Umbral_MAD": "{:.2f}",
                     }
                 ),
-                use_container_width=True,
+                width="stretch",
                 height=450,
             )
 
@@ -540,7 +550,7 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                     data=csv_tabla,
                     file_name=f"ranking_analogos_{resultado.year_objetivo}_m{resultado.mes_objetivo}_{resultado.longitud_ventana}m.csv",
                     mime="text/csv",
-                    use_container_width=True,
+                    width="stretch",
                 )
             with col_d2:
                 csv_traz = resultado.tabla_trazabilidad.to_csv(index=False)
@@ -549,7 +559,7 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                     data=csv_traz,
                     file_name=f"trazabilidad_analogos_{resultado.year_objetivo}_m{resultado.mes_objetivo}_{resultado.longitud_ventana}m.csv",
                     mime="text/csv",
-                    use_container_width=True,
+                    width="stretch",
                 )
 
 # ==============================================================================
@@ -690,15 +700,15 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
         df_ts = pd.DataFrame({"Fecha": fechas, "Valor": valores}).dropna()
 
         fig_ts, ax_ts = plt.subplots(figsize=(14, 4.5))
-        ax_ts.plot(df_ts["Fecha"], df_ts["Valor"], color="#2e7d32", linewidth=1.5)
-        ax_ts.fill_between(df_ts["Fecha"], df_ts["Valor"], 0, where=(df_ts["Valor"] >= 0), color="#81c784", alpha=0.35, label="Anomalía positiva / Fase activa")
-        ax_ts.fill_between(df_ts["Fecha"], df_ts["Valor"], 0, where=(df_ts["Valor"] < 0), color="#90a4ae", alpha=0.35, label="Anomalía negativa / Fase inactiva")
-        ax_ts.axhline(0, color="#37474f", linestyle="--", linewidth=0.8, alpha=0.8)
+        ax_ts.plot(df_ts["Fecha"], df_ts["Valor"], color="#2E5D34", linewidth=1.5)
+        ax_ts.fill_between(df_ts["Fecha"], df_ts["Valor"], 0, where=(df_ts["Valor"] >= 0), color="#A8C686", alpha=0.4, label="Anomalía positiva / Fase activa")
+        ax_ts.fill_between(df_ts["Fecha"], df_ts["Valor"], 0, where=(df_ts["Valor"] < 0), color="#CFD8DC", alpha=0.4, label="Anomalía negativa / Fase inactiva")
+        ax_ts.axhline(0, color="#263238", linestyle="--", linewidth=0.8, alpha=0.8)
         ax_ts.set_title(
             f"Serie Mensual: {meta.get('name', indice_sel)} ({y_start}–{y_end})",
             fontsize=12,
             fontweight="bold",
-            color="#1b5e20",
+            color="#2E5D34",
         )
         ax_ts.set_ylabel(f"Valor ({meta.get('units', 'u')})", fontsize=10)
         ax_ts.grid(True, linestyle=":", alpha=0.6)
@@ -727,14 +737,14 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
                 data=csv_export,
                 file_name=f"{indice_sel}_{y_start}_{y_end}.csv",
                 mime="text/csv",
-                use_container_width=True,
+                width="stretch",
             )
 
         # Si es un índice SSTA o Atlántico con archivo compuesto, permitir ver vista matricial o compuesta
         if indice_sel in ["SSTA_12", "SSTA_3", "SSTA_4", "SSTA_34", "AtlTROP", "SAtl", "NAtl"]:
             tab_matriz, tab_compuesto = st.tabs(["Matriz Mensual (Utilizada por Motor)", "Fuente Compuesta Original (SST Absoluta vs Anomalía)"])
             with tab_matriz:
-                st.dataframe(df_filtered.style.format(precision=2, na_rep="NaN"), use_container_width=True, height=350)
+                st.dataframe(df_filtered.style.format(precision=2, na_rep="NaN"), width="stretch", height=350)
             with tab_compuesto:
                 raw_filename = "dataSSTA.csv" if "SSTA" in indice_sel else "dataSSTOI.csv"
                 raw_path = os.path.join(DATA_DIR, raw_filename)
@@ -742,11 +752,11 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
                     df_raw = pd.read_csv(raw_path)
                     df_raw_filtered = df_raw[(df_raw["YEAR"] >= y_start) & (df_raw["YEAR"] <= y_end)]
                     st.caption(f"Archivo fuente: `{raw_filename}` — Observe que el motor climatológico selecciona estrictamente la columna de anomalía `{meta.get('variable_column')}`.")
-                    st.dataframe(df_raw_filtered, use_container_width=True, height=350)
+                    st.dataframe(df_raw_filtered, width="stretch", height=350)
                 else:
                     st.warning(f"No se encontró el archivo compuesto {raw_filename} en el almacenamiento local.")
         else:
-            st.dataframe(df_filtered.style.format(precision=2, na_rep="NaN"), use_container_width=True, height=350)
+            st.dataframe(df_filtered.style.format(precision=2, na_rep="NaN"), width="stretch", height=350)
 
     else:
         st.error(
@@ -891,7 +901,7 @@ elif seccion_seleccionada == "📈 Estado de Datos":
             res_rows.append(
                 {"Índice": k, "Estado": v["status"], "Detalle": v["mensaje"]}
             )
-        st.dataframe(pd.DataFrame(res_rows), use_container_width=True)
+        st.dataframe(pd.DataFrame(res_rows), width="stretch")
 
     st.subheader("📋 Inventario Detallado de Fuentes y Variables")
     cols_salud_show = [
@@ -908,8 +918,14 @@ elif seccion_seleccionada == "📈 Estado de Datos":
     ]
     st.dataframe(
         df_salud[[c for c in cols_salud_show if c in df_salud.columns]],
-        use_container_width=True,
+        width="stretch",
         height=450,
+        column_config={
+            "Primer Año": st.column_config.NumberColumn("Primer Año", format="%d"),
+            "Último Año": st.column_config.NumberColumn("Último Año", format="%d"),
+            "Años Registrados": st.column_config.NumberColumn("Años Registrados", format="%d"),
+        },
+        hide_index=True,
     )
 
 # ==============================================================================
@@ -928,7 +944,7 @@ elif seccion_seleccionada == "⚙️ Configuración de Umbrales":
     with col_btn2:
         if st.button(
             "🔄 Restaurar Valores Metodológicos Predeterminados",
-            use_container_width=True,
+            width="stretch",
         ):
             st.session_state["umbrales_usuario"] = obtener_umbrales_metodologicos()
             st.success("Umbrales restaurados a los valores metodológicos oficiales.")
