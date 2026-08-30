@@ -21,9 +21,12 @@ from .config import FUENTES_DATOS
 from .quality import limpiar_datos_indice
 
 
+import socket
+
 def descarga_segura(url: str, ruta_salida: str, timeout: int = 30) -> bool:
     """Descarga un archivo desde una URL si no existe localmente o para actualización."""
     try:
+        socket.setdefaulttimeout(timeout)
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
@@ -161,6 +164,7 @@ def acomodaParaCSV(ruta_entrada: str, ruta_salida: str) -> bool:
 def acomodaParaCSV_2(url: str, archivocreado: str) -> bool:
     """Extrae tablas HTML (ONIv5, ONIv6, RONI) o directas CSV (AMO_CSU) y genera matriz de texto estructurada."""
     try:
+        socket.setdefaulttimeout(15)
         req = urllib.request.Request(
             url,
             headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AAnalogos/3.2"}
@@ -334,13 +338,13 @@ def validar_estructura_serie(df: pd.DataFrame, codigo: str, df_previo: Optional[
         if not pd.api.types.is_numeric_dtype(df[m]):
             return False, f"La columna del mes '{m}' contiene valores no convertibles a numéricos."
 
-    # Validar no-regresión temporal frente a versión previa local (comparando solo años válidos)
-    if df_previo is not None and not df_previo.empty and "YEAR" in df_previo.columns:
-        len_prev = _contar_anios_validos(df_previo)
-        len_curr = _contar_anios_validos(df)
-        if len_prev > 0 and len_curr < len_prev - 1:
-            return False, f"Pérdida de registros históricos detectada: la versión descargada tiene {len_curr} años vs {len_prev} años locales válidos."
+    # Validar que tenga un historial climatológico mínimo (mínimo 10 años)
+    len_curr = _contar_anios_validos(df)
+    if len_curr < 10:
+        return False, f"La serie descargada contiene un historial insuficiente ({len_curr} años < 10 años)."
 
+    # Validar no-regresión temporal frente a versión previa local
+    if df_previo is not None and not df_previo.empty and "YEAR" in df_previo.columns:
         years_prev_num = pd.to_numeric(df_previo["YEAR"], errors="coerce").dropna()
         valid_prev = years_prev_num[(years_prev_num >= 1800) & (years_prev_num <= 2100)]
         if len(valid_prev) > 0:
@@ -420,10 +424,11 @@ def verificar_y_descargar_datos(
                 tmp_csv = os.path.join(tmp_dir, csv_name)
 
                 # Descargar
-                if "ONI" in codigo or "AMO_CSU" in codigo:
+                if "ONI" in codigo or "RONI" in codigo:
                     ok = acomodaParaCSV_2(url, tmp_txt)
                 else:
-                    ok = descarga_segura(url, tmp_txt)
+                    timeout_val = 90 if "PDO" in codigo else 30
+                    ok = descarga_segura(url, tmp_txt, timeout=timeout_val)
 
                 if not ok or not os.path.exists(tmp_txt) or os.path.getsize(tmp_txt) < 50:
                     resultados[codigo] = {

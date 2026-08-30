@@ -48,7 +48,7 @@ FUENTES_DATOS = {
     "ONIv6": {"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/", "txt": "dataONIv6.txt", "csv": "dataONIv6.csv"},
     "RONI": {"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/", "txt": "dataRONI.txt", "csv": "dataRONI.csv"},
     "NAO": {"url": "https://psl.noaa.gov/data/correlation/nao.data", "txt": "dataNAO.txt", "csv": "dataNAO.csv"},
-    "PDO": {"url": "https://www.ncei.noaa.gov/pub/data/cmb/ersst/v5/index/ersst.v5.pdo.dat", "txt": "dataPDO.txt", "csv": "dataPDO.csv"},
+    "PDO": {"url": "https://psl.noaa.gov/data/correlation/pdo.data", "txt": "dataPDO.txt", "csv": "dataPDO.csv"},
     "TNA": {"url": "https://psl.noaa.gov/data/correlation/tna.data", "txt": "dataTNA.txt", "csv": "dataTNA.csv"},
     "SSTA_12": {"url": "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices", "txt": "dataSSTA.txt", "csv": "dataSSTA_12.csv"},
     "SSTA_3": {"url": "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices", "txt": "dataSSTA.txt", "csv": "dataSSTA_3.csv"},
