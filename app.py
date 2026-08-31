@@ -203,18 +203,18 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
             help="El modo operacional utiliza automáticamente el año actual, el último mes publicado y una ventana de 12 meses.",
         )
 
-    # Preselección de índices en Sidebar
+    # Preselección de índices en Sidebar por defecto: RONI, TNA y ONIv6
     default_indices = [
-        NOMBRES_LEGIBLES.get("PDO", "PDO"),
+        NOMBRES_LEGIBLES.get("RONI", "RONI"),
         NOMBRES_LEGIBLES.get("TNA", "TNA"),
-        NOMBRES_LEGIBLES.get("ONIv5", "ONIv5"),
+        NOMBRES_LEGIBLES.get("ONIv6", "ONIv6"),
     ]
 
     indices_seleccionados_str = st.sidebar.multiselect(
         "Selección de Índices / Oscilaciones:",
         options=list(NOMBRES_LEGIBLES.values()),
         default=[
-            NOMBRES_LEGIBLES[k] for k in ["PDO", "TNA", "ONIv5"] if k in NOMBRES_LEGIBLES
+            NOMBRES_LEGIBLES[k] for k in ["RONI", "TNA", "ONIv6"] if k in NOMBRES_LEGIBLES
         ],
         help="Seleccione una o más oscilaciones climáticas para el análisis multivariado.",
     )
@@ -445,7 +445,17 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
             if not anios_a_graficar:
                 st.info("ℹ️ Seleccione al menos un año candidato en el menú superior para visualizar las curvas temporales.")
             else:
-                colores_candidatos = ["#5C8A3D", "#D9A441", "#263238", "#A8C686", "#1976D2", "#8E24AA", "#00838F", "#E65100"]
+                # Paleta de candidatos (tonos contrastantes sin azul para preservar azul exclusivamente al año objetivo)
+                colores_candidatos = [
+                    "#2E5D34",  # Verde bosque
+                    "#D9A441",  # Ámbar dorado
+                    "#D32F2F",  # Rojo institucional
+                    "#8E24AA",  # Púrpura
+                    "#00897B",  # Verde azulado / Teal
+                    "#E65100",  # Naranja
+                    "#5D4037",  # Marrón cálido
+                    "#455A64",  # Gris pizarra
+                ]
                 estilos_linea = ["--", "-.", ":", "--", "-.", ":", "--", "-."]
 
                 fig_comp, axes = plt.subplots(
@@ -466,12 +476,13 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                         longitud_ventana=resultado.longitud_ventana,
                     )
                     x_labels = resultado.ventana_temporal
+                    # Año Objetivo destacado en tono azul
                     ax_i.plot(
                         x_labels,
                         v_obj,
                         marker="o",
-                        linewidth=2.6,
-                        color="#2E5D34",
+                        linewidth=2.8,
+                        color="#1565C0",
                         label=f"Objetivo ({resultado.year_objetivo})",
                         zorder=5,
                     )
