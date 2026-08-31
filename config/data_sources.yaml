@@ -340,7 +340,7 @@ AtlTROP:
   name: Tropical Atlantic SST Anomaly
   acronym: AtlTROP
   institution: NOAA Climate Prediction Center (CPC)
-  url: https://ftp.cpc.ncep.noaa.gov/wd52dg/data/indices/sstoi.atl.indices
+  url: https://www.cpc.ncep.noaa.gov/data/indices/sstoi.atl.indices
   filename_csv: dataAtlTROP.csv
   filename_txt: dataSSTOI.txt
   format: monthly_composite
@@ -365,7 +365,7 @@ SAtl:
   name: South Atlantic SST Anomaly
   acronym: SAtl
   institution: NOAA Climate Prediction Center (CPC)
-  url: https://ftp.cpc.ncep.noaa.gov/wd52dg/data/indices/sstoi.atl.indices
+  url: https://www.cpc.ncep.noaa.gov/data/indices/sstoi.atl.indices
   filename_csv: dataSAtl.csv
   filename_txt: dataSSTOI.txt
   format: monthly_composite
@@ -390,7 +390,7 @@ NAtl:
   name: North Atlantic SST Anomaly
   acronym: NAtl
   institution: NOAA Climate Prediction Center (CPC)
-  url: https://ftp.cpc.ncep.noaa.gov/wd52dg/data/indices/sstoi.atl.indices
+  url: https://www.cpc.ncep.noaa.gov/data/indices/sstoi.atl.indices
   filename_csv: dataNAtl.csv
   filename_txt: dataSSTOI.txt
   format: monthly_composite
