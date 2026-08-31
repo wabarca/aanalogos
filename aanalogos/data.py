@@ -530,13 +530,18 @@ def cargar_todas_oscilaciones(data_dir: str = ".") -> Dict[str, pd.DataFrame]:
     if os.path.exists(f_ao):
         oscilaciones["AO"] = limpiar_datos_indice(pd.read_csv(f_ao))
 
-    # 3. MEI (Unión histórica de MEI v1 + MEI v2)
+    # 3. MEI (Unión histórica de MEI v1 + MEI v2 o MEI v2 directo)
     f_mei1 = _resolver_ruta("dataMEI_1.csv")
     f_mei2 = _resolver_ruta("dataMEI_2.csv")
+    f_mei = _resolver_ruta("dataMEI.csv")
     if os.path.exists(f_mei1) and os.path.exists(f_mei2):
         df_mei1 = pd.read_csv(f_mei1)
         df_mei2 = pd.read_csv(f_mei2)
         oscilaciones["MEI"] = limpiar_datos_indice(pd.concat([df_mei1, df_mei2], sort=False, ignore_index=True))
+    elif os.path.exists(f_mei2):
+        oscilaciones["MEI"] = limpiar_datos_indice(pd.read_csv(f_mei2))
+    elif os.path.exists(f_mei):
+        oscilaciones["MEI"] = limpiar_datos_indice(pd.read_csv(f_mei))
 
     # 4. ONIv5, ONIv6, RONI
     f_oniv5 = _resolver_ruta("dataONIv5.csv")

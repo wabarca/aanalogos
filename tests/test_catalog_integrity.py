@@ -61,6 +61,20 @@ class TestCatalogIntegrity(unittest.TestCase):
         tbl = pa.Table.from_pandas(df_health_empty)
         self.assertEqual(tbl.num_rows, 21)
 
+    def test_mei_source_status_and_loading(self):
+        """Verificar que MEI se cargue correctamente con cobertura completa y figure como Disponible."""
+        osc = cargar_todas_oscilaciones()
+        self.assertIn("MEI", osc, "MEI debe estar cargado en oscilaciones")
+        df_mei = osc["MEI"]
+        self.assertGreaterEqual(len(df_mei), 30, "MEI debe tener al menos 30 años de registro")
+        self.assertIn(1979, df_mei["YEAR"].values, "1979 debe estar presente en MEI")
+        self.assertIn(2026, df_mei["YEAR"].values, "2026 debe estar presente en MEI")
+
+        df_health = obtener_estado_fuentes(osc)
+        row_mei = df_health[df_health["Código"] == "MEI"].iloc[0]
+        self.assertEqual(row_mei["Estado"], "Disponible", f"El estado de MEI debe ser 'Disponible', se obtuvo: {row_mei['Estado']}")
+        self.assertGreaterEqual(row_mei["Años Registrados"], 30)
+
 
 if __name__ == "__main__":
     unittest.main()
