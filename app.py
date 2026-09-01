@@ -176,14 +176,30 @@ seccion_seleccionada = st.sidebar.radio(
 st.sidebar.divider()
 
 # ==============================================================================
+# ENCABEZADO INSTITUCIONAL PERSISTENTE
+# ==============================================================================
+if CONFIG_INSTITUCION.get("logo"):
+    col_head_txt, col_head_logo = st.columns([4, 1])
+    with col_head_txt:
+        st.title("🌦️ Sistema de Selección de Años Análogos Climáticos")
+        st.markdown(
+            f"**{CONFIG_INSTITUCION['division']}**  \n*{CONFIG_INSTITUCION['name']}*"
+        )
+    with col_head_logo:
+        st.image(CONFIG_INSTITUCION["logo"], width=140)
+else:
+    st.title("🌦️ Sistema de Selección de Años Análogos Climáticos")
+    st.markdown(
+        f"**{CONFIG_INSTITUCION['division']}**  \n*{CONFIG_INSTITUCION['name']}*"
+    )
+
+st.divider()
+
+# ==============================================================================
 # SECCIÓN 3: ANÁLISIS DE AÑOS ANÁLOGOS
 # ==============================================================================
 if seccion_seleccionada == "3. Análisis de años análogos":
-    st.title("3. Análisis de años análogos")
-    st.markdown(f"""
-        **{CONFIG_INSTITUCION['division']}**  
-        *{CONFIG_INSTITUCION['name']}*
-        """)
+    st.header("3. Análisis de años análogos")
     st.divider()
 
     # Selección de Modo de Análisis
@@ -571,7 +587,7 @@ if seccion_seleccionada == "3. Análisis de años análogos":
 # SECCIÓN 4: EXPLORADOR DE ÍNDICES
 # ==============================================================================
 elif seccion_seleccionada == "4. Explorador de índices":
-    st.title("4. Explorador de índices")
+    st.header("4. Explorador de índices")
     st.markdown(
         "Consulte la ficha científica, metadatos, fuente operacional y la evolución histórica "
         "de cualquiera de las 21 oscilaciones climáticas integradas en el sistema."
@@ -772,7 +788,7 @@ elif seccion_seleccionada == "4. Explorador de índices":
 # SECCIÓN 5: METODOLOGÍA
 # ==============================================================================
 elif seccion_seleccionada == "5. Metodología":
-    st.title("5. Metodología")
+    st.header("5. Metodología")
     st.markdown(
         "Explicación técnica y matemática de los fundamentos estadísticos, ventanas temporales, "
         "métricas de similitud y algoritmos de coincidencia multivariada implementados en **AAnalogos**."
@@ -837,7 +853,7 @@ elif seccion_seleccionada == "5. Metodología":
 # SECCIÓN 1: ESTADO DE DATOS DISPONIBLES
 # ==============================================================================
 elif seccion_seleccionada == "1. Estado de datos disponibles":
-    st.title("1. Estado de datos disponibles")
+    st.header("1. Estado de datos disponibles")
     st.markdown(
         "Supervise el estado de cobertura, registros históricos y disponibilidad operacional "
         "de las 21 series climáticas, o ejecute una actualización atómica y no destructiva."
@@ -937,7 +953,7 @@ elif seccion_seleccionada == "1. Estado de datos disponibles":
 # SECCIÓN 2: CONFIGURACIÓN DE UMBRALES
 # ==============================================================================
 elif seccion_seleccionada == "2. Configuración de umbrales":
-    st.title("2. Configuración de umbrales")
+    st.header("2. Configuración de umbrales")
     st.markdown(
         "Personalice los umbrales de correlación de Pearson ($r_{\text{umbral}}$) y distancia absoluta media "
         "($\text{MAD}_{\text{umbral}}$) para cada uno de los 21 índices. Los valores metodológicos oficiales "
@@ -1007,7 +1023,7 @@ elif seccion_seleccionada == "2. Configuración de umbrales":
 # SECCIÓN: DOCUMENTACIÓN Y CRÉDITOS
 # ==============================================================================
 elif seccion_seleccionada == "Documentación y créditos":
-    st.title("Documentación y créditos")
+    st.header("Documentación y créditos")
     st.markdown(
         "Acceso centralizado a los manuales de usuario, arquitectura técnica, procedimientos de instalación, "
         "fuentes oficiales de datos y referencias científicas del sistema **AAnalogos**."
