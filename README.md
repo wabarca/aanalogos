@@ -91,7 +91,10 @@ streamlit run app.py
 
 ## Licencia y Créditos Institucionales
 
-* **Desarrollo y Adaptación:** Gerencia de Meteorología — Observatorio de Amenazas y Recursos Naturales.
+* **Desarrollo y mantenimiento:**  
+  **William Abarca**  
+  Gerencia de Meteorología — Observatorio de Amenazas y Recursos Naturales  
+  Ministerio de Medio Ambiente y Recursos Naturales
 * **Licencia:** Código abierto para servicios meteorológicos e instituciones de investigación.
 * **Fuentes Operacionales:** NOAA CPC, NOAA PSL, NOAA NCEI, Colorado State University (CSU).
 * **Antecedente Histórico:** Metodología conceptual basada en los trabajos de Anthony Segura García (UCR / IMN Costa Rica).

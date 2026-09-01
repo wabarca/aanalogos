@@ -1076,12 +1076,24 @@ elif seccion_seleccionada == "Documentación y créditos":
             f"**Personalización Institucional Activa:**  \n"
             f"* **Institución:** {CONFIG_INSTITUCION['name']}  \n"
             f"* **División / Departamento:** {CONFIG_INSTITUCION['division']}  \n"
-            f"* **Logotipo:** `{'Configurado (' + str(CONFIG_INSTITUCION['logo']) + ')' if CONFIG_INSTITUCION.get('logo') else 'Modo Neutro (Sin logo)'}`\n\n"
-            f"**Fuentes Oficiales de Datos:**  \n"
-            f"- NOAA Climate Prediction Center (CPC)  \n"
-            f"- NOAA Physical Sciences Laboratory (PSL)  \n"
-            f"- NOAA National Centers for Environmental Information (NCEI)  \n"
-            f"- Colorado State University (CSU) Department of Atmospheric Science  \n\n"
-            f"**Licencia y Uso:** Código abierto para servicios meteorológicos e instituciones de investigación."
+            f"* **Logotipo:** `{'Configurado (' + str(CONFIG_INSTITUCION['logo']) + ')' if CONFIG_INSTITUCION.get('logo') else 'Modo Neutro (Sin logo)'}`\n"
+        )
+
+        st.divider()
+        st.subheader("👨‍💻 Desarrollo y Mantenimiento")
+        st.markdown(
+            "**William Abarca**  \n"
+            "Gerencia de Meteorología — Observatorio de Amenazas y Recursos Naturales  \n"
+            "*Ministerio de Medio Ambiente y Recursos Naturales*"
+        )
+
+        st.divider()
+        st.subheader("🌐 Fuentes Oficiales de Datos")
+        st.markdown(
+            "- NOAA Climate Prediction Center (CPC)  \n"
+            "- NOAA Physical Sciences Laboratory (PSL)  \n"
+            "- NOAA National Centers for Environmental Information (NCEI)  \n"
+            "- Colorado State University (CSU) Department of Atmospheric Science  \n\n"
+            "**Licencia y Uso:** Código abierto para servicios meteorológicos e instituciones de investigación."
         )
 

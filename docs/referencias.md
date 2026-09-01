@@ -57,11 +57,10 @@ Todas las referencias bibliográficas y fuentes institucionales listadas a conti
 
 Este proyecto tiene como antecedente un código de cálculo de años análogos desarrollado originalmente por el meteorólogo **Anthony Segura García**, asociado a la **Universidad de Costa Rica** y al **Instituto Meteorológico Nacional de Costa Rica**. Dicho código sirvió como referencia para el desarrollo inicial de esta herramienta.
 
-La versión actualmente contenida en este repositorio ha sido **completamente modificada, reestructurada, rediseñada, modularizada, auditada y validada** para su utilización en el contexto de la **Gerencia de Meteorología del Ministerio de Medio Ambiente y Recursos Naturales (MARN) de El Salvador**.
-
-* **Desarrollo y rediseño de la versión actual:**  
+* **Desarrollo y mantenimiento:**  
   **William Abarca**  
-  *Ministerio de Medio Ambiente y Recursos Naturales (MARN), El Salvador*  
+  Gerencia de Meteorología — Observatorio de Amenazas y Recursos Naturales  
+  Ministerio de Medio Ambiente y Recursos Naturales  
   Contacto: [wabarca@ambiente.gob.sv](mailto:wabarca@ambiente.gob.sv)
 
 ---
