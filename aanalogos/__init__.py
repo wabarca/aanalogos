@@ -21,6 +21,7 @@ from .catalog import (
     determinar_ultimo_mes_disponible,
     obtener_periodo_evaluacion_operacional,
     obtener_estado_fuentes,
+    cargar_configuracion_institucional,
 )
 
 __version__ = "3.2.0"
@@ -46,4 +47,5 @@ __all__ = [
     "determinar_ultimo_mes_disponible",
     "obtener_periodo_evaluacion_operacional",
     "obtener_estado_fuentes",
+    "cargar_configuracion_institucional",
 ]

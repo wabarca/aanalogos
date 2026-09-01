@@ -42,6 +42,59 @@ def cargar_catalogo_indices(config_path: Optional[str] = None) -> Dict[str, Any]
     return catalogo if catalogo else {}
 
 
+def cargar_configuracion_institucional(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Carga la personalización institucional (nombre, división, logo PNG) desde config/institution.yaml.
+    Si el archivo no existe o contiene campos vacíos, retorna valores institucionales por defecto.
+    """
+    defaults = {
+        "name": "Servicio Meteorológico Nacional",
+        "division": "Dirección de Meteorología y Climatología",
+        "logo": None,
+    }
+    
+    if config_path is None:
+        config_path = resolver_ruta_config("institution.yaml")
+    
+    if not os.path.exists(config_path):
+        return defaults
+    
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        if not cfg or not isinstance(cfg, dict):
+            return defaults
+        
+        inst_data = cfg.get("institution", cfg)
+        if not isinstance(inst_data, dict):
+            return defaults
+        
+        nombre = inst_data.get("name", defaults["name"]) or defaults["name"]
+        division = inst_data.get("division", defaults["division"]) or defaults["division"]
+        logo_raw = inst_data.get("logo")
+        
+        logo_resuelto = None
+        if logo_raw:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            cands = [
+                str(logo_raw),
+                os.path.join(base_dir, str(logo_raw)),
+                os.path.join(os.getcwd(), str(logo_raw)),
+            ]
+            for c in cands:
+                if os.path.isfile(c) and c.lower().endswith(".png"):
+                    logo_resuelto = os.path.abspath(c)
+                    break
+        
+        return {
+            "name": str(nombre).strip(),
+            "division": str(division).strip(),
+            "logo": logo_resuelto,
+        }
+    except Exception:
+        return defaults
+
+
 def obtener_periodo_evaluacion_operacional(fecha_referencia: Optional[datetime.date] = None) -> Tuple[int, int]:
     """
     Calcula el año y mes de evaluación operacional a partir de una fecha de referencia
@@ -203,7 +256,7 @@ def obtener_estado_fuentes(
                         break
 
             ultimo_mes_str = f"{NOMBRES_MESES[ultimo_mes_num - 1]} ({y_max})" if ultimo_mes_num > 0 else f"Sin datos ({y_max})"
-            estado = "Disponible" if total_anios >= 30 else "Cobertura Parcial"
+            estado = "✓ Disponible" if total_anios >= 30 else "✓ Cobertura Parcial"
         else:
             y_min = pd.NA
             y_max = pd.NA
@@ -228,7 +281,7 @@ def obtener_estado_fuentes(
                     archivo_existe = True
                     break
 
-            estado = "Error" if archivo_existe else "No descargado"
+            estado = "⚠ Error" if archivo_existe else "✗ No disponible"
 
         variable_type = meta.get("variable_type", "anomalía")
         col_usada = meta.get("variable_column", "ENE..DIC")

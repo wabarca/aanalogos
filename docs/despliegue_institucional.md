@@ -11,6 +11,7 @@
 4. [Configuración y Estructura de la Unidad `systemd`](#4-configuración-y-estructura-de-la-unidad-systemd)
 5. [Seguridad y Restricción de Firewall](#5-seguridad-y-restricción-de-firewall)
 6. [Auditoría Operativa y Verificación del Servicio](#6-auditoría-operativa-y-verificación-del-servicio)
+7. [Configuración Institucional y Personalización (`institution.yaml`)](#7-configuración-institucional-y-personalización-institutionyaml)
 
 ---
 
@@ -131,6 +132,49 @@ journalctl -u aanalogos.service -f
 
 ---
 
+## 7. Configuración Institucional y Personalización (`institution.yaml`)
+
+El sistema **Aanalogos** es institucionalmente neutral y desacoplado, lo que permite su adopción y despliegue por cualquier servicio meteorológico o instituto de investigación regional sin necesidad de modificar el código fuente (`app.py`).
+
+### Archivo de Configuración: `config/institution.yaml`
+
+Para personalizar el nombre de la institución, la división y el logotipo que aparecen en la interfaz web:
+
+1. Edite el archivo de configuración:
+```bash
+sudo nano /opt/aanalogos/config/institution.yaml
+```
+
+2. Especifique los campos requeridos:
+```yaml
+# ==============================================================================
+# Configuración Institucional de Despliegue — Aanalogos
+# ==============================================================================
+institution:
+  # Nombre oficial de la institución
+  name: "Instituto Meteorológico Nacional"
+
+  # Nombre de la división, gerencia o departamento técnico
+  division: "Dirección de Climatología y Pronóstico"
+
+  # Ruta al logotipo institucional en formato PNG
+  # Puede ser relativa a la raíz de la instalación o una ruta absoluta
+  logo: "docs/img/logo_institucional.png"
+```
+
+3. **Colocación del Logotipo PNG:**
+   - Coloque su archivo de imagen en formato `.png` en el directorio `docs/img/` (ej. `/opt/aanalogos/docs/img/logo_institucional.png`) o en cualquier ruta accesible por el usuario de servicio `clima`.
+   - Si no se proporciona logotipo o el archivo no existe, la interfaz web funcionará automáticamente en modo neutro sin fallar ni dejar espacios rotos.
+
+4. **Aplicar los Cambios:**
+   Reinicie el servicio `systemd` para cargar la nueva configuración:
+```bash
+sudo systemctl restart aanalogos.service
+```
+
+---
+
 ### Navegación
 
 **[← Anterior](instalacion_windows.md)** · **[Índice de documentación](README.md)** · **[Siguiente →](mantenimiento.md)**
+

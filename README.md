@@ -25,7 +25,8 @@ La aplicación evalúa de forma simultánea hasta **21 índices oceánicos y atm
 * 📚 **Metodología Integrada:** Documentación científica interactiva con fórmulas KaTeX y explicación física de cada métrica y tipología de variable.
 * 🔄 **Actualización Atómica:** Descarga y validación no destructiva de las fuentes remotas oficiales (NOAA/CPC/PSL/CSU).
 * ⚙️ **Umbrales Configurables:** Personalización de criterios de coincidencia por índice con trazabilidad y botón de restauración oficial.
-* 🛡️ **Rigor Científico Certificado:** Precisión `float64` nativa, aislamiento de valores sentinela (`-99.99`), exclusión del año objetivo ($Y_{\text{cand}} \neq Y_{\text{obj}}$), verificación de anomalías térmicas y suite automatizada de 32 pruebas unitarias.
+* 🏛️ **Desacoplamiento Institucional:** Personalización sencilla del nombre, división y logotipo en `config/institution.yaml` para despliegue regional en cualquier servicio meteorológico.
+* 🛡️ **Rigor Científico Certificado:** Precisión `float64` nativa, aislamiento de valores sentinela (`-99.99`), exclusión del año objetivo ($Y_{\text{cand}} \neq Y_{\text{obj}}$), verificación de anomalías térmicas y suite automatizada de más de 90 pruebas unitarias.
 
 ---
 
@@ -56,12 +57,15 @@ source .venv/bin/activate  # En Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Ejecutar Suite de Pruebas Automatizadas
+### 2. Personalización Institucional (Opcional)
+Edite `config/institution.yaml` con el nombre, división y logotipo de su institución.
+
+### 3. Ejecutar Suite de Pruebas Automatizadas
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-### 3. Iniciar la Aplicación Web
+### 4. Iniciar la Aplicación Web
 ```bash
 streamlit run app.py
 ```
@@ -79,14 +83,15 @@ streamlit run app.py
 * [🏗️ Arquitectura Técnica](docs/arquitectura.md)
 * [🔁 Reproducibilidad y Benchmarks](docs/reproducibilidad.md)
 * [🐧 Instalación en Linux](docs/instalacion_linux.md)
+* [🪟 Instalación en Windows](docs/instalacion_windows.md)
 * [🏛️ Despliegue Institucional](docs/despliegue_institucional.md)
+* [🛠️ Manual de Mantenimiento](docs/mantenimiento.md)
 
 ---
 
 ## Licencia y Créditos Institucionales
 
-* **Institución:** Ministerio de Medio Ambiente y Recursos Naturales (MARN), El Salvador.
-* **Dirección:** Dirección del Observatorio de Amenazas y Recursos Naturales.
-* **Gerencia:** Gerencia de Meteorología.
-* **Responsable Técnico:** William Abarca (`wabarca@ambiente.gob.sv`).
+* **Desarrollo y Adaptación:** Gerencia de Meteorología — Observatorio de Amenazas y Recursos Naturales.
+* **Licencia:** Código abierto para servicios meteorológicos e instituciones de investigación.
+* **Fuentes Operacionales:** NOAA CPC, NOAA PSL, NOAA NCEI, Colorado State University (CSU).
 * **Antecedente Histórico:** Metodología conceptual basada en los trabajos de Anthony Segura García (UCR / IMN Costa Rica).

@@ -1,0 +1,17 @@
+# ==============================================================================
+# Configuración Institucional de Despliegue — Aanalogos
+# ==============================================================================
+# Permite personalizar el nombre de la institución, división/unidad y logotipo
+# para adaptar el sistema a cualquier servicio meteorológico o institución
+# de la región sin necesidad de modificar el código fuente.
+
+institution:
+  # Nombre oficial de la institución que opera el sistema
+  name: "Ministerio de Medio Ambiente y Recursos Naturales"
+
+  # Nombre de la división, gerencia o departamento técnico
+  division: "Gerencia de Meteorología"
+
+  # Ruta al logotipo institucional en formato PNG (relativa a la raíz del proyecto o absoluta).
+  # Si el archivo no existe o se deja vacío, la aplicación funcionará normalmente en modo neutro sin logo.
+  logo: "docs/img/logo_MARN.png"

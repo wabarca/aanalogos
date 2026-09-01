@@ -27,15 +27,19 @@ from aanalogos import (
     determinar_ultimo_mes_disponible,
     obtener_estado_fuentes,
     obtener_umbrales_metodologicos,
+    cargar_configuracion_institucional,
     UMBRALES_OSCILACIONES,
     NOMBRES_MESES,
     LONGITUD_VENTANA_METODOLOGICA,
     LONGITUD_VENTANA_OPERACIONAL,
 )
 
+# Cargar configuración institucional para personalización de despliegue
+CONFIG_INSTITUCION = cargar_configuracion_institucional()
+
 # Configuración de página de Streamlit
 st.set_page_config(
-    page_title="Años Análogos Climáticos | MARN El Salvador",
+    page_title=f"Años Análogos Climáticos | {CONFIG_INSTITUCION['name']}",
     page_icon="🌦️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -150,45 +154,35 @@ year_op_default, mes_op_default = determinar_ultimo_mes_disponible(
 # ==============================================================================
 # PANEL LATERAL DE NAVEGACIÓN Y PARÁMETROS
 # ==============================================================================
-posibles_rutas_logo = [
-    os.path.join(DIRECTORIO_ACTUAL, "docs", "img", "logo_MARN.png"),
-    os.path.join(DIRECTORIO_ACTUAL, "docs", "img", "logo_marn.png"),
-    os.path.join(DIRECTORIO_ACTUAL, "docs", "img", "marn_logo.png"),
-]
-logo_encontrado = None
-for ruta in posibles_rutas_logo:
-    if os.path.isfile(ruta):
-        logo_encontrado = ruta
-        break
-
-if logo_encontrado:
-    st.sidebar.image(logo_encontrado, width=180)
+if CONFIG_INSTITUCION.get("logo"):
+    st.sidebar.image(CONFIG_INSTITUCION["logo"], width=180)
 
 st.sidebar.title("🌦️ AAnalogos")
-st.sidebar.caption("**MARN El Salvador** | Gerencia de Meteorología")
+st.sidebar.caption(f"**{CONFIG_INSTITUCION['name']}**  \n*{CONFIG_INSTITUCION['division']}*")
 
 seccion_seleccionada = st.sidebar.radio(
     "Navegación del Sistema:",
     [
-        "🌦️ Análisis de Años Análogos",
-        "📊 Explorador de Índices",
-        "📚 Metodología de Cálculo",
-        "📈 Estado de Datos",
-        "⚙️ Configuración de Umbrales",
+        "1. Estado de datos disponibles",
+        "2. Configuración de umbrales",
+        "3. Análisis de años análogos",
+        "4. Explorador de índices",
+        "5. Metodología",
+        "Documentación y créditos",
     ],
-    index=0,
+    index=2,
 )
 
 st.sidebar.divider()
 
 # ==============================================================================
-# SECCIÓN 1: ANÁLISIS DE AÑOS ANÁLOGOS
+# SECCIÓN 3: ANÁLISIS DE AÑOS ANÁLOGOS
 # ==============================================================================
-if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
-    st.title("🌦️ Sistema de Selección de Años Análogos Climáticos")
-    st.markdown("""
-        **Gerencia de Meteorología — Observatorio de Amenazas y Recursos Naturales**
-        *Ministerio de Medio Ambiente y Recursos Naturales (MARN), El Salvador*
+if seccion_seleccionada == "3. Análisis de años análogos":
+    st.title("3. Análisis de años análogos")
+    st.markdown(f"""
+        **{CONFIG_INSTITUCION['division']}**  
+        *{CONFIG_INSTITUCION['name']}*
         """)
     st.divider()
 
@@ -574,13 +568,13 @@ if seccion_seleccionada == "🌦️ Análisis de Años Análogos":
                 )
 
 # ==============================================================================
-# SECCIÓN 2: EXPLORADOR DE ÍNDICES CLIMÁTICOS
+# SECCIÓN 4: EXPLORADOR DE ÍNDICES
 # ==============================================================================
-elif seccion_seleccionada == "📊 Explorador de Índices":
-    st.title("📊 Explorador y Catálogo de Índices Climáticos")
+elif seccion_seleccionada == "4. Explorador de índices":
+    st.title("4. Explorador de índices")
     st.markdown(
         "Consulte la ficha científica, metadatos, fuente operacional y la evolución histórica "
-        "de cualquiera de las 19 oscilaciones climáticas integradas en el sistema."
+        "de cualquiera de las 21 oscilaciones climáticas integradas en el sistema."
     )
     st.divider()
 
@@ -775,10 +769,10 @@ elif seccion_seleccionada == "📊 Explorador de Índices":
         )
 
 # ==============================================================================
-# SECCIÓN 3: METODOLOGÍA DE CÁLCULO
+# SECCIÓN 5: METODOLOGÍA
 # ==============================================================================
-elif seccion_seleccionada == "📚 Metodología de Cálculo":
-    st.title("📚 Metodología Científica de Selección de Años Análogos")
+elif seccion_seleccionada == "5. Metodología":
+    st.title("5. Metodología")
     st.markdown(
         "Explicación técnica y matemática de los fundamentos estadísticos, ventanas temporales, "
         "métricas de similitud y algoritmos de coincidencia multivariada implementados en **AAnalogos**."
@@ -840,18 +834,18 @@ elif seccion_seleccionada == "📚 Metodología de Cálculo":
     )
 
 # ==============================================================================
-# SECCIÓN 4: ESTADO Y ACTUALIZACIÓN DE DATOS
+# SECCIÓN 1: ESTADO DE DATOS DISPONIBLES
 # ==============================================================================
-elif seccion_seleccionada == "📈 Estado de Datos":
-    st.title("📈 Diagnóstico de Salud y Actualización de Datos")
+elif seccion_seleccionada == "1. Estado de datos disponibles":
+    st.title("1. Estado de datos disponibles")
     st.markdown(
         "Supervise el estado de cobertura, registros históricos y disponibilidad operacional "
-        "de las 19 series climáticas, o ejecute una actualización atómica y no destructiva."
+        "de las 21 series climáticas, o ejecute una actualización atómica y no destructiva."
     )
     st.divider()
 
     df_salud = obtener_estado_fuentes(oscilaciones_disponibles, CATALOGO)
-    disponibles = len(df_salud[df_salud["Estado"] == "Disponible"])
+    disponibles = len(df_salud[df_salud["Estado"].str.contains("Disponible", na=False)])
     total_indices = len(df_salud)
 
     col_stat1, col_stat2, col_stat3 = st.columns(3)
@@ -940,13 +934,13 @@ elif seccion_seleccionada == "📈 Estado de Datos":
     )
 
 # ==============================================================================
-# SECCIÓN 5: CONFIGURACIÓN DE UMBRALES
+# SECCIÓN 2: CONFIGURACIÓN DE UMBRALES
 # ==============================================================================
-elif seccion_seleccionada == "⚙️ Configuración de Umbrales":
-    st.title("⚙️ Configuración y Calibración de Umbrales Univariados")
+elif seccion_seleccionada == "2. Configuración de umbrales":
+    st.title("2. Configuración de umbrales")
     st.markdown(
         "Personalice los umbrales de correlación de Pearson ($r_{\text{umbral}}$) y distancia absoluta media "
-        "($\text{MAD}_{\text{umbral}}$) para cada uno de los 19 índices. Los valores metodológicos oficiales "
+        "($\text{MAD}_{\text{umbral}}$) para cada uno de los 21 índices. Los valores metodológicos oficiales "
         "se cargan como valores predeterminados y pueden ser restaurados en cualquier momento."
     )
     st.divider()
@@ -1008,3 +1002,70 @@ elif seccion_seleccionada == "⚙️ Configuración de Umbrales":
             nuevos_umbrales[cod] = (r_val, mad_val)
 
     st.session_state["umbrales_usuario"] = nuevos_umbrales
+
+# ==============================================================================
+# SECCIÓN: DOCUMENTACIÓN Y CRÉDITOS
+# ==============================================================================
+elif seccion_seleccionada == "Documentación y créditos":
+    st.title("Documentación y créditos")
+    st.markdown(
+        "Acceso centralizado a los manuales de usuario, arquitectura técnica, procedimientos de instalación, "
+        "fuentes oficiales de datos y referencias científicas del sistema **AAnalogos**."
+    )
+    st.divider()
+
+    tab_docs, tab_creditos = st.tabs(["📚 Documentación del Sistema", "🏛️ Créditos y Atribución"])
+
+    with tab_docs:
+        st.subheader("📑 Guías y Manuales Técnicos")
+        st.markdown(
+            "La documentación completa del proyecto está disponible en formato Markdown y PDF en el directorio `docs/` de la instalación:"
+        )
+
+        col_d1, col_d2 = st.columns(2)
+
+        with col_d1:
+            st.markdown("#### 📘 Operación y Ciencia")
+            st.markdown(
+                "- **[Manual de Usuario](file://docs/manual_usuario.md):** Guía interactiva paso a paso para el análisis operacional y reanálisis histórico.\n"
+                "- **[Metodología Científica](file://docs/metodologia.md):** Formulación matemática completa de Pearson, MAD, ventanas y ranking.\n"
+                "- **[Catálogo de Índices y Fuentes](file://docs/indices.md):** Fichas técnicas de las 21 oscilaciones climáticas, dominios y variables.\n"
+                "- **[Validación Climatológica](file://docs/validacion_climatologica.md):** Protocolo de aislamiento de sentinelas y consistencia física.\n"
+                "- **[Referencias Bibliográficas](file://docs/referencias.md):** 21 publicaciones primarias con DOIs verificados."
+            )
+
+        with col_d2:
+            st.markdown("#### 🛠️ Arquitectura y Despliegue")
+            st.markdown(
+                "- **[Arquitectura de Software](file://docs/arquitectura.md):** Diseño modular por capas desacopladas y API pública.\n"
+                "- **[Despliegue Institucional](file://docs/despliegue_institucional.md):** Configuración institucional (`config/institution.yaml`) y servicio continuo mediante `systemd`.\n"
+                "- **[Instalación en Linux](file://docs/instalacion_linux.md):** Despliegue en servidores Ubuntu/Debian.\n"
+                "- **[Instalación en Windows](file://docs/instalacion_windows.md):** Ejecución en estaciones de trabajo.\n"
+                "- **[Protocolo de Reproducibilidad](file://docs/reproducibilidad.md):** Verificación independiente del caso benchmark y tests.\n"
+                "- **[Manual de Mantenimiento](file://docs/mantenimiento.md):** Procedimientos de actualización y respaldo."
+            )
+
+        st.divider()
+        st.info(
+            "💡 **Ubicación de archivos:** Todos los documentos se encuentran en la carpeta `docs/` del repositorio "
+            "y pueden consultarse directamente con cualquier visor de Markdown o editor de texto."
+        )
+
+    with tab_creditos:
+        st.subheader("🌦️ Acerca de Aanalogos")
+        st.markdown(
+            f"**Sistema de Selección de Años Análogos Climáticos — Versión 3.2.0**  \n\n"
+            f"**Propósito:** Proporcionar una herramienta estadística, reproducible y auditable para identificar patrones históricos análogos "
+            f"en la evolución de oscilaciones climáticas acopladas océano-atmósfera, facilitando la toma de decisiones en pronósticos estacionales.\n\n"
+            f"**Personalización Institucional Activa:**  \n"
+            f"* **Institución:** {CONFIG_INSTITUCION['name']}  \n"
+            f"* **División / Departamento:** {CONFIG_INSTITUCION['division']}  \n"
+            f"* **Logotipo:** `{'Configurado (' + str(CONFIG_INSTITUCION['logo']) + ')' if CONFIG_INSTITUCION.get('logo') else 'Modo Neutro (Sin logo)'}`\n\n"
+            f"**Fuentes Oficiales de Datos:**  \n"
+            f"- NOAA Climate Prediction Center (CPC)  \n"
+            f"- NOAA Physical Sciences Laboratory (PSL)  \n"
+            f"- NOAA National Centers for Environmental Information (NCEI)  \n"
+            f"- Colorado State University (CSU) Department of Atmospheric Science  \n\n"
+            f"**Licencia y Uso:** Código abierto para servicios meteorológicos e instituciones de investigación."
+        )
+

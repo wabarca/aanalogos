@@ -52,7 +52,7 @@ class TestCatalogIntegrity(unittest.TestCase):
         self.assertEqual(len(df_health_empty), 21)
         self.assertIn("Estado", df_health_empty.columns)
         for _, row in df_health_empty.iterrows():
-            self.assertIn(row["Estado"], ["No descargado", "Error", "Disponible", "Cobertura Parcial"])
+            self.assertIn(row["Estado"], ["No descargado", "Error", "Disponible", "Cobertura Parcial", "✓ Disponible", "✗ No disponible", "⚠ Error", "✓ Cobertura Parcial", "⚠ Cobertura Parcial"])
             self.assertTrue(pd.isna(row["Primer Año"]))
             self.assertTrue(pd.isna(row["Último Año"]))
             self.assertEqual(row["Años Registrados"], 0)
@@ -72,7 +72,7 @@ class TestCatalogIntegrity(unittest.TestCase):
 
         df_health = obtener_estado_fuentes(osc)
         row_mei = df_health[df_health["Código"] == "MEI"].iloc[0]
-        self.assertEqual(row_mei["Estado"], "Disponible", f"El estado de MEI debe ser 'Disponible', se obtuvo: {row_mei['Estado']}")
+        self.assertIn(row_mei["Estado"], ["Disponible", "✓ Disponible"], f"El estado de MEI debe ser 'Disponible', se obtuvo: {row_mei['Estado']}")
         self.assertGreaterEqual(row_mei["Años Registrados"], 30)
 
 

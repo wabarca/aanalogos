@@ -8,6 +8,7 @@
 4. [Método Manual: Instalación en Directorio Personal o de Desarrollo](#4-método-manual-instalación-en-directorio-personal-o-de-desarrollo)
 5. [Configuración de Red y Firewall (UFW)](#5-configuración-de-red-y-firewall-ufw)
 6. [Control y Monitoreo del Servicio](#6-control-y-monitoreo-del-servicio)
+7. [Configuración Institucional (`config/institution.yaml`)](#7-configuración-institucional-configinstitutionyaml)
 
 ---
 
@@ -157,6 +158,26 @@ http://<IP_DEL_SERVIDOR>:8501
 * **Ver logs en tiempo real:** `journalctl -u aanalogos -f`
 * **Reiniciar servicio:** `sudo systemctl restart aanalogos`
 * **Detener servicio:** `sudo systemctl stop aanalogos`
+
+---
+
+## 7. Configuración Institucional (`config/institution.yaml`)
+
+Para adaptar el título, la división y el logotipo que se muestran en la interfaz web al servicio meteorológico desplegado:
+
+1. Edite el archivo `config/institution.yaml`:
+   ```bash
+   nano config/institution.yaml
+   ```
+2. Configure los campos de la institución:
+   ```yaml
+   institution:
+     name: "Nombre Oficial de su Institución"
+     division: "Nombre de la División o Departamento"
+     logo: "docs/img/su_logo.png"  # Archivo PNG (opcional)
+   ```
+3. Coloque el archivo PNG del logo en `docs/img/` o especifique su ruta. Si no se define logo, la aplicación funciona normalmente en modo neutro.
+4. Reinicie el servicio para aplicar los cambios: `sudo systemctl restart aanalogos`.
 
 ---
 
