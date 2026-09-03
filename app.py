@@ -972,6 +972,8 @@ elif seccion_seleccionada == "5. Metodología":
         "generados por el motor de **AAnalogos** para el caso de referencia validado:"
     )
 
+    r_amo_th, mad_amo_th = UMBRALES_OSCILACIONES.get("AMO", (0.60, 0.30))
+
     col_e1, col_e2 = st.columns(2)
     with col_e1:
         st.markdown(
@@ -981,7 +983,6 @@ elif seccion_seleccionada == "5. Metodología":
             "* **Ventana de análisis:** `6 meses` (Mayo a Octubre 2015)"
         )
     with col_e2:
-        r_amo_th, mad_amo_th = UMBRALES_OSCILACIONES.get("AMO", (0.60, 0.15))
         st.markdown(
             f"* **Umbral de correlación ($r_{{\\text{{umbral}}}}$):** `>{r_amo_th:.2f}`\n"
             f"* **Umbral de proximidad ($\\text{{MAD}}_{{\\text{{umbral}}}}$):** `<{mad_amo_th:.2f} °C`\n"
@@ -1023,7 +1024,7 @@ elif seccion_seleccionada == "5. Metodología":
                 f"* Media Candidato: $\\bar{{x}} = {x_bar:.4f}\\ ^\\circ\\text{{C}}$\n"
                 f"* Numerador (Covarianza): $\\sum (x_i-\\bar{{x}})(y_i-\\bar{{y}}) = {np.sum(prod_d):.4f}$\n"
                 f"* Denominador: $\\sqrt{{\\sum(x_i-\\bar{{x}})^2 \\sum(y_i-\\bar{{y}})^2}} = {np.sqrt(np.sum(dx**2)*np.sum(dy**2)):.4f}$\n"
-                f"* **Resultado:** **$r = 0.9583$** $\\implies$ **$0.9583 > 0.60$ (Cumple ✓)**"
+                f"* **Resultado:** **$r = 0.9583$** $\\implies$ **$0.9583 > {r_amo_th:.2f}$ (Cumple ✓)**"
             )
         with col_p2:
             st.markdown("#### Cálculo de MAD")
@@ -1031,22 +1032,22 @@ elif seccion_seleccionada == "5. Metodología":
                 f"* Suma de diferencias absolutas: $\\sum |x_i - y_i| = {np.sum(abs_d):.4f}\\ ^\\circ\\text{{C}}$\n"
                 f"* Longitud de ventana: $N = 6$\n"
                 f"* $\\text{{MAD}} = \\frac{1}{6} \\times {np.sum(abs_d):.4f} = {np.mean(abs_d):.4f}\\ ^\\circ\\text{{C}}$\n\n"
-                f"* **Resultado:** **$\\text{{MAD}} = 0.0365\\ ^\\circ\\text{{C}}$** $\\implies$ **$0.0365 < 0.15$ (Cumple ✓)**"
+                f"* **Resultado:** **$\\text{{MAD}} = 0.0365\\ ^\\circ\\text{{C}}$** $\\implies$ **$0.0365 < {mad_amo_th:.2f}$ (Cumple ✓)**"
             )
 
         st.markdown("#### Contraste de Casos Reales y Aplicación de Umbrales")
         st.markdown(
-            "La siguiente tabla demuestra la necesidad de aplicar ambos criterios contrastando cuatro años reales "
-            "del registro histórico de AMO frente a 2015:"
+            f"La siguiente tabla demuestra la necesidad de aplicar ambos criterios contrastando cuatro años reales "
+            f"del registro histórico de AMO frente a 2015 con los umbrales oficiales ($r > {r_amo_th:.2f}$ y $\\text{{MAD}} < {mad_amo_th:.2f}\\ ^\\circ\\text{{C}}$):"
         )
 
         md_tabla_contraste = [
-            "| Año Candidato | Pearson ($r$) | Umbral $r$ | MAD | Umbral MAD | Condición $(r > 0.60) \\land (\\text{MAD} < 0.15)$ | Dictamen | Explicación Física |",
+            f"| Año Candidato | Pearson ($r$) | Umbral $r$ | MAD | Umbral MAD | Condición $(r > {r_amo_th:.2f}) \\land (\\text{{MAD}} < {mad_amo_th:.2f})$ | Dictamen | Explicación Física |",
             "| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |",
-            "| **2013** | **0.9583** | $> 0.60$ (✓) | **0.0365 °C** | $< 0.15$ °C (✓) | Cumple ambos | 🟢 **Año Análogo** | Sincronía temporal casi perfecta y anomalías térmicas prácticamente idénticas. |",
-            "| **1972** | **0.9805** | $> 0.60$ (✓) | **0.5430 °C** | $< 0.15$ °C (✗) | Falla MAD | 🔴 **No Análogo** | Excelente correlación mensual, pero anomalía térmica desfasada en más de 0.5 °C. |",
-            "| **1958** | **-0.4390** | $> 0.60$ (✗) | **0.1098 °C** | $< 0.15$ °C (✓) | Falla Pearson | 🔴 **No Análogo** | Valores térmicos numéricamente cercanos, pero con tendencia y evolución temporal invertida. |",
-            "| **1953** | **-0.6729** | $> 0.60$ (✗) | **0.1768 °C** | $< 0.15$ °C (✗) | Falla ambos | 🔴 **No Análogo** | Tendencia opuesta y discrepancia en amplitud térmica. |",
+            f"| **2013** | **0.9583** | $> {r_amo_th:.2f}$ (✓) | **0.0365 °C** | $< {mad_amo_th:.2f} °C$ (✓) | Cumple ambos | 🟢 **Año Análogo** | Sincronía temporal casi perfecta y anomalías térmicas prácticamente idénticas. |",
+            f"| **1972** | **0.9805** | $> {r_amo_th:.2f}$ (✓) | **0.5430 °C** | $< {mad_amo_th:.2f} °C$ (✗) | Falla MAD | 🔴 **No Análogo** | Excelente correlación mensual, pero anomalía térmica desfasada en más de 0.5 °C. |",
+            f"| **1958** | **-0.4390** | $> {r_amo_th:.2f}$ (✗) | **0.1098 °C** | $< {mad_amo_th:.2f} °C$ (✓) | Falla Pearson | 🔴 **No Análogo** | Valores térmicos numéricamente cercanos, pero con tendencia y evolución temporal invertida. |",
+            f"| **1971** | **0.3390** | $> {r_amo_th:.2f}$ (✗) | **0.5047 °C** | $< {mad_amo_th:.2f} °C$ (✗) | Falla ambos | 🔴 **No Análogo** | Correlación insuficiente y discrepancia en amplitud térmica. |",
         ]
         st.markdown("\n".join(md_tabla_contraste))
 
@@ -1067,17 +1068,25 @@ elif seccion_seleccionada == "5. Metodología":
         oscilaciones_cargadas=oscilaciones_disponibles,
     )
     if res_ejemplo.es_valido:
+        df_amo_res = res_ejemplo.tabla_trazabilidad[
+            res_ejemplo.tabla_trazabilidad["Indice"] == "AMO"
+        ].sort_values("YEAR")
+        anios_analogos_ej = df_amo_res[df_amo_res["Coincidencia"] == 1]["YEAR"].tolist()
+        str_anios_analogos = ", ".join(str(y) for y in anios_analogos_ej)
+
         fig_ejemplo = generar_grafico_individual_indice(res_ejemplo, "AMO", CATALOGO)
         st.pyplot(fig_ejemplo, clear_figure=True)
         plt.close(fig_ejemplo)
 
-    st.markdown(
-        "> **Interpretación visual:**  \n"
-        "> • **Línea verde horizontal:** Marca el umbral mínimo de correlación ($r_{\\text{umbral}} = 0.60$). Los puntos de la serie azul por encima de ella satisfacen el criterio de sincronía.  \n"
-        "> • **Línea naranja horizontal:** Marca el umbral máximo de diferencia ($MAD_{\\text{umbral}} = 0.15\\ ^\\circ\\text{C}$). Los puntos de la serie roja por debajo de ella satisfacen el criterio de proximidad.  \n"
-        "> • **Bandas verdes verticales y etiquetas superiores a 45°:** Identifican los años análogos que cumplen **simultáneamente** ambos umbrales (ej. 1949, 1957, 1959, 1990, 1997, 2001, 2013, 2014, 2018, 2021).  \n"
-        "> • **Puntos grises:** Años candidatos que no superaron al menos uno de los dos filtros."
-    )
+        st.markdown(
+            "> **Interpretación visual de la gráfica:**  \n"
+            "> • **Eje Y izquierdo y serie azul (línea discontinua con marcadores circulares):** Representa el coeficiente de correlación lineal de Pearson ($r$) de cada año candidato respecto a 2015.  \n"
+            f"> • **Línea azul horizontal discontinua:** Marca el umbral mínimo de correlación ($r_{{\\text{{umbral}}}} = {r_amo_th:.2f}$). Los puntos de la serie azul situados por encima de ella satisfacen el criterio de sincronía temporal.  \n"
+            "> • **Eje Y derecho y serie roja (línea discontinua con marcadores circulares):** Representa la Distancia Absoluta Media (MAD) en $^\\circ\\text{C}$ de cada año candidato respecto a 2015.  \n"
+            f"> • **Línea roja horizontal discontinua:** Marca el umbral máximo de diferencia ($\\text{{MAD}}_{{\\text{{umbral}}}} = {mad_amo_th:.2f}\\ ^\\circ\\text{{C}}$). Los puntos de la serie roja situados por debajo de ella satisfacen el criterio de proximidad en magnitud.  \n"
+            f"> • **Bandas verdes verticales y etiquetas superiores a 45° ({len(anios_analogos_ej)} años análogos):** Identifican con precisión los años candidatos que satisfacen **ambos criterios simultáneamente** ($r > {r_amo_th:.2f} \\land \\text{{MAD}} < {mad_amo_th:.2f}\\ ^\\circ\\text{{C}}$): **{str_anios_analogos}**.  \n"
+            "> • **Años candidatos no análogos:** Aquellos candidatos cuya correlación no supera el umbral azul ($r \\le 0.60$) o cuya diferencia supera el umbral rojo ($\\text{MAD} \\ge 0.30\\ ^\\circ\\text{C}$) no reciben banda verde ni etiqueta superior, indicando que no cumplen de forma simultánea ambos requisitos físicos."
+        )
 
 # ==============================================================================
 # SECCIÓN 1: ESTADO DE DATOS DISPONIBLES
