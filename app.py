@@ -1004,17 +1004,16 @@ elif seccion_seleccionada == "5. Metodología":
         prod_d = dx * dy
         abs_d = np.abs(v_2013 - v_2015)
 
-        df_calc = pd.DataFrame({
-            "Mes": meses_nombres,
-            "2015 Objetivo ($y_i$)": [f"{v:+.3f} °C" for v in v_2015],
-            "2013 Candidato ($x_i$)": [f"{v:+.3f} °C" for v in v_2013],
-            "$(y_i - \\bar{y})$": [f"{v:+.3f}" for v in dy],
-            "$(x_i - \\bar{x})$": [f"{v:+.3f}" for v in dx],
-            "Producto $(x_i-\\bar{x})(y_i-\\bar{y})$": [f"{v:+.4f}" for v in prod_d],
-            "Diferencia $|x_i - y_i|$": [f"{v:.3f} °C" for v in abs_d],
-        })
-
-        st.dataframe(df_calc, width="stretch", hide_index=True)
+        # Construcción de la tabla Markdown con encabezados matemáticos KaTeX renderizados
+        md_tabla_calc = [
+            "| Mes | $y_i$ (2015 Objetivo) | $x_i$ (2013 Candidato) | $y_i - \\bar{y}$ | $x_i - \\bar{x}$ | $(x_i - \\bar{x})(y_i - \\bar{y})$ | $\\lvert x_i - y_i \\rvert$ |",
+            "| :--- | :---: | :---: | :---: | :---: | :---: | :---: |",
+        ]
+        for i in range(len(meses_nombres)):
+            md_tabla_calc.append(
+                f"| **{meses_nombres[i]}** | {v_2015[i]:+.3f} °C | {v_2013[i]:+.3f} °C | {dy[i]:+.3f} | {dx[i]:+.3f} | {prod_d[i]:+.4f} | {abs_d[i]:.3f} °C |"
+            )
+        st.markdown("\n".join(md_tabla_calc))
 
         col_p1, col_p2 = st.columns(2)
         with col_p1:
@@ -1041,49 +1040,15 @@ elif seccion_seleccionada == "5. Metodología":
             "del registro histórico de AMO frente a 2015:"
         )
 
-        df_contraste = pd.DataFrame([
-            {
-                "Año Candidato": "2013",
-                "Pearson ($r$)": "0.9583",
-                "Umbral $r$": "> 0.60 (✓)",
-                "MAD": "0.0365 °C",
-                "Umbral MAD": "< 0.15 °C (✓)",
-                "Condición $(r > 0.60) \\land (\\text{MAD} < 0.15)$": "Cumple ambos",
-                "Dictamen": "🟢 Año Análogo (✓)",
-                "Explicación Física": "Sincronía temporal casi perfecta y anomalías térmicas prácticamente idénticas.",
-            },
-            {
-                "Año Candidato": "1972",
-                "Pearson ($r$)": "0.9805",
-                "Umbral $r$": "> 0.60 (✓)",
-                "MAD": "0.5430 °C",
-                "Umbral MAD": "< 0.15 °C (✗)",
-                "Condición $(r > 0.60) \\land (\\text{MAD} < 0.15)$": "Falla MAD",
-                "Dictamen": "🔴 No Análogo (✗)",
-                "Explicación Física": "Excelente correlación mensual, pero anomalía térmica desfasada en más de 0.5 °C.",
-            },
-            {
-                "Año Candidato": "1958",
-                "Pearson ($r$)": "-0.4390",
-                "Umbral $r$": "> 0.60 (✗)",
-                "MAD": "0.1098 °C",
-                "Umbral MAD": "< 0.15 °C (✓)",
-                "Condición $(r > 0.60) \\land (\\text{MAD} < 0.15)$": "Falla Pearson",
-                "Dictamen": "🔴 No Análogo (✗)",
-                "Explicación Física": "Valores térmicos numéricamente cercanos, pero con tendencia y evolución temporal invertida.",
-            },
-            {
-                "Año Candidato": "1953",
-                "Pearson ($r$)": "-0.6729",
-                "Umbral $r$": "> 0.60 (✗)",
-                "MAD": "0.1768 °C",
-                "Umbral MAD": "< 0.15 °C (✗)",
-                "Condición $(r > 0.60) \\land (\\text{MAD} < 0.15)$": "Falla ambos",
-                "Dictamen": "🔴 No Análogo (✗)",
-                "Explicación Física": "Tendencia opuesta y discrepancia en amplitud térmica.",
-            },
-        ])
-        st.dataframe(df_contraste, width="stretch", hide_index=True)
+        md_tabla_contraste = [
+            "| Año Candidato | Pearson ($r$) | Umbral $r$ | MAD | Umbral MAD | Condición $(r > 0.60) \\land (\\text{MAD} < 0.15)$ | Dictamen | Explicación Física |",
+            "| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |",
+            "| **2013** | **0.9583** | $> 0.60$ (✓) | **0.0365 °C** | $< 0.15$ °C (✓) | Cumple ambos | 🟢 **Año Análogo** | Sincronía temporal casi perfecta y anomalías térmicas prácticamente idénticas. |",
+            "| **1972** | **0.9805** | $> 0.60$ (✓) | **0.5430 °C** | $< 0.15$ °C (✗) | Falla MAD | 🔴 **No Análogo** | Excelente correlación mensual, pero anomalía térmica desfasada en más de 0.5 °C. |",
+            "| **1958** | **-0.4390** | $> 0.60$ (✗) | **0.1098 °C** | $< 0.15$ °C (✓) | Falla Pearson | 🔴 **No Análogo** | Valores térmicos numéricamente cercanos, pero con tendencia y evolución temporal invertida. |",
+            "| **1953** | **-0.6729** | $> 0.60$ (✗) | **0.1768 °C** | $< 0.15$ °C (✗) | Falla ambos | 🔴 **No Análogo** | Tendencia opuesta y discrepancia en amplitud térmica. |",
+        ]
+        st.markdown("\n".join(md_tabla_contraste))
 
     st.divider()
 
