@@ -28,6 +28,7 @@ from aanalogos import (
     obtener_estado_fuentes,
     obtener_umbrales_metodologicos,
     cargar_configuracion_institucional,
+    generar_grafico_individual_indice,
     UMBRALES_OSCILACIONES,
     NOMBRES_MESES,
     LONGITUD_VENTANA_METODOLOGICA,
@@ -395,6 +396,90 @@ if seccion_seleccionada == "3. Análisis de años análogos":
                 width="stretch",
                 height=400,
             )
+
+            # ==================================================================
+            # REPRESENTACIÓN GRÁFICA INDIVIDUAL POR ÍNDICE
+            # ==================================================================
+            st.divider()
+            st.subheader("Representación gráfica por índice")
+            st.markdown(
+                "Visualice simultáneamente el coeficiente de correlación de Pearson ($r$), la distancia absoluta "
+                "media ($\text{MAD}$), los umbrales configurados y los años candidatos evaluados para cada índice."
+            )
+
+            indices_analisis = resultado.indices_evaluados
+            if not indices_analisis:
+                st.info("No hay índices evaluados disponibles en el análisis actual.")
+            else:
+                col_sel_idx, col_espacio = st.columns([2, 2])
+                with col_sel_idx:
+                    idx_seleccionado = st.selectbox(
+                        "Índice:",
+                        options=indices_analisis,
+                        format_func=lambda x: f"{x} — {NOMBRES_LEGIBLES.get(x, x)}",
+                        key="selector_grafico_individual_indice"
+                    )
+
+                df_traz_indice = (
+                    resultado.tabla_trazabilidad[resultado.tabla_trazabilidad["Indice"] == idx_seleccionado]
+                    if resultado.tabla_trazabilidad is not None and not resultado.tabla_trazabilidad.empty
+                    else pd.DataFrame()
+                )
+
+                if df_traz_indice.empty or df_traz_indice.dropna(subset=["Pearson", "MAD"]).empty:
+                    st.warning(
+                        f"⚠️ No existen datos suficientes de correlación y MAD para el índice {idx_seleccionado} en el período seleccionado."
+                    )
+                else:
+                    # Generar figura científica fiel a la referencia
+                    fig_ind = generar_grafico_individual_indice(
+                        resultado=resultado,
+                        codigo_indice=idx_seleccionado,
+                        catalogo=CATALOGO
+                    )
+                    st.pyplot(fig_ind, clear_figure=True)
+
+                    # Exportar imagen en memoria para botón de descarga opcional
+                    import io
+                    buf_img = io.BytesIO()
+                    fig_ind.savefig(buf_img, format="png", dpi=150, facecolor=fig_ind.get_facecolor(), edgecolor="none")
+                    buf_img.seek(0)
+                    plt.close(fig_ind)
+
+                    # Paneles de parámetros y resumen debajo del gráfico
+                    col_p1, col_p2 = st.columns(2)
+                    r_th_actual = float(df_traz_indice["Umbral_r"].iloc[0])
+                    mad_th_actual = float(df_traz_indice["Umbral_MAD"].iloc[0])
+                    anios_analogos_idx = df_traz_indice[df_traz_indice["Coincidencia"] == 1]["YEAR"].tolist()
+                    total_anios_eval = len(df_traz_indice["YEAR"].unique())
+
+                    with col_p1:
+                        st.info(
+                            f"**Parámetros de umbral**  \n"
+                            f"• Umbral de correlación (r) mínimo: **{r_th_actual:.2f}**  \n"
+                            f"• Umbral de MAD máximo: **{mad_th_actual:.2f}**"
+                        )
+                    with col_p2:
+                        st.success(
+                            f"**Resumen**  \n"
+                            f"• Total de años evaluados: **{total_anios_eval}**  \n"
+                            f"• Años análogos encontrados: **{len(anios_analogos_idx)}**"
+                        )
+
+                    # Lista de años análogos
+                    if anios_analogos_idx:
+                        str_anios = ", ".join(str(y) for y in sorted(anios_analogos_idx))
+                        st.markdown(f"**Años análogos para el índice seleccionado:** {str_anios}")
+                    else:
+                        st.markdown(f"**Años análogos para el índice seleccionado:** Ninguno (Años análogos encontrados: 0)")
+
+                    # Botón de descarga de la figura
+                    st.download_button(
+                        label=f"📥 Descargar Gráfico {idx_seleccionado} (PNG)",
+                        data=buf_img,
+                        file_name=f"grafico_{idx_seleccionado}_{resultado.year_objetivo}_m{resultado.mes_objetivo}.png",
+                        mime="image/png"
+                    )
 
         with tab_graficos:
             st.markdown("### Histograma de Coincidencias por Año Candidato")

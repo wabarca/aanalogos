@@ -23,6 +23,7 @@ from .catalog import (
     obtener_estado_fuentes,
     cargar_configuracion_institucional,
 )
+from .charts import generar_grafico_individual_indice
 
 __version__ = "3.2.0"
 
@@ -48,4 +49,5 @@ __all__ = [
     "obtener_periodo_evaluacion_operacional",
     "obtener_estado_fuentes",
     "cargar_configuracion_institucional",
+    "generar_grafico_individual_indice",
 ]
