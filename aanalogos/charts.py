@@ -107,17 +107,20 @@ def generar_grafico_individual_indice(
     else:
         ventana_desc = f"Últimos {resultado.longitud_ventana} meses"
 
-    # Escala de MAD para alinear con los 7 ticks de r (-1.50 a 1.50)
+    # Escala dinámica de MAD para 7 ticks (6 intervalos) que adapta la altura real de cada índice
     max_mad = float(np.nanmax(mad_vals)) if len(mad_vals) > 0 else 1.0
-    criterio_max = max(max_mad, mad_th)
-    if criterio_max <= 2.5:
-        mad_max_axis = 3.0
-    elif criterio_max <= 5.0:
-        mad_max_axis = 6.0
-    elif criterio_max <= 10.0:
-        mad_max_axis = 12.0
+    criterio_max = max(max_mad, mad_th) * 1.15
+
+    posibles_pasos = [0.05, 0.10, 0.15, 0.20, 0.25, 0.50, 1.00, 1.50, 2.00, 2.50, 5.00]
+    step = posibles_pasos[-1]
+    for s in posibles_pasos:
+        if s * 6 >= criterio_max:
+            step = s
+            break
     else:
-        mad_max_axis = float(np.ceil(criterio_max / 6.0) * 6.0)
+        step = float(np.ceil(criterio_max / 6.0))
+
+    mad_max_axis = step * 6
 
     # Crear figura 16:9 de alta definición
     fig = plt.figure(figsize=(16, 9), dpi=150, facecolor='#FFFFFF')
