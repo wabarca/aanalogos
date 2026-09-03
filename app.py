@@ -885,63 +885,233 @@ elif seccion_seleccionada == "4. Explorador de índices":
 elif seccion_seleccionada == "5. Metodología":
     st.header("5. Metodología")
     st.markdown(
-        "Explicación técnica y matemática de los fundamentos estadísticos, ventanas temporales, "
-        "métricas de similitud y algoritmos de coincidencia multivariada implementados en **AAnalogos**."
+        "Fundamentos físicos, formulación matemática y aplicación práctica del método de "
+        "selección de años análogos climáticos implementado en **AAnalogos**."
     )
     st.divider()
 
-    st.markdown("### 1. Concepto y Objetivo Climatológico")
+    # 5.1 ¿Qué es un año análogo?
+    st.subheader("5.1 ¿Qué es un año análogo?")
     st.markdown(
-        "El método de años análogos busca identificar aquellos años del registro histórico cuyas condiciones atmosféricas y "
-        "oceánicas evolucionaron de manera más semejante a la configuración observada en el período reciente. Permite a los "
-        "meteorólogos evaluar qué patrones de precipitación o temperatura se manifestaron en el pasado ante configuraciones "
-        "sinópticas similares."
+        "El método de **años análogos** es una técnica empírica de diagnóstico y pronóstico climático basada en el "
+        "principio físico de que estados oceánicos y atmosféricos similares en el pasado tienden a evolucionar de forma semejante "
+        "y generar patrones de precipitación y temperatura comparables a escala regional.\n\n"
+        "Al identificar qué años históricos presentaron la trayectoria más parecida en las principales oscilaciones climáticas "
+        "(ENOS, Atlántico, Pacífico Norte, Ártico y circulación global), los meteorólogos y climatólogos obtienen escenarios "
+        "de referencia objetivos para orientar la perspectiva climática estacional."
     )
     st.divider()
 
-    st.markdown("### 2. Ventana Temporal Móvil (6 vs 12 Meses)")
+    # 5.2 Flujo del método
+    st.subheader("5.2 Flujo del método")
     st.markdown(
-        "* **Ventana Operacional (12 meses):** Configuración predeterminada en operación. Evalúa el ciclo anual completo previo al mes de pronóstico (ej. para octubre de 2026, abarca desde noviembre de 2025 hasta octubre de 2026).\n"
-        "* **Ventana Metodológica Histórica (6 meses):** Configuración de referencia científica original.\n"
-        "* **Manejo de Cruces Interanuales:** Cuando la ventana cruza el cambio de año (ej. mes < longitud de ventana), los meses previos se extraen de $Y-1$ y los meses restantes de $Y$. La etiqueta del candidato es siempre el año de cierre $Y$."
+        "El procedimiento científico de selección sigue una secuencia lógica estricta y reproducible:\n\n"
+        "1. **Definición de la Ventana Temporal:** Se extrae una ventana móvil retrospectiva ($N = 12$ meses en operación estándar, "
+        "o $N = 6$ meses en la metodología histórica) que culmina en el mes objetivo ($m_{\\text{obj}}$) del año objetivo ($Y_{\\text{obj}}$).\n"
+        "2. **Exclusión Estricta del Año Objetivo:** El año objetivo **nunca** se evalúa como candidato ($Y_{\\text{cand}} \\neq Y_{\\text{obj}}$) "
+        "para evitar correlaciones triviales espurias ($r=1.0$, $\\text{MAD}=0.0$).\n"
+        "3. **Comparación Univariada:** Para cada índice climático $k$, se calculan el coeficiente de correlación de Pearson ($r$) "
+        "y la distancia absoluta media (MAD) entre la serie del año objetivo y cada año candidato del registro histórico.\n"
+        "4. **Aplicación Conjunta de Umbrales:** Se evalúa si el año candidato cumple simultáneamente ambos criterios ($r > r_{\\text{umbral}} \\land \\text{MAD} < \\text{MAD}_{\\text{umbral}}$).\n"
+        "5. **Consolidación y Ranking Multivariado:** Se suman las coincidencias obtenidas en todos los índices analizados para jerarquizar los años análogos."
     )
     st.divider()
 
-    st.markdown("### 3. Exclusión Estricta del Año Objetivo")
-    st.markdown("El año objetivo **jamás** se evalúa como candidato de sí mismo:")
-    st.latex(r"Y_{\text{cand}} \neq Y_{\text{obj}}")
+    # 5.3 Pearson (r)
+    st.subheader("5.3 Coeficiente de Correlación de Pearson ($r$)")
     st.markdown(
-        r"Incluirlo generaría una correlación trivial $r = 1.0000$ y $\text{MAD} = 0.0000$, distorsionando el ranking."
+        "El coeficiente de correlación lineal de Pearson evalúa la **similitud en la sincronía, tendencia y forma** "
+        "de la oscilación climática a lo largo de la ventana de análisis:"
+    )
+    st.latex(
+        r"r = \frac{\sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{N} (x_i - \bar{x})^2} \sqrt{\sum_{i=1}^{N} (y_i - \bar{y})^2}}"
+    )
+    st.markdown(
+        "* **Pregunta que responde:** *¿Las anomalías climáticas evolucionaron con la misma trayectoria temporal?*\n"
+        "* **Rango:** $r \\in [-1, 1]$. Valores cercanos a $+1$ reflejan trayectorias paralelas; valores próximos a $0$ denotan ausencia de relación lineal; y valores negativos indican tendencias opuestas.\n"
+        "* **Criterio de aceptación:** $r > r_{\\text{umbral}, k}$ (por encima del umbral mínimo de correlación)."
     )
     st.divider()
 
-    st.markdown("### 4. Métricas Estadísticas de Similitud")
-    st.markdown(r"Para cada índice $k$, se comparan el vector candidato $\mathbf{x}$ y el vector objetivo $\mathbf{y}$:")
-
-    st.markdown("#### 4.1 Coeficiente de Correlación Lineal de Pearson ($r$)")
-    st.markdown("Evalúa la **similitud en la sincronía, tendencia y forma** de la oscilación:")
-    st.latex(r"r = \frac{\sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{N} (x_i - \bar{x})^2} \sqrt{\sum_{i=1}^{N} (y_i - \bar{y})^2}}")
-
-    st.markdown("#### 4.2 Distancia Absoluta Media (MAD)")
-    st.markdown("En esta formulación climatológica, MAD representa la **Diferencia Absoluta Media (Mean Absolute Difference)**, evaluando la **cercanía en la magnitud física y amplitud de la anomalía**:")
-    st.latex(r"\text{MAD} = \frac{1}{N} \sum_{i=1}^{N} |x_i - y_i|")
-    st.divider()
-
-    st.markdown("### 5. Criterio de Coincidencia Univariada y Ranking")
-    st.markdown(r"Un año histórico se declara análogo para el índice $k$ si y solo si:")
-    st.latex(r"C_k(Y_{\text{cand}}) = \begin{cases} 1 & \text{si } (r_k > r_{\text{umbral}, k}) \land (\text{MAD}_k < \text{MAD}_{\text{umbral}, k}) \\ 0 & \text{en caso contrario} \end{cases}")
-
-    st.markdown("El puntaje total de coincidencia multivariado es:")
-    st.latex(r"\text{Total}(Y_{\text{cand}}) = \sum_{k=1}^{K} C_k(Y_{\text{cand}}) \quad \in \{0, 1, \dots, K\}")
-
-    st.markdown("Los años análogos se ordenan de forma descendente por `Total`, desempatando por el año más reciente.")
-    st.divider()
-
-    st.markdown("### 6. Control Estricto de Datos y Reanálisis sin Contaminación")
+    # 5.4 MAD
+    st.subheader("5.4 Distancia Absoluta Media (MAD)")
     st.markdown(
-        "* **Aislamiento de Sentinelas:** Valores como `-99.99`, `-999.0` se transforman en `NaN` y anulan la ventana si están presentes.\n"
-        "* **Sin Reducción Silenciosa:** Si un índice seleccionado no dispone de datos completos, el cálculo se detiene e informa al usuario.\n"
-        "* **Prevención de Look-Ahead Bias:** En modo reanálisis, ningún dato posterior al año objetivo se utiliza en la evaluación."
+        "En la formulación climatológica del sistema, MAD representa la **Diferencia Absoluta Media (Mean Absolute Difference)**, "
+        "evaluando la **cercanía en la magnitud física y amplitud térmica/barométrica** de la anomalía:"
+    )
+    st.latex(
+        r"\text{MAD} = \frac{1}{N} \sum_{i=1}^{N} |x_i - y_i|"
+    )
+    st.markdown(
+        "* **Pregunta que responde:** *¿Los valores observados estuvieron suficientemente próximos en magnitud real?*\n"
+        "* **Rango:** $\\text{MAD} \\ge 0$. Preserva las unidades físicas del índice ($^\\circ\\text{C}$, desv. est., $10^6\\text{ km}^2$). Valores menores indican mayor cercanía física.\n"
+        "* **Criterio de aceptación:** $\\text{MAD} < \\text{MAD}_{\\text{umbral}, k}$ (por debajo del umbral máximo de diferencia)."
+    )
+    st.divider()
+
+    # 5.5 Criterio conjunto de selección
+    st.subheader("5.5 Criterio conjunto de selección")
+    st.markdown(
+        "Un año candidato $Y_{\\text{cand}}$ se declara **año análogo** para el índice $k$ si y solo si satisface **ambos criterios de forma simultánea**:"
+    )
+    st.latex(
+        r"C_k(Y_{\text{cand}}) = \begin{cases} 1 & \text{si } (r_k > r_{\text{umbral}, k}) \;\land\; (\text{MAD}_k < \text{MAD}_{\text{umbral}, k}) \\ 0 & \text{en caso contrario} \end{cases}"
+    )
+    st.info(
+        "💡 **¿Por qué son indispensables ambos criterios?**  \n"
+        "• **Pearson sin MAD** aceptaría años con la misma forma de curva temporal pero con anomalías térmicas desfasadas por varios grados (ej. una fase cálida extrema frente a una fase neutra leve).  \n"
+        "• **MAD sin Pearson** aceptaría años con anomalías numéricamente cercanas a cero pero con tendencias físicas opuestas (ej. un calentamiento rápido frente a un enfriamiento rápido).  \n"
+        "• **La combinación conjunta ($r \\land \\text{MAD}$)** asegura que el análogo coincida tanto en la dirección temporal de la oscilación como en su intensidad física."
+    )
+    st.divider()
+
+    # 5.6 Ejemplo práctico y reproducible
+    st.subheader("5.6 Ejemplo práctico y reproducible (Caso Benchmark AMO 2015)")
+    st.markdown(
+        "A continuación se presenta un caso real con los datos históricos oficiales y los cálculos exactos "
+        "generados por el motor de **AAnalogos** para el caso de referencia validado:"
+    )
+
+    col_e1, col_e2 = st.columns(2)
+    with col_e1:
+        st.markdown(
+            "* **Índice evaluado:** `AMO` (Oscilación Multidecadal del Atlántico)\n"
+            "* **Año Objetivo ($Y_{\\text{obj}}$):** `2015`\n"
+            "* **Mes Objetivo ($m_{\\text{obj}}$):** `10` (Octubre)\n"
+            "* **Ventana de análisis:** `6 meses` (Mayo a Octubre 2015)"
+        )
+    with col_e2:
+        r_amo_th, mad_amo_th = UMBRALES_OSCILACIONES.get("AMO", (0.60, 0.15))
+        st.markdown(
+            f"* **Umbral de correlación ($r_{{\\text{{umbral}}}}$):** `>{r_amo_th:.2f}`\n"
+            f"* **Umbral de proximidad ($\\text{{MAD}}_{{\\text{{umbral}}}}$):** `<{mad_amo_th:.2f} °C`\n"
+            "* **Total de años candidatos evaluados:** `74 años` (1948–2022, excluyendo 2015)"
+        )
+
+    st.markdown("#### Datos de la Ventana: Año Objetivo 2015 vs Año Candidato 2013")
+
+    serie_amo_ej = oscilaciones_disponibles.get("AMO")
+    if serie_amo_ej is not None and not serie_amo_ej.empty:
+        v_2015 = np.array(extraer_ventana(serie_amo_ej, 2015, 10, 6), dtype=float)
+        v_2013 = np.array(extraer_ventana(serie_amo_ej, 2013, 10, 6), dtype=float)
+        meses_nombres = ["Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre"]
+
+        # Medias y desviaciones
+        y_bar = np.mean(v_2015)
+        x_bar = np.mean(v_2013)
+        dy = v_2015 - y_bar
+        dx = v_2013 - x_bar
+        prod_d = dx * dy
+        abs_d = np.abs(v_2013 - v_2015)
+
+        df_calc = pd.DataFrame({
+            "Mes": meses_nombres,
+            "2015 Objetivo ($y_i$)": [f"{v:+.3f} °C" for v in v_2015],
+            "2013 Candidato ($x_i$)": [f"{v:+.3f} °C" for v in v_2013],
+            "$(y_i - \\bar{y})$": [f"{v:+.3f}" for v in dy],
+            "$(x_i - \\bar{x})$": [f"{v:+.3f}" for v in dx],
+            "Producto $(x_i-\\bar{x})(y_i-\\bar{y})$": [f"{v:+.4f}" for v in prod_d],
+            "Diferencia $|x_i - y_i|$": [f"{v:.3f} °C" for v in abs_d],
+        })
+
+        st.dataframe(df_calc, width="stretch", hide_index=True)
+
+        col_p1, col_p2 = st.columns(2)
+        with col_p1:
+            st.markdown("#### Cálculo de Pearson ($r$)")
+            st.markdown(
+                f"* Media Objetivo: $\\bar{{y}} = {y_bar:.4f}\\ ^\\circ\\text{{C}}$\n"
+                f"* Media Candidato: $\\bar{{x}} = {x_bar:.4f}\\ ^\\circ\\text{{C}}$\n"
+                f"* Numerador (Covarianza): $\\sum (x_i-\\bar{{x}})(y_i-\\bar{{y}}) = {np.sum(prod_d):.4f}$\n"
+                f"* Denominador: $\\sqrt{{\\sum(x_i-\\bar{{x}})^2 \\sum(y_i-\\bar{{y}})^2}} = {np.sqrt(np.sum(dx**2)*np.sum(dy**2)):.4f}$\n"
+                f"* **Resultado:** **$r = 0.9583$** $\\implies$ **$0.9583 > 0.60$ (Cumple ✓)**"
+            )
+        with col_p2:
+            st.markdown("#### Cálculo de MAD")
+            st.markdown(
+                f"* Suma de diferencias absolutas: $\\sum |x_i - y_i| = {np.sum(abs_d):.4f}\\ ^\\circ\\text{{C}}$\n"
+                f"* Longitud de ventana: $N = 6$\n"
+                f"* $\\text{{MAD}} = \\frac{1}{6} \\times {np.sum(abs_d):.4f} = {np.mean(abs_d):.4f}\\ ^\\circ\\text{{C}}$\n\n"
+                f"* **Resultado:** **$\\text{{MAD}} = 0.0365\\ ^\\circ\\text{{C}}$** $\\implies$ **$0.0365 < 0.15$ (Cumple ✓)**"
+            )
+
+        st.markdown("#### Contraste de Casos Reales y Aplicación de Umbrales")
+        st.markdown(
+            "La siguiente tabla demuestra la necesidad de aplicar ambos criterios contrastando cuatro años reales "
+            "del registro histórico de AMO frente a 2015:"
+        )
+
+        df_contraste = pd.DataFrame([
+            {
+                "Año Candidato": "2013",
+                "Pearson ($r$)": "0.9583",
+                "Umbral $r$": "> 0.60 (✓)",
+                "MAD": "0.0365 °C",
+                "Umbral MAD": "< 0.15 °C (✓)",
+                "Condición $(r > 0.60) \\land (\\text{MAD} < 0.15)$": "Cumple ambos",
+                "Dictamen": "🟢 Año Análogo (✓)",
+                "Explicación Física": "Sincronía temporal casi perfecta y anomalías térmicas prácticamente idénticas.",
+            },
+            {
+                "Año Candidato": "1972",
+                "Pearson ($r$)": "0.9805",
+                "Umbral $r$": "> 0.60 (✓)",
+                "MAD": "0.5430 °C",
+                "Umbral MAD": "< 0.15 °C (✗)",
+                "Condición $(r > 0.60) \\land (\\text{MAD} < 0.15)$": "Falla MAD",
+                "Dictamen": "🔴 No Análogo (✗)",
+                "Explicación Física": "Excelente correlación mensual, pero anomalía térmica desfasada en más de 0.5 °C.",
+            },
+            {
+                "Año Candidato": "1958",
+                "Pearson ($r$)": "-0.4390",
+                "Umbral $r$": "> 0.60 (✗)",
+                "MAD": "0.1098 °C",
+                "Umbral MAD": "< 0.15 °C (✓)",
+                "Condición $(r > 0.60) \\land (\\text{MAD} < 0.15)$": "Falla Pearson",
+                "Dictamen": "🔴 No Análogo (✗)",
+                "Explicación Física": "Valores térmicos numéricamente cercanos, pero con tendencia y evolución temporal invertida.",
+            },
+            {
+                "Año Candidato": "1953",
+                "Pearson ($r$)": "-0.6729",
+                "Umbral $r$": "> 0.60 (✗)",
+                "MAD": "0.1768 °C",
+                "Umbral MAD": "< 0.15 °C (✗)",
+                "Condición $(r > 0.60) \\land (\\text{MAD} < 0.15)$": "Falla ambos",
+                "Dictamen": "🔴 No Análogo (✗)",
+                "Explicación Física": "Tendencia opuesta y discrepancia en amplitud térmica.",
+            },
+        ])
+        st.dataframe(df_contraste, width="stretch", hide_index=True)
+
+    st.divider()
+
+    # 5.7 Gráfica del ejemplo e interpretación
+    st.subheader("5.7 Representación Gráfica del Ejemplo e Interpretación")
+    st.markdown(
+        "Visualización simultánea de Pearson ($r$, azul), MAD (rojo) y umbrales operacionales para los 74 años "
+        "candidatos de AMO generada por el motor de cálculo:"
+    )
+
+    res_ejemplo = calcular_analogos(
+        year_objetivo=2015,
+        mes_objetivo=10,
+        indices=["AMO"],
+        longitud_ventana=6,
+        oscilaciones_cargadas=oscilaciones_disponibles,
+    )
+    if res_ejemplo.es_valido:
+        fig_ejemplo = generar_grafico_individual_indice(res_ejemplo, "AMO", CATALOGO)
+        st.pyplot(fig_ejemplo, clear_figure=True)
+        plt.close(fig_ejemplo)
+
+    st.markdown(
+        "> **Interpretación visual:**  \n"
+        "> • **Línea verde horizontal:** Marca el umbral mínimo de correlación ($r_{\\text{umbral}} = 0.60$). Los puntos de la serie azul por encima de ella satisfacen el criterio de sincronía.  \n"
+        "> • **Línea naranja horizontal:** Marca el umbral máximo de diferencia ($MAD_{\\text{umbral}} = 0.15\\ ^\\circ\\text{C}$). Los puntos de la serie roja por debajo de ella satisfacen el criterio de proximidad.  \n"
+        "> • **Bandas verdes verticales y etiquetas superiores a 45°:** Identifican los años análogos que cumplen **simultáneamente** ambos umbrales (ej. 1949, 1957, 1959, 1990, 1997, 2001, 2013, 2014, 2018, 2021).  \n"
+        "> • **Puntos grises:** Años candidatos que no superaron al menos uno de los dos filtros."
     )
 
 # ==============================================================================

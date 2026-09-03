@@ -113,6 +113,8 @@ $$\text{Total}(Y_{\text{cand}}) = \sum_{k=1}^{K} C_k(Y_{\text{cand}}) \quad \in 
 1. **Puntaje total (`Total`):** Orden descendente.
 2. **Año (`YEAR`):** Orden descendente (los análogos más recientes tienen prioridad física en caso de empate de coincidencias).
 
+> **Nota pedagógica e interactiva:** Para una explicación práctica, numérica y reproducible del cálculo paso a paso de Pearson y MAD junto con gráficos interactivos y contrastes de casos reales, consulte el ejemplo ilustrativo incluido en la sección **5. Metodología** de la aplicación web.
+
 ---
 
 ## 7. Modos de Análisis: Operacional, Reanálisis Retrospectivo y Backtesting
