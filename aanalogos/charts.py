@@ -14,6 +14,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
+import matplotlib.patheffects as path_effects
 
 from .results import ResultadoAnalogos
 from .catalog import cargar_catalogo_indices
@@ -106,19 +107,17 @@ def generar_grafico_individual_indice(
     else:
         ventana_desc = f"Últimos {resultado.longitud_ventana} meses"
 
-    # Escala de MAD para alinear con los 9 ticks de r (-1.00 a 1.00, 8 intervalos)
+    # Escala de MAD para alinear con los 7 ticks de r (-1.50 a 1.50)
     max_mad = float(np.nanmax(mad_vals)) if len(mad_vals) > 0 else 1.0
     criterio_max = max(max_mad, mad_th)
-    if criterio_max <= 1.8:
-        mad_max = 2.00
-    elif criterio_max <= 3.6:
-        mad_max = 4.00
-    elif criterio_max <= 7.2:
-        mad_max = 8.00
-    elif criterio_max <= 15.0:
-        mad_max = 16.00
+    if criterio_max <= 2.5:
+        mad_max_axis = 3.0
+    elif criterio_max <= 5.0:
+        mad_max_axis = 6.0
+    elif criterio_max <= 10.0:
+        mad_max_axis = 12.0
     else:
-        mad_max = float(np.ceil(criterio_max * 1.25 / 8.0) * 8.0)
+        mad_max_axis = float(np.ceil(criterio_max / 6.0) * 6.0)
 
     # Crear figura 16:9 de alta definición
     fig = plt.figure(figsize=(16, 9), dpi=150, facecolor='#FFFFFF')
@@ -199,8 +198,9 @@ def generar_grafico_individual_indice(
 
     min_year = int(min(years))
     max_year = int(max(years))
-    ax1.set_xlim(min_year - 1.5, max_year + 1.5)
-    ax2.set_xlim(min_year - 1.5, max_year + 1.5)
+    x_margin = max(2.5, float(np.round((max_year - min_year) * 0.035)))
+    ax1.set_xlim(min_year - x_margin, max_year + x_margin)
+    ax2.set_xlim(min_year - x_margin, max_year + x_margin)
 
     # Configuración de ticks en X: cada 5 años
     tick_start = int(np.floor(min_year / 5) * 5)
@@ -215,16 +215,16 @@ def generar_grafico_individual_indice(
     ax1.set_xticklabels([str(y) for y in xticks], rotation=35, ha="right", fontsize=10, color="#334155")
     ax1.set_xlabel("Año", fontsize=12, fontweight="bold", color="#1E293B", labelpad=5)
 
-    # Configuración Eje Y1 (Correlación r)
-    ax1.set_ylim(-1.05, 1.05)
-    r_ticks = np.linspace(-1.0, 1.0, 9)
+    # Configuración Eje Y1 (Correlación r: -1.50 a +1.50)
+    ax1.set_ylim(-1.50, 1.50)
+    r_ticks = np.linspace(-1.50, 1.50, 7)
     ax1.set_yticks(r_ticks)
-    ax1.set_yticklabels([f"{val:.2f}" for val in r_ticks], color="#1565C0", fontsize=10)
+    ax1.set_yticklabels([f"{val:+.2f}" if val != 0 else "0.00" for val in r_ticks], color="#1565C0", fontsize=10)
     ax1.set_ylabel("Coeficiente de correlación (r)", fontsize=12, fontweight="bold", color="#1565C0", labelpad=10)
 
-    # Configuración Eje Y2 (MAD)
-    ax2.set_ylim(0.0, mad_max * 1.025)
-    mad_ticks = np.linspace(0.0, mad_max, 9)
+    # Configuración Eje Y2 (MAD: 0.00 a mad_max_axis con 7 ticks coincidentes)
+    ax2.set_ylim(0.0, mad_max_axis)
+    mad_ticks = np.linspace(0.0, mad_max_axis, 7)
     ax2.set_yticks(mad_ticks)
     ax2.set_yticklabels([f"{val:.2f}" for val in mad_ticks], color="#D32F2F", fontsize=10)
     ax2.set_ylabel("MAD", fontsize=12, fontweight="bold", color="#D32F2F", labelpad=10)
@@ -245,9 +245,9 @@ def generar_grafico_individual_indice(
     ax2.spines["top"].set_color("#E2E8F0")
     ax2.spines["left"].set_visible(False)
 
-    # 4. Resaltado de Años Análogos (Rectángulos verticales de altura completa con etiqueta superior vertical a 90°)
-    h_bottom = -1.02
-    h_top = 1.02
+    # 4. Resaltado de Años Análogos (Rectángulos verticales de -1.10 a +1.00)
+    h_bottom = -1.10
+    h_top = 1.00
     rect_height = h_top - h_bottom
 
     for y_match in anios_analogos:
@@ -262,8 +262,8 @@ def generar_grafico_individual_indice(
         )
         ax1.add_patch(rect_patch)
 
-        # Etiqueta en la parte superior del rectángulo con orientación vertical (90°) y centrada en la banda
-        y_label_pos = 1.03
+        # Etiqueta en la parte superior fuera de la banda (y = 1.06) con orientación vertical (90°)
+        y_label_pos = 1.06
         ax1.text(
             y_match, y_label_pos, str(y_match),
             ha="center", va="bottom",
@@ -277,22 +277,23 @@ def generar_grafico_individual_indice(
     # 5. Líneas de Umbral Horizontales
     # Umbral r
     ax1.axhline(r_th, color="#1565C0", linestyle="--", dashes=(6, 3), linewidth=1.5, zorder=3)
-    ax1.text(
-        min_year - 0.8, r_th + 0.03,
+    txt_r = ax1.text(
+        min_year - (x_margin * 0.7), r_th + 0.05,
         f"Umbral r = {r_th:.2f}",
         color="#1565C0", fontsize=10.5, fontweight="bold",
         va="bottom", zorder=5
     )
+    txt_r.set_path_effects([path_effects.withStroke(linewidth=3.5, foreground="white")])
 
     # Umbral MAD
     ax2.axhline(mad_th, color="#D32F2F", linestyle="--", dashes=(6, 3), linewidth=1.5, zorder=3)
-    ax2.text(
-        max_year + 0.8, mad_th - (0.04 * mad_max),
+    txt_mad = ax2.text(
+        max_year + (x_margin * 0.7), mad_th + (0.015 * mad_max_axis),
         f"Umbral MAD = {mad_th:.2f}",
         color="#D32F2F", fontsize=10.5, fontweight="bold",
-        ha="right", va="top", zorder=5,
-        bbox=dict(boxstyle="square,pad=0.1", facecolor="white", edgecolor="none", alpha=0.85)
+        ha="right", va="bottom", zorder=5
     )
+    txt_mad.set_path_effects([path_effects.withStroke(linewidth=3.5, foreground="white")])
 
     # 6. Series de datos
     # Pearson r

@@ -136,6 +136,58 @@ class TestIndividualChart(unittest.TestCase):
         self.assertEqual(set(posiciones_x), anios_esperados)
         plt.close(fig)
 
+    def test_extended_axes_and_green_band_bounds(self):
+        """
+        Verifica que el eje Y1 esté en [-1.50, 1.50], el eje Y2 comience en 0.0,
+        el eje X tenga márgenes horizontales y los rectángulos verdes cubran [-1.10, 1.00].
+        """
+        fig = generar_grafico_individual_indice(self.resultado, "AMO")
+        ax1 = fig.axes[0]
+        ax2 = fig.axes[1]
+
+        # Límites verticales
+        self.assertAlmostEqual(ax1.get_ylim()[0], -1.50)
+        self.assertAlmostEqual(ax1.get_ylim()[1], 1.50)
+        self.assertAlmostEqual(ax2.get_ylim()[0], 0.0)
+
+        # Límites horizontales con margen
+        traz_amo = self.resultado.tabla_trazabilidad[self.resultado.tabla_trazabilidad["Indice"] == "AMO"]
+        min_y = traz_amo["YEAR"].min()
+        max_y = traz_amo["YEAR"].max()
+        self.assertLess(ax1.get_xlim()[0], min_y)
+        self.assertGreater(ax1.get_xlim()[1], max_y)
+
+        # Rectángulos verdes: altura = 2.10 (de -1.10 a 1.00)
+        patches = [p for p in ax1.patches if isinstance(p, mpatches.FancyBboxPatch)]
+        for p in patches:
+            self.assertAlmostEqual(p.get_y(), -1.10)
+            self.assertAlmostEqual(p.get_height(), 2.10)
+
+        plt.close(fig)
+
+    def test_threshold_halo_no_bbox(self):
+        """
+        Verifica que las etiquetas de umbral tengan efecto halo (path_effects)
+        y NO tengan bbox rectangular blanco.
+        """
+        fig = generar_grafico_individual_indice(self.resultado, "AMO")
+        ax1 = fig.axes[0]
+        ax2 = fig.axes[1]
+
+        # Umbral r en ax1
+        txt_r = [t for t in ax1.texts if "Umbral r" in t.get_text()]
+        self.assertEqual(len(txt_r), 1)
+        self.assertIsNone(txt_r[0].get_bbox_patch())
+        self.assertTrue(len(txt_r[0].get_path_effects()) > 0)
+
+        # Umbral MAD en ax2
+        txt_mad = [t for t in ax2.texts if "Umbral MAD" in t.get_text()]
+        self.assertEqual(len(txt_mad), 1)
+        self.assertIsNone(txt_mad[0].get_bbox_patch())
+        self.assertTrue(len(txt_mad[0].get_path_effects()) > 0)
+
+        plt.close(fig)
+
 
 if __name__ == "__main__":
     unittest.main()
