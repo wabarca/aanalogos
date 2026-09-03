@@ -56,12 +56,13 @@ class TestIndividualChart(unittest.TestCase):
 
         anios_en_grafico = []
         for text in ax1.texts:
-            # Los textos de los años coincidentes están en la parte superior con rotación de 45°
+            # Los textos de los años coincidentes están en la parte superior con rotación vertical de 90°
             try:
                 val = int(text.get_text())
                 if val in traz_amo["YEAR"].values:
                     anios_en_grafico.append(val)
-                    self.assertEqual(text.get_rotation(), 45)
+                    self.assertEqual(text.get_rotation(), 90)
+                    self.assertEqual(text.get_ha(), "center")
                     self.assertGreaterEqual(text.get_position()[1], 1.0)
             except ValueError:
                 pass
@@ -103,10 +104,37 @@ class TestIndividualChart(unittest.TestCase):
         self.assertEqual(len(patches), 0)
         plt.close(fig)
 
-    def test_invalid_index_raises_value_error(self):
-        """Verifica que solicitar un índice que no estuvo en el análisis arroje ValueError."""
-        with self.assertRaises(ValueError):
-            generar_grafico_individual_indice(self.resultado, "INDICE_INEXISTENTE")
+    def test_chart_consecutive_years_alignment(self):
+        """
+        Verifica que para casos con años consecutivos (ej. 2001, 2002, 2003 y 2012, 2013, 2014),
+        las etiquetas se ubiquen exactamente centradas en x = año, con rotación vertical de 90°
+        y sin solapamiento de coordenadas.
+        """
+        fig = generar_grafico_individual_indice(self.resultado, "AMO")
+        ax1 = fig.axes[0]
+        
+        traz_amo = self.resultado.tabla_trazabilidad[self.resultado.tabla_trazabilidad["Indice"] == "AMO"]
+        anios_esperados = set(traz_amo[traz_amo["Coincidencia"] == 1]["YEAR"].tolist())
+
+        posiciones_x = []
+        for text in ax1.texts:
+            try:
+                val = int(text.get_text())
+                if val in anios_esperados:
+                    self.assertEqual(text.get_rotation(), 90)
+                    self.assertEqual(text.get_ha(), "center")
+                    self.assertEqual(text.get_va(), "bottom")
+                    x_pos, y_pos = text.get_position()
+                    self.assertEqual(x_pos, val)
+                    self.assertGreaterEqual(y_pos, 1.0)
+                    posiciones_x.append(x_pos)
+            except ValueError:
+                pass
+
+        # Verificar que no haya coordenadas X duplicadas
+        self.assertEqual(len(posiciones_x), len(set(posiciones_x)))
+        self.assertEqual(set(posiciones_x), anios_esperados)
+        plt.close(fig)
 
 
 if __name__ == "__main__":

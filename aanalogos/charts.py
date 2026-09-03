@@ -245,23 +245,10 @@ def generar_grafico_individual_indice(
     ax2.spines["top"].set_color("#E2E8F0")
     ax2.spines["left"].set_visible(False)
 
-    # 4. Resaltado de Años Análogos (Rectángulos verticales de altura completa con etiqueta superior a 45°)
+    # 4. Resaltado de Años Análogos (Rectángulos verticales de altura completa con etiqueta superior vertical a 90°)
     h_bottom = -1.02
     h_top = 1.02
     rect_height = h_top - h_bottom
-
-    # Asignación de niveles verticales para evitar colisión entre etiquetas cercanas
-    anios_ordenados = sorted(anios_analogos)
-    niveles_y = {}
-    prev_y = -999
-    nivel_actual = 0
-    for y_m in anios_ordenados:
-        if y_m - prev_y <= 3:
-            nivel_actual = (nivel_actual + 1) % 2
-        else:
-            nivel_actual = 0
-        niveles_y[y_m] = nivel_actual
-        prev_y = y_m
 
     for y_match in anios_analogos:
         rect_patch = mpatches.FancyBboxPatch(
@@ -275,14 +262,13 @@ def generar_grafico_individual_indice(
         )
         ax1.add_patch(rect_patch)
 
-        # Etiqueta en la parte superior del rectángulo con inclinación de 45°
-        nivel = niveles_y.get(y_match, 0)
-        y_label_pos = 1.03 + (nivel * 0.07)
+        # Etiqueta en la parte superior del rectángulo con orientación vertical (90°) y centrada en la banda
+        y_label_pos = 1.03
         ax1.text(
             y_match, y_label_pos, str(y_match),
-            ha="left", va="bottom",
-            rotation=45,
-            fontsize=10, fontweight="bold",
+            ha="center", va="bottom",
+            rotation=90,
+            fontsize=9.5, fontweight="bold",
             color="#1B5E20",
             clip_on=False,
             zorder=6
