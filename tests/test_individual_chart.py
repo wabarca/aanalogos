@@ -45,7 +45,7 @@ class TestIndividualChart(unittest.TestCase):
     def test_chart_consistency_with_engine_matches(self):
         """
         Verifica que los años resaltados en el gráfico coincidan exactamente con las coincidencias
-        calculadas por el motor en la tabla de trazabilidad.
+        calculadas por el motor en la tabla de trazabilidad y se ubiquen en la zona superior.
         """
         traz = self.resultado.tabla_trazabilidad
         traz_amo = traz[traz["Indice"] == "AMO"]
@@ -54,19 +54,34 @@ class TestIndividualChart(unittest.TestCase):
         fig = generar_grafico_individual_indice(self.resultado, "AMO")
         ax1 = fig.axes[0]
 
-        # Los rectángulos verdes de años análogos en ax1 son FancyBboxPatch con facecolor verde claro (#E8F5E9)
         anios_en_grafico = []
         for text in ax1.texts:
-            # Los textos de los años coincidentes están al pie del rectángulo (y = -0.96)
+            # Los textos de los años coincidentes están en la parte superior con rotación de 45°
             try:
                 val = int(text.get_text())
                 if val in traz_amo["YEAR"].values:
                     anios_en_grafico.append(val)
+                    self.assertEqual(text.get_rotation(), 45)
+                    self.assertGreaterEqual(text.get_position()[1], 1.0)
             except ValueError:
                 pass
 
         anios_en_grafico = sorted(anios_en_grafico)
         self.assertEqual(anios_coincidentes_motor, anios_en_grafico)
+        plt.close(fig)
+
+    def test_full_height_patches(self):
+        """Verifica que los rectángulos verdes de años análogos abarquen prácticamente toda la altura del gráfico."""
+        fig = generar_grafico_individual_indice(self.resultado, "AMO")
+        ax1 = fig.axes[0]
+        patches = [p for p in ax1.patches if isinstance(p, mpatches.FancyBboxPatch)]
+        traz_amo = self.resultado.tabla_trazabilidad[self.resultado.tabla_trazabilidad["Indice"] == "AMO"]
+        num_coincidencias = len(traz_amo[traz_amo["Coincidencia"] == 1])
+        
+        self.assertEqual(len(patches), num_coincidencias)
+        for p in patches:
+            # La altura del rectángulo debe cubrir prácticamente todo el eje Y (ej. >= 2.0)
+            self.assertGreaterEqual(p.get_height(), 2.0)
         plt.close(fig)
 
     def test_chart_zero_matches_handled_gracefully(self):
@@ -83,6 +98,9 @@ class TestIndividualChart(unittest.TestCase):
 
         fig = generar_grafico_individual_indice(res_cero, "AMO")
         self.assertIsInstance(fig, plt.Figure)
+        ax1 = fig.axes[0]
+        patches = [p for p in ax1.patches if isinstance(p, mpatches.FancyBboxPatch)]
+        self.assertEqual(len(patches), 0)
         plt.close(fig)
 
     def test_invalid_index_raises_value_error(self):

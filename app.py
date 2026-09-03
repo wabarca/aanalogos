@@ -131,6 +131,48 @@ def obtener_datos_oscilaciones():
     return cargar_todas_oscilaciones(DIRECTORIO_ACTUAL)
 
 
+def obtener_documentos_disponibles(directorio_base: str):
+    """
+    Obtiene dinámicamente los documentos Markdown existentes en docs/ y en la raíz,
+    asignando títulos legibles y preservando compatibilidad en cualquier entorno de despliegue.
+    """
+    docs_dir = os.path.join(directorio_base, "docs")
+    docs_map = {}
+
+    nombres_legibles_docs = {
+        "manual_usuario.md": "📘 Manual de Usuario",
+        "metodologia.md": "🔬 Metodología Científica",
+        "indices.md": "🌊 Catálogo de Índices y Fuentes",
+        "validacion_climatologica.md": "✅ Validación Climatológica",
+        "referencias.md": "📚 Referencias Bibliográficas",
+        "arquitectura.md": "🏛️ Arquitectura de Software",
+        "despliegue_institucional.md": "🏢 Despliegue Institucional y systemd",
+        "instalacion_linux.md": "🐧 Instalación en Linux",
+        "instalacion_windows.md": "🪟 Instalación en Windows",
+        "reproducibilidad.md": "🧪 Protocolo de Reproducibilidad",
+        "mantenimiento.md": "🔧 Manual de Mantenimiento",
+        "auditoria.md": "🔍 Auditoría del Sistema",
+        "README.md": "📖 Visión General (README)",
+    }
+
+    # Documentos en docs/
+    if os.path.isdir(docs_dir):
+        for fname in sorted(os.listdir(docs_dir)):
+            if fname.endswith(".md") and not fname.startswith("."):
+                full_path = os.path.join(docs_dir, fname)
+                etiqueta = nombres_legibles_docs.get(
+                    fname, f"📄 {fname[:-3].replace('_', ' ').title()}"
+                )
+                docs_map[etiqueta] = full_path
+
+    # README principal en raíz
+    readme_path = os.path.join(directorio_base, "README.md")
+    if os.path.isfile(readme_path):
+        docs_map[nombres_legibles_docs.get("README.md", "README.md")] = readme_path
+
+    return docs_map
+
+
 oscilaciones_disponibles = obtener_datos_oscilaciones()
 
 # Verificación inicial de datos: si faltan datos locales, descargar
@@ -203,16 +245,25 @@ if seccion_seleccionada == "3. Análisis de años análogos":
     st.header("3. Análisis de años análogos")
     st.divider()
 
-    # Selección de Modo de Análisis
-    col_mode, col_info = st.columns([1, 2])
+    # Selección de Modo de Análisis y Ventana
+    col_mode, col_vent = st.columns([1, 1])
     with col_mode:
         modo_analisis = st.radio(
             "**Modo de Análisis:**",
             ["Operacional", "Reanálisis Histórico"],
             index=0,
             horizontal=True,
-            help="El modo operacional utiliza automáticamente el año actual, el último mes publicado y una ventana de 12 meses.",
+            help="El modo operacional utiliza automáticamente el año actual, el último mes publicado y la ventana seleccionada.",
         )
+    with col_vent:
+        sel_ventana_str = st.selectbox(
+            "Ventana de análisis:",
+            options=["12 meses", "6 meses"],
+            index=0,
+            key="selector_ventana_analisis",
+            help="12 meses es la opción predeterminada actual; 6 meses permite evaluar con la ventana de la metodología original.",
+        )
+        longitud_ventana = 12 if "12" in sel_ventana_str else 6
 
     # Preselección de índices en Sidebar por defecto: RONI, TNA y ONIv6
     default_indices = [
@@ -238,7 +289,7 @@ if seccion_seleccionada == "3. Análisis de años análogos":
         oscilaciones_disponibles, indices=indices_codigos
     )
 
-    # Parámetros según el modo
+    # Parámetros según el modo en Sidebar
     st.sidebar.subheader("⚙️ Parámetros del Cálculo")
 
     now_sys = datetime.datetime.now()
@@ -247,13 +298,12 @@ if seccion_seleccionada == "3. Análisis de años análogos":
     if modo_analisis == "Operacional":
         year_objetivo = year_op_calc
         mes_objetivo = mes_op_calc
-        longitud_ventana = LONGITUD_VENTANA_OPERACIONAL
         max_year_corte = None
         st.sidebar.markdown(f"**Año Objetivo:** `{year_objetivo}` *(Operacional)*")
         st.sidebar.markdown(
             f"**Mes Objetivo:** `{mes_objetivo} — {NOMBRES_MESES[mes_objetivo - 1]}` *(Último utilizable)*"
         )
-        st.sidebar.markdown(f"**Ventana:** `12 meses` *(Operacional)*")
+        st.sidebar.markdown(f"**Ventana:** `{longitud_ventana} meses` *(Operacional)*")
     else:
         year_objetivo = st.sidebar.number_input(
             "Año Objetivo ($Y_{\\text{obj}}$):",
@@ -271,14 +321,7 @@ if seccion_seleccionada == "3. Análisis de años análogos":
             help="Mes en el cual culmina la ventana retrospectiva.",
         )
         mes_objetivo = int(mes_seleccionado_str.split(" — ")[0])
-
-        tipo_ventana_str = st.sidebar.selectbox(
-            "Longitud de la Ventana Temporal:",
-            options=["12 meses (Operacional)", "6 meses (Metodológica Histórica)"],
-            index=0,
-            help="12 meses es el estándar operacional; 6 meses es el estándar de la metodología histórica de referencia.",
-        )
-        longitud_ventana = 12 if "12" in tipo_ventana_str else 6
+        st.sidebar.markdown(f"**Ventana:** `{longitud_ventana} meses`")
 
         tipo_reanalisis = st.sidebar.radio(
             "Alcance del Reanálisis:",
@@ -292,31 +335,30 @@ if seccion_seleccionada == "3. Análisis de años análogos":
         max_year_corte = year_objetivo if "Backtesting" in tipo_reanalisis else None
 
     # Información contextual en el panel principal
-    with col_info:
-        if modo_analisis == "Operacional":
-            desc_v_op = obtener_descripcion_ventana(
-                year_op_calc, mes_op_calc, longitud_ventana=longitud_ventana
-            )
-            ventana_str_op = f"{desc_v_op[0]} – {desc_v_op[-1]}"
-            st.info(
-                f"📅 **Fecha del Sistema:** {mes_sys_nombre} de {now_sys.year}  \n"
-                f"📌 **Último Período Evaluable:** **{NOMBRES_MESES[mes_op_calc - 1]} de {year_op_calc}**  \n"
-                f"🗓️ **Ventana Operacional (12 meses):** **{ventana_str_op}**  \n"
-                f"📋 **Regla Operacional:** Los índices del mes en curso se evalúan a partir del mes siguiente ($M+1$). El mes calendario en curso **NO** se evalúa."
+    if modo_analisis == "Operacional":
+        desc_v_op = obtener_descripcion_ventana(
+            year_op_calc, mes_op_calc, longitud_ventana=longitud_ventana
+        )
+        ventana_str_op = f"{desc_v_op[0]} – {desc_v_op[-1]}"
+        st.info(
+            f"📅 **Fecha del Sistema:** {mes_sys_nombre} de {now_sys.year}  \n"
+            f"📌 **Último Período Evaluable:** **{NOMBRES_MESES[mes_op_calc - 1]} de {year_op_calc}**  \n"
+            f"🗓️ **Ventana Operacional ({longitud_ventana} meses):** **{ventana_str_op}**  \n"
+            f"📋 **Regla Operacional:** Los índices del mes en curso se evalúan a partir del mes siguiente ($M+1$). El mes calendario en curso **NO** se evalúa."
+        )
+    else:
+        if max_year_corte is not None:
+            st.warning(
+                f"🕰️ **Modo Backtesting / Simulación Histórica Activo ($Y \\le {year_objetivo}$):** "
+                f"Evaluando año objetivo **{year_objetivo}** (Mes: **{NOMBRES_MESES[mes_objetivo - 1]}**, Ventana: **{longitud_ventana} meses**). "
+                f"Se excluyen estrictamente los registros posteriores a {year_objetivo} para simular las condiciones disponibles en tiempo real."
             )
         else:
-            if max_year_corte is not None:
-                st.warning(
-                    f"🕰️ **Modo Backtesting / Simulación Histórica Activo ($Y \\le {year_objetivo}$):** "
-                    f"Evaluando año objetivo **{year_objetivo}** (Mes: **{NOMBRES_MESES[mes_objetivo - 1]}**, Ventana: **{longitud_ventana} meses**). "
-                    f"Se excluyen estrictamente los registros posteriores a {year_objetivo} para simular las condiciones disponibles en tiempo real."
-                )
-            else:
-                st.info(
-                    f"🔬 **Modo Reanálisis Retrospectivo Completo Activo:** "
-                    f"Evaluando año objetivo **{year_objetivo}** (Mes: **{NOMBRES_MESES[mes_objetivo - 1]}**, Ventana: **{longitud_ventana} meses**) "
-                    f"frente a todo el registro histórico ($Y_{{\\text{{cand}}}} \\neq {year_objetivo}$). Permite identificar qué años de todo el registro se asemejan al caso de estudio."
-                )
+            st.info(
+                f"🔬 **Modo Reanálisis Retrospectivo Completo Activo:** "
+                f"Evaluando año objetivo **{year_objetivo}** (Mes: **{NOMBRES_MESES[mes_objetivo - 1]}**, Ventana: **{longitud_ventana} meses**) "
+                f"frente a todo el registro histórico ($Y_{{\\text{{cand}}}} \\neq {year_objetivo}$). Permite identificar qué años de todo el registro se asemejan al caso de estudio."
+            )
 
     boton_calcular = st.sidebar.button(
         "🚀 Calcular Años Análogos", type="primary", width="stretch"
@@ -1118,39 +1160,40 @@ elif seccion_seleccionada == "Documentación y créditos":
     tab_docs, tab_creditos = st.tabs(["📚 Documentación del Sistema", "🏛️ Créditos y Atribución"])
 
     with tab_docs:
-        st.subheader("📑 Guías y Manuales Técnicos")
+        st.subheader("📚 Visor Integrado de Documentación")
         st.markdown(
-            "La documentación completa del proyecto está disponible en formato Markdown y PDF en el directorio `docs/` de la instalación:"
+            "Consulte directamente las guías de usuario, metodología científica, catálogo de índices y manuales "
+            "técnicos del sistema sin necesidad de visores externos."
         )
 
-        col_d1, col_d2 = st.columns(2)
+        docs_disponibles = obtener_documentos_disponibles(DIRECTORIO_ACTUAL)
 
-        with col_d1:
-            st.markdown("#### 📘 Operación y Ciencia")
-            st.markdown(
-                "- **[Manual de Usuario](file://docs/manual_usuario.md):** Guía interactiva paso a paso para el análisis operacional y reanálisis histórico.\n"
-                "- **[Metodología Científica](file://docs/metodologia.md):** Formulación matemática completa de Pearson, MAD, ventanas y ranking.\n"
-                "- **[Catálogo de Índices y Fuentes](file://docs/indices.md):** Fichas técnicas de las 21 oscilaciones climáticas, dominios y variables.\n"
-                "- **[Validación Climatológica](file://docs/validacion_climatologica.md):** Protocolo de aislamiento de sentinelas y consistencia física.\n"
-                "- **[Referencias Bibliográficas](file://docs/referencias.md):** 21 publicaciones primarias con DOIs verificados."
-            )
+        if not docs_disponibles:
+            st.warning("⚠️ No se encontraron documentos Markdown en el directorio `docs/`.")
+        else:
+            col_sel_doc, col_esp = st.columns([2, 1])
+            with col_sel_doc:
+                doc_sel_etiqueta = st.selectbox(
+                    "Documento:",
+                    options=list(docs_disponibles.keys()),
+                    index=0,
+                    key="selector_doc_markdown",
+                    help="Seleccione el documento Markdown que desea visualizar."
+                )
 
-        with col_d2:
-            st.markdown("#### 🛠️ Arquitectura y Despliegue")
-            st.markdown(
-                "- **[Arquitectura de Software](file://docs/arquitectura.md):** Diseño modular por capas desacopladas y API pública.\n"
-                "- **[Despliegue Institucional](file://docs/despliegue_institucional.md):** Configuración institucional (`config/institution.yaml`) y servicio continuo mediante `systemd`.\n"
-                "- **[Instalación en Linux](file://docs/instalacion_linux.md):** Despliegue en servidores Ubuntu/Debian.\n"
-                "- **[Instalación en Windows](file://docs/instalacion_windows.md):** Ejecución en estaciones de trabajo.\n"
-                "- **[Protocolo de Reproducibilidad](file://docs/reproducibilidad.md):** Verificación independiente del caso benchmark y tests.\n"
-                "- **[Manual de Mantenimiento](file://docs/mantenimiento.md):** Procedimientos de actualización y respaldo."
-            )
+            ruta_doc_sel = docs_disponibles[doc_sel_etiqueta]
 
-        st.divider()
-        st.info(
-            "💡 **Ubicación de archivos:** Todos los documentos se encuentran en la carpeta `docs/` del repositorio "
-            "y pueden consultarse directamente con cualquier visor de Markdown o editor de texto."
-        )
+            if not os.path.isfile(ruta_doc_sel):
+                st.warning(f"⚠️ El archivo `{os.path.basename(ruta_doc_sel)}` no se encuentra disponible en `{ruta_doc_sel}`.")
+            else:
+                try:
+                    with open(ruta_doc_sel, "r", encoding="utf-8") as f_doc:
+                        contenido_doc = f_doc.read()
+
+                    st.divider()
+                    st.markdown(contenido_doc, unsafe_allow_html=True)
+                except Exception as err_doc:
+                    st.error(f"❌ Error al leer el documento '{doc_sel_etiqueta}': {err_doc}")
 
     with tab_creditos:
         st.subheader("🌦️ Acerca de Aanalogos")

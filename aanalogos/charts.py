@@ -137,14 +137,14 @@ def generar_grafico_individual_indice(
 
     # 1. Título y Subtítulo
     fig.text(
-        0.5, 0.955,
+        0.5, 0.962,
         f"{codigo_indice} ({nombre_indice})",
         ha="center", va="center",
         fontsize=20, fontweight="bold",
         color="#0F2942"
     )
     fig.text(
-        0.5, 0.922,
+        0.5, 0.930,
         f"Correlación y MAD – Ventana: {ventana_desc}",
         ha="center", va="center",
         fontsize=13, color="#475569"
@@ -153,7 +153,7 @@ def generar_grafico_individual_indice(
     # 2. Badges / Pills de Leyenda superiores
     # Pill Izquierda: Correlación
     pill_corr = mpatches.FancyBboxPatch(
-        (0.08, 0.865), 0.20, 0.035,
+        (0.08, 0.880), 0.20, 0.032,
         boxstyle="round,pad=0.005,rounding_size=0.01",
         transform=fig.transFigure,
         facecolor="#FFFFFF",
@@ -163,18 +163,18 @@ def generar_grafico_individual_indice(
     )
     fig.add_artist(pill_corr)
     line_corr_sample = Line2D(
-        [0.092, 0.118], [0.8825, 0.8825],
+        [0.092, 0.118], [0.896, 0.896],
         transform=fig.transFigure,
         color="#1565C0", linestyle="--", dashes=(4, 3), linewidth=1.2,
         marker="o", markersize=5, markerfacecolor="#1976D2", markeredgecolor="#0D47A1",
         zorder=3
     )
     fig.add_artist(line_corr_sample)
-    fig.text(0.126, 0.8825, "Correlación (Pearson r)", ha="left", va="center", color="#1E293B", fontsize=11)
+    fig.text(0.126, 0.896, "Correlación (Pearson r)", ha="left", va="center", color="#1E293B", fontsize=11)
 
     # Pill Derecha: MAD
     pill_mad = mpatches.FancyBboxPatch(
-        (0.66, 0.865), 0.26, 0.035,
+        (0.66, 0.880), 0.26, 0.032,
         boxstyle="round,pad=0.005,rounding_size=0.01",
         transform=fig.transFigure,
         facecolor="#FFFFFF",
@@ -184,17 +184,17 @@ def generar_grafico_individual_indice(
     )
     fig.add_artist(pill_mad)
     line_mad_sample = Line2D(
-        [0.675, 0.701], [0.8825, 0.8825],
+        [0.675, 0.701], [0.896, 0.896],
         transform=fig.transFigure,
         color="#D32F2F", linestyle="--", dashes=(4, 3), linewidth=1.2,
         marker="o", markersize=5, markerfacecolor="#D32F2F", markeredgecolor="#B71C1C",
         zorder=3
     )
     fig.add_artist(line_mad_sample)
-    fig.text(0.709, 0.8825, "MAD (Desviación Absoluta Media)", ha="left", va="center", color="#1E293B", fontsize=11)
+    fig.text(0.709, 0.896, "MAD (Desviación Absoluta Media)", ha="left", va="center", color="#1E293B", fontsize=11)
 
     # 3. Ejes Principales
-    ax1 = fig.add_axes([0.08, 0.35, 0.84, 0.49])
+    ax1 = fig.add_axes([0.08, 0.33, 0.84, 0.47])
     ax2 = ax1.twinx()
 
     min_year = int(min(years))
@@ -245,27 +245,46 @@ def generar_grafico_individual_indice(
     ax2.spines["top"].set_color("#E2E8F0")
     ax2.spines["left"].set_visible(False)
 
-    # 4. Resaltado de Años Análogos (Rectángulos verticales con relleno verde claro y bordes verdes)
-    h_top = max(0.52, r_th + 0.02)
-    h_bottom = -1.00
+    # 4. Resaltado de Años Análogos (Rectángulos verticales de altura completa con etiqueta superior a 45°)
+    h_bottom = -1.02
+    h_top = 1.02
     rect_height = h_top - h_bottom
+
+    # Asignación de niveles verticales para evitar colisión entre etiquetas cercanas
+    anios_ordenados = sorted(anios_analogos)
+    niveles_y = {}
+    prev_y = -999
+    nivel_actual = 0
+    for y_m in anios_ordenados:
+        if y_m - prev_y <= 3:
+            nivel_actual = (nivel_actual + 1) % 2
+        else:
+            nivel_actual = 0
+        niveles_y[y_m] = nivel_actual
+        prev_y = y_m
 
     for y_match in anios_analogos:
         rect_patch = mpatches.FancyBboxPatch(
             (y_match - 0.75, h_bottom), 1.5, rect_height,
-            boxstyle="round,pad=0.02,rounding_size=0.25",
+            boxstyle="round,pad=0.02,rounding_size=0.15",
             facecolor="#E8F5E9",
             edgecolor="#2E7D32",
             linewidth=1.2,
-            alpha=0.6,
+            alpha=0.55,
             zorder=2
         )
         ax1.add_patch(rect_patch)
+
+        # Etiqueta en la parte superior del rectángulo con inclinación de 45°
+        nivel = niveles_y.get(y_match, 0)
+        y_label_pos = 1.03 + (nivel * 0.07)
         ax1.text(
-            y_match, -0.96, str(y_match),
-            ha="center", va="center",
-            fontsize=9.5, fontweight="bold",
+            y_match, y_label_pos, str(y_match),
+            ha="left", va="bottom",
+            rotation=45,
+            fontsize=10, fontweight="bold",
             color="#1B5E20",
+            clip_on=False,
             zorder=6
         )
 
@@ -306,9 +325,9 @@ def generar_grafico_individual_indice(
         zorder=4
     )
 
-    # 7. Leyenda inferior de Años Análogos (debajo del eje X)
+    # 7. Leyenda inferior de Años Análogos (debajo del eje X con holgura)
     pill_match = mpatches.FancyBboxPatch(
-        (0.35, 0.255), 0.038, 0.024,
+        (0.35, 0.235), 0.038, 0.024,
         boxstyle="round,pad=0.003,rounding_size=0.008",
         transform=fig.transFigure,
         facecolor="#E8F5E9",
@@ -318,7 +337,7 @@ def generar_grafico_individual_indice(
     )
     fig.add_artist(pill_match)
     fig.text(
-        0.398, 0.267,
+        0.398, 0.247,
         "Años análogos (cumplen ambos umbrales)",
         ha="left", va="center",
         fontsize=11.5, fontweight="bold",
