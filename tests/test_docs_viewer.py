@@ -102,6 +102,28 @@ class TestDocsViewer(unittest.TestCase):
         etiqueta_inexistente = buscar_etiqueta_documento("archivo_fantasma_123.md", self.docs_map, self.base_dir)
         self.assertIsNone(etiqueta_inexistente)
 
+    def test_query_params_lifecycle_behavior(self):
+        """
+        Simula la regla de ciclo de vida del parámetro ?doc=:
+        - Si está en 'Documentación y créditos', se mantiene o establece.
+        - Si sale a cualquier otra sección (ej. '3. Análisis de años análogos'), se elimina de la URL.
+        """
+        query_params = {"doc": "docs/indices.md", "otro_param": "123"}
+
+        # Caso 1: En documentación -> doc permanece
+        seccion_doc = "Documentación y créditos"
+        if seccion_doc != "Documentación y créditos" and "doc" in query_params:
+            del query_params["doc"]
+        self.assertIn("doc", query_params)
+        self.assertEqual(query_params["doc"], "docs/indices.md")
+
+        # Caso 2: Sale a Análisis de años análogos -> doc se elimina, otros parámetros se conservan
+        seccion_analisis = "3. Análisis de años análogos"
+        if seccion_analisis != "Documentación y créditos" and "doc" in query_params:
+            del query_params["doc"]
+        self.assertNotIn("doc", query_params)
+        self.assertIn("otro_param", query_params)
+
 
 if __name__ == "__main__":
     unittest.main()

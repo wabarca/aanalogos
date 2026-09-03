@@ -180,6 +180,10 @@ seccion_seleccionada = st.sidebar.radio(
     index=seccion_inicial_idx,
 )
 
+# Si el usuario navega fuera de la documentación, limpiar el parámetro 'doc' de la URL
+if seccion_seleccionada != "Documentación y créditos" and "doc" in st.query_params:
+    del st.query_params["doc"]
+
 st.sidebar.divider()
 
 # ==============================================================================
