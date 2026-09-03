@@ -24,6 +24,12 @@ from .catalog import (
     cargar_configuracion_institucional,
 )
 from .charts import generar_grafico_individual_indice
+from .docs import (
+    obtener_documentos_disponibles,
+    resolver_enlace_markdown,
+    transformar_enlaces_markdown,
+    buscar_etiqueta_documento,
+)
 
 __version__ = "3.2.0"
 
@@ -50,4 +56,8 @@ __all__ = [
     "obtener_estado_fuentes",
     "cargar_configuracion_institucional",
     "generar_grafico_individual_indice",
+    "obtener_documentos_disponibles",
+    "resolver_enlace_markdown",
+    "transformar_enlaces_markdown",
+    "buscar_etiqueta_documento",
 ]

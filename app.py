@@ -29,6 +29,9 @@ from aanalogos import (
     obtener_umbrales_metodologicos,
     cargar_configuracion_institucional,
     generar_grafico_individual_indice,
+    obtener_documentos_disponibles,
+    transformar_enlaces_markdown,
+    buscar_etiqueta_documento,
     UMBRALES_OSCILACIONES,
     NOMBRES_MESES,
     LONGITUD_VENTANA_METODOLOGICA,
@@ -131,48 +134,6 @@ def obtener_datos_oscilaciones():
     return cargar_todas_oscilaciones(DIRECTORIO_ACTUAL)
 
 
-def obtener_documentos_disponibles(directorio_base: str):
-    """
-    Obtiene dinámicamente los documentos Markdown existentes en docs/ y en la raíz,
-    asignando títulos legibles y preservando compatibilidad en cualquier entorno de despliegue.
-    """
-    docs_dir = os.path.join(directorio_base, "docs")
-    docs_map = {}
-
-    nombres_legibles_docs = {
-        "manual_usuario.md": "📘 Manual de Usuario",
-        "metodologia.md": "🔬 Metodología Científica",
-        "indices.md": "🌊 Catálogo de Índices y Fuentes",
-        "validacion_climatologica.md": "✅ Validación Climatológica",
-        "referencias.md": "📚 Referencias Bibliográficas",
-        "arquitectura.md": "🏛️ Arquitectura de Software",
-        "despliegue_institucional.md": "🏢 Despliegue Institucional y systemd",
-        "instalacion_linux.md": "🐧 Instalación en Linux",
-        "instalacion_windows.md": "🪟 Instalación en Windows",
-        "reproducibilidad.md": "🧪 Protocolo de Reproducibilidad",
-        "mantenimiento.md": "🔧 Manual de Mantenimiento",
-        "auditoria.md": "🔍 Auditoría del Sistema",
-        "README.md": "📖 Visión General (README)",
-    }
-
-    # Documentos en docs/
-    if os.path.isdir(docs_dir):
-        for fname in sorted(os.listdir(docs_dir)):
-            if fname.endswith(".md") and not fname.startswith("."):
-                full_path = os.path.join(docs_dir, fname)
-                etiqueta = nombres_legibles_docs.get(
-                    fname, f"📄 {fname[:-3].replace('_', ' ').title()}"
-                )
-                docs_map[etiqueta] = full_path
-
-    # README principal en raíz
-    readme_path = os.path.join(directorio_base, "README.md")
-    if os.path.isfile(readme_path):
-        docs_map[nombres_legibles_docs.get("README.md", "README.md")] = readme_path
-
-    return docs_map
-
-
 oscilaciones_disponibles = obtener_datos_oscilaciones()
 
 # Verificación inicial de datos: si faltan datos locales, descargar
@@ -203,6 +164,9 @@ if CONFIG_INSTITUCION.get("logo"):
 st.sidebar.title("🌦️ AAnalogos")
 st.sidebar.caption(f"**{CONFIG_INSTITUCION['name']}**  \n*{CONFIG_INSTITUCION['division']}*")
 
+# Si el usuario hace clic en un enlace de documentación, navegar automáticamente a la sección 6
+seccion_inicial_idx = 5 if st.query_params.get("doc") else 2
+
 seccion_seleccionada = st.sidebar.radio(
     "Navegación del Sistema:",
     [
@@ -213,7 +177,7 @@ seccion_seleccionada = st.sidebar.radio(
         "5. Metodología",
         "Documentación y créditos",
     ],
-    index=2,
+    index=seccion_inicial_idx,
 )
 
 st.sidebar.divider()
@@ -1163,7 +1127,7 @@ elif seccion_seleccionada == "Documentación y créditos":
         st.subheader("📚 Visor Integrado de Documentación")
         st.markdown(
             "Consulte directamente las guías de usuario, metodología científica, catálogo de índices y manuales "
-            "técnicos del sistema sin necesidad de visores externos."
+            "técnicos del sistema. Los enlaces internos entre documentos navegan de forma interactiva sin recargar la página."
         )
 
         docs_disponibles = obtener_documentos_disponibles(DIRECTORIO_ACTUAL)
@@ -1171,27 +1135,64 @@ elif seccion_seleccionada == "Documentación y créditos":
         if not docs_disponibles:
             st.warning("⚠️ No se encontraron documentos Markdown en el directorio `docs/`.")
         else:
-            col_sel_doc, col_esp = st.columns([2, 1])
+            opciones_docs = list(docs_disponibles.keys())
+
+            # 1. Determinar documento activo a partir de query_param o sesión
+            doc_param = st.query_params.get("doc")
+            etiqueta_desde_url = None
+            if doc_param:
+                etiqueta_desde_url = buscar_etiqueta_documento(doc_param, docs_disponibles, DIRECTORIO_ACTUAL)
+                if not etiqueta_desde_url:
+                    st.warning(f"⚠️ El documento solicitado en el enlace (`{doc_param}`) no fue encontrado.")
+
+            if etiqueta_desde_url and etiqueta_desde_url in opciones_docs:
+                idx_default = opciones_docs.index(etiqueta_desde_url)
+            elif "doc_activo_etiqueta" in st.session_state and st.session_state["doc_activo_etiqueta"] in opciones_docs:
+                idx_default = opciones_docs.index(st.session_state["doc_activo_etiqueta"])
+            else:
+                idx_default = 0
+
+            # 2. Barra de navegación y selector sincronizado
+            col_nav_home, col_sel_doc = st.columns([1, 3])
+            with col_nav_home:
+                if st.button("📑 Índice General", width="stretch", help="Volver al índice general de la documentación"):
+                    st.query_params["doc"] = "docs/README.md"
+                    st.session_state["doc_activo_etiqueta"] = "📖 Índice General (docs/README)"
+                    st.rerun()
+
             with col_sel_doc:
                 doc_sel_etiqueta = st.selectbox(
                     "Documento:",
-                    options=list(docs_disponibles.keys()),
-                    index=0,
+                    options=opciones_docs,
+                    index=idx_default,
                     key="selector_doc_markdown",
                     help="Seleccione el documento Markdown que desea visualizar."
                 )
 
+            st.session_state["doc_activo_etiqueta"] = doc_sel_etiqueta
             ruta_doc_sel = docs_disponibles[doc_sel_etiqueta]
+
+            # Mantener query_param actualizado con la ruta relativa del documento activo
+            rel_path_act = os.path.relpath(ruta_doc_sel, DIRECTORIO_ACTUAL).replace("\\", "/")
+            if st.query_params.get("doc") != rel_path_act:
+                st.query_params["doc"] = rel_path_act
 
             if not os.path.isfile(ruta_doc_sel):
                 st.warning(f"⚠️ El archivo `{os.path.basename(ruta_doc_sel)}` no se encuentra disponible en `{ruta_doc_sel}`.")
             else:
                 try:
                     with open(ruta_doc_sel, "r", encoding="utf-8") as f_doc:
-                        contenido_doc = f_doc.read()
+                        contenido_raw = f_doc.read()
+
+                    # Transformar enlaces internos .md a formato de navegación interna
+                    contenido_trans = transformar_enlaces_markdown(
+                        contenido_raw,
+                        ruta_doc_actual=ruta_doc_sel,
+                        directorio_base=DIRECTORIO_ACTUAL
+                    )
 
                     st.divider()
-                    st.markdown(contenido_doc, unsafe_allow_html=True)
+                    st.markdown(contenido_trans, unsafe_allow_html=True)
                 except Exception as err_doc:
                     st.error(f"❌ Error al leer el documento '{doc_sel_etiqueta}': {err_doc}")
 
