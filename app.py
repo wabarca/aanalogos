@@ -1213,7 +1213,9 @@ elif seccion_seleccionada == "Documentación y créditos":
         st.markdown(
             "**William Abarca**  \n"
             "Gerencia de Meteorología — Observatorio de Amenazas y Recursos Naturales  \n"
-            "*Ministerio de Medio Ambiente y Recursos Naturales*"
+            "*Ministerio de Medio Ambiente y Recursos Naturales*  \n"
+            "El Salvador  \n"
+            "✉️ [wabarca@ambiente.gob.sv](mailto:wabarca@ambiente.gob.sv)"
         )
 
         st.divider()

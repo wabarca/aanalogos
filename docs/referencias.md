@@ -61,6 +61,7 @@ Este proyecto tiene como antecedente un código de cálculo de años análogos d
   **William Abarca**  
   Gerencia de Meteorología — Observatorio de Amenazas y Recursos Naturales  
   Ministerio de Medio Ambiente y Recursos Naturales  
+  El Salvador  
   Contacto: [wabarca@ambiente.gob.sv](mailto:wabarca@ambiente.gob.sv)
 
 ---
