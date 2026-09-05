@@ -217,32 +217,35 @@ def generar_grafico_individual_indice(
     fig.text(0.709, 0.896, "MAD (Desviación Absoluta Media)", ha="left", va="center", color="#1E293B", fontsize=11)
 
     # 3. Ejes Principales
-    ax1 = fig.add_axes([0.08, 0.33, 0.84, 0.47])
+    ax1 = fig.add_axes([0.08, 0.345, 0.84, 0.455])
     ax2 = ax1.twinx()
 
     ax1.set_xlim(x_min_lim, x_max_lim)
     ax2.set_xlim(x_min_lim, x_max_lim)
 
     if orden == "pearson_desc":
-        step_tick = 5 if n_cand >= 20 else 2
-        xticks = [0] + list(range(step_tick, n_cand, step_tick))
-        if (n_cand - 1) not in xticks and ((n_cand - 1) - xticks[-1] >= 2):
-            xticks.append(n_cand - 1)
-        xticklabels = [str(int(df_plot.loc[i, "YEAR"])) for i in xticks]
+        # En el gráfico ordenado por correlación, mostramos TODOS los años candidatos
+        xticks = list(range(n_cand))
+        xticklabels = [str(int(df_plot.loc[i, "YEAR"])) for i in range(n_cand)]
         ax1.set_xticks(xticks)
-        ax1.set_xticklabels(xticklabels, rotation=35, ha="right", fontsize=10, color="#334155")
+        fontsize_x = 7.5 if n_cand > 50 else (8.5 if n_cand > 30 else 9.5)
+        ax1.set_xticklabels(xticklabels, rotation=90, ha="center", va="top", fontsize=fontsize_x, color="#334155")
     else:
-        tick_start = int(np.floor(min_year / 5) * 5)
-        if min_year % 5 != 0:
-            xticks = [min_year] + list(range(tick_start + 5, max_year + 1, 5))
+        # En el gráfico cronológico, espaciado adaptativo (cada 5 años si rango > 25, sino cada 2 o 3)
+        rango_y = max_year - min_year
+        step_crono = 5 if rango_y >= 25 else (2 if rango_y <= 12 else 3)
+        tick_start = int(np.floor(min_year / step_crono) * step_crono)
+        if min_year % step_crono != 0:
+            xticks = [min_year] + list(range(tick_start + step_crono, max_year + 1, step_crono))
         else:
-            xticks = list(range(tick_start, max_year + 1, 5))
+            xticks = list(range(tick_start, max_year + 1, step_crono))
         if max_year not in xticks and (max_year - xticks[-1] >= 2):
             xticks.append(max_year)
         ax1.set_xticks(xticks)
         ax1.set_xticklabels([str(y) for y in xticks], rotation=35, ha="right", fontsize=10, color="#334155")
 
-    ax1.set_xlabel(x_label_title, fontsize=12, fontweight="bold", color="#1E293B", labelpad=5)
+    # Separación adecuada de la etiqueta del eje X respecto a los ticks y la leyenda
+    ax1.set_xlabel(x_label_title, fontsize=11.5, fontweight="bold", color="#1E293B", labelpad=8)
 
     # Configuración Eje Y1 (Correlación r: -1.50 a +1.50)
     ax1.set_ylim(-1.50, 1.50)
@@ -274,9 +277,9 @@ def generar_grafico_individual_indice(
     ax2.spines["top"].set_color("#E2E8F0")
     ax2.spines["left"].set_visible(False)
 
-    # 4. Resaltado de Años Análogos (Rectángulos verticales de -1.10 a +1.00)
+    # 4. Resaltado de Años Análogos (Rectángulos verticales de Y = -1.10 a Y = +1.10)
     h_bottom = -1.10
-    h_top = 1.00
+    h_top = 1.10
     rect_height = h_top - h_bottom
     band_width = 0.9 if orden == "pearson_desc" else 1.5
 
@@ -294,10 +297,10 @@ def generar_grafico_individual_indice(
             )
             ax1.add_patch(rect_patch)
 
-            # Etiqueta en la parte superior fuera de la banda (y = 1.06) con orientación vertical (90°)
+            # Etiqueta en la parte superior fuera de la banda (centrada en y = 1.28) con orientación vertical (90°)
             ax1.text(
-                x_pos, 1.06, str(int(row["YEAR"])),
-                ha="center", va="bottom",
+                x_pos, 1.28, str(int(row["YEAR"])),
+                ha="center", va="center",
                 rotation=90,
                 fontsize=9.5, fontweight="bold",
                 color="#1B5E20",
@@ -347,7 +350,7 @@ def generar_grafico_individual_indice(
 
     # 7. Leyenda inferior de Años Análogos (debajo del eje X con holgura)
     pill_match = mpatches.FancyBboxPatch(
-        (0.35, 0.235), 0.038, 0.024,
+        (0.35, 0.230), 0.038, 0.024,
         boxstyle="round,pad=0.003,rounding_size=0.008",
         transform=fig.transFigure,
         facecolor="#E8F5E9",
@@ -357,8 +360,8 @@ def generar_grafico_individual_indice(
     )
     fig.add_artist(pill_match)
     fig.text(
-        0.398, 0.247,
-        "Años análogos (cumplen ambos umbrales)",
+        0.398, 0.242,
+        "Años análogos (cumplen ambos criterios)",
         ha="left", va="center",
         fontsize=11.5, fontweight="bold",
         color="#1E293B"
@@ -367,7 +370,7 @@ def generar_grafico_individual_indice(
     # 8. Paneles inferiores (Tarjetas lado a lado)
     # Panel Izquierdo: Parámetros de umbral
     card_left = mpatches.FancyBboxPatch(
-        (0.025, 0.052), 0.46, 0.165,
+        (0.025, 0.045), 0.46, 0.160,
         boxstyle="round,pad=0.01,rounding_size=0.02",
         transform=fig.transFigure,
         facecolor="#F4F8FB",
@@ -378,25 +381,25 @@ def generar_grafico_individual_indice(
     fig.add_artist(card_left)
 
     fig.text(
-        0.045, 0.185,
+        0.045, 0.175,
         "Parámetros de umbral (definidos por el usuario)",
         fontsize=13, fontweight="bold", color="#0F2942"
     )
     l_r = Line2D(
-        [0.050, 0.075], [0.145, 0.145],
+        [0.050, 0.075], [0.135, 0.135],
         transform=fig.transFigure,
         color="#1565C0", linestyle="--", dashes=(6, 3), linewidth=2.0
     )
     fig.add_artist(l_r)
-    fig.text(0.085, 0.145, f"Umbral de correlación (r) mínimo: {r_th:.2f}", fontsize=12, color="#1E293B", va="center")
+    fig.text(0.085, 0.135, f"Umbral de correlación (r) mínimo: {r_th:.2f}", fontsize=12, color="#1E293B", va="center")
 
     l_mad = Line2D(
-        [0.050, 0.075], [0.095, 0.095],
+        [0.050, 0.075], [0.085, 0.085],
         transform=fig.transFigure,
         color="#D32F2F", linestyle="--", dashes=(6, 3), linewidth=2.0
     )
     fig.add_artist(l_mad)
-    fig.text(0.085, 0.095, f"Umbral de MAD máximo: {mad_th:.2f}", fontsize=12, color="#1E293B", va="center")
+    fig.text(0.085, 0.085, f"Umbral de MAD máximo: {mad_th:.2f}", fontsize=12, color="#1E293B", va="center")
 
     # Panel Derecho: Resumen
     min_cand_y = int(df_validos["YEAR"].min())
@@ -405,7 +408,7 @@ def generar_grafico_individual_indice(
     total_matches = len(anios_analogos)
 
     card_right = mpatches.FancyBboxPatch(
-        (0.515, 0.052), 0.46, 0.165,
+        (0.515, 0.045), 0.46, 0.160,
         boxstyle="round,pad=0.01,rounding_size=0.02",
         transform=fig.transFigure,
         facecolor="#FFFDF5",
@@ -416,18 +419,18 @@ def generar_grafico_individual_indice(
     fig.add_artist(card_right)
 
     fig.text(
-        0.535, 0.185,
+        0.535, 0.175,
         "Resumen",
         fontsize=13, fontweight="bold", color="#6A4B00"
     )
-    fig.text(0.540, 0.145, "•", fontsize=16, color="#B45309", va="center")
-    fig.text(0.555, 0.145, f"Total de años evaluados: {total_eval} ({min_cand_y}–{max_cand_y})", fontsize=12, color="#1E293B", va="center")
-    fig.text(0.540, 0.095, "•", fontsize=16, color="#B45309", va="center")
-    fig.text(0.555, 0.095, f"Años análogos encontrados: {total_matches}", fontsize=12, color="#1E293B", va="center")
+    fig.text(0.540, 0.135, "•", fontsize=16, color="#B45309", va="center")
+    fig.text(0.555, 0.135, f"Total de años evaluados: {total_eval} ({min_cand_y}–{max_cand_y})", fontsize=12, color="#1E293B", va="center")
+    fig.text(0.540, 0.085, "•", fontsize=16, color="#B45309", va="center")
+    fig.text(0.555, 0.085, f"Años análogos encontrados: {total_matches}", fontsize=12, color="#1E293B", va="center")
 
     # 9. Pie de página (Footer)
     fig.text(
-        0.025, 0.018,
+        0.025, 0.015,
         f"Fuente: {institucion_fuente} | Cálculos: Aanalogos | Ventana: {resultado.longitud_ventana} meses",
         fontsize=9.5, color="#64748B"
     )

@@ -124,10 +124,10 @@ class TestIndividualChart(unittest.TestCase):
                 if val in anios_esperados:
                     self.assertEqual(text.get_rotation(), 90)
                     self.assertEqual(text.get_ha(), "center")
-                    self.assertEqual(text.get_va(), "bottom")
+                    self.assertEqual(text.get_va(), "center")
                     x_pos, y_pos = text.get_position()
                     self.assertEqual(x_pos, val)
-                    self.assertGreaterEqual(y_pos, 1.0)
+                    self.assertAlmostEqual(y_pos, 1.28)
                     posiciones_x.append(x_pos)
             except ValueError:
                 pass
@@ -140,7 +140,7 @@ class TestIndividualChart(unittest.TestCase):
     def test_extended_axes_and_green_band_bounds(self):
         """
         Verifica que el eje Y1 esté en [-1.50, 1.50], el eje Y2 comience en 0.0,
-        el eje X tenga márgenes horizontales y los rectángulos verdes cubran [-1.10, 1.00].
+        el eje X tenga márgenes horizontales y los rectángulos verdes cubran [-1.10, 1.10].
         """
         fig = generar_grafico_individual_indice(self.resultado, "AMO")
         ax1 = fig.axes[0]
@@ -158,11 +158,11 @@ class TestIndividualChart(unittest.TestCase):
         self.assertLess(ax1.get_xlim()[0], min_y)
         self.assertGreater(ax1.get_xlim()[1], max_y)
 
-        # Rectángulos verdes: altura = 2.10 (de -1.10 a 1.00)
+        # Rectángulos verdes: altura = 2.20 (de -1.10 a 1.10)
         patches = [p for p in ax1.patches if isinstance(p, mpatches.FancyBboxPatch)]
         for p in patches:
             self.assertAlmostEqual(p.get_y(), -1.10)
-            self.assertAlmostEqual(p.get_height(), 2.10)
+            self.assertAlmostEqual(p.get_height(), 2.20)
 
         plt.close(fig)
 
