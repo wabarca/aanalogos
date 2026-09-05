@@ -124,10 +124,10 @@ class TestIndividualChart(unittest.TestCase):
                 if val in anios_esperados:
                     self.assertEqual(text.get_rotation(), 90)
                     self.assertEqual(text.get_ha(), "center")
-                    self.assertEqual(text.get_va(), "center")
+                    self.assertEqual(text.get_va(), "bottom")
                     x_pos, y_pos = text.get_position()
                     self.assertEqual(x_pos, val)
-                    self.assertAlmostEqual(y_pos, 1.28)
+                    self.assertAlmostEqual(y_pos, 1.20)
                     posiciones_x.append(x_pos)
             except ValueError:
                 pass

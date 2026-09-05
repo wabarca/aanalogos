@@ -297,16 +297,17 @@ def generar_grafico_individual_indice(
             )
             ax1.add_patch(rect_patch)
 
-            # Etiqueta en la parte superior fuera de la banda (centrada en y = 1.28) con orientación vertical (90°)
-            ax1.text(
-                x_pos, 1.28, str(int(row["YEAR"])),
-                ha="center", va="center",
+            # Etiqueta en la parte superior fuera de la banda (inicia en y = 1.20 con va='bottom') con orientación vertical (90°)
+            txt_lbl = ax1.text(
+                x_pos, 1.20, str(int(row["YEAR"])),
+                ha="center", va="bottom",
                 rotation=90,
-                fontsize=9.5, fontweight="bold",
+                fontsize=9.0, fontweight="bold",
                 color="#1B5E20",
                 clip_on=False,
                 zorder=6
             )
+            txt_lbl.set_path_effects([path_effects.withStroke(linewidth=2.5, foreground="white")])
 
     # 5. Líneas de Umbral Horizontales
     # Umbral r
@@ -436,7 +437,10 @@ def generar_grafico_individual_indice(
     )
 
     if ruta_salida:
-        os.makedirs(os.path.dirname(ruta_salida), exist_ok=True)
+        dir_name = os.path.dirname(ruta_salida)
+        if dir_name:
+            os.makedirs(dir_name, exist_ok=True)
         fig.savefig(ruta_salida, dpi=150, facecolor=fig.get_facecolor(), edgecolor='none')
 
     return fig
+
