@@ -23,7 +23,7 @@ La aplicación evalúa de forma simultánea hasta **21 índices oceánicos y atm
 * 📐 **Ventana Paramétrica (12 vs 6 Meses):** Soporte operacional para ciclo anual completo (12 meses) y ventana metodológica histórica (6 meses).
 * 📊 **Explorador de Índices y Tablas:** Fichas técnicas, metadatos, fuentes oficiales, DOIs, series temporales interactivas y tablas de datos históricos con descarga en CSV para las 21 oscilaciones.
 * 📚 **Metodología Integrada:** Documentación científica interactiva con fórmulas KaTeX y explicación física de cada métrica y tipología de variable.
-* 🔄 **Actualización Atómica:** Descarga y validación no destructiva de las fuentes remotas oficiales (NOAA/CPC/PSL/CSU).
+* 🔄 **Actualización de Series Climáticas:** Descarga, validación estructural y actualización segura de las fuentes remotas oficiales (NOAA/CPC/PSL/CSU) preservando los datos válidos existentes.
 * ⚙️ **Umbrales Configurables:** Personalización de criterios de coincidencia por índice con trazabilidad y botón de restauración oficial.
 * 🏛️ **Desacoplamiento Institucional:** Personalización sencilla del nombre, división y logotipo en `config/institution.yaml` para despliegue regional en cualquier servicio meteorológico.
 * 🛡️ **Rigor Científico Certificado:** Precisión `float64` nativa, aislamiento de valores sentinela (`-99.99`), exclusión del año objetivo ($Y_{\text{cand}} \neq Y_{\text{obj}}$), verificación de anomalías térmicas y suite automatizada de más de 90 pruebas unitarias.

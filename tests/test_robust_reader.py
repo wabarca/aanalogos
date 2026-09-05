@@ -1,6 +1,6 @@
 """
 Pruebas unitarias y de regresión para el lector robusto de fuentes climáticas,
-validación estructural no destructiva y actualización atómica.
+validación estructural no destructiva y actualización segura de series.
 """
 
 import unittest

@@ -1123,7 +1123,7 @@ elif seccion_seleccionada == "1. Estado de datos disponibles":
     st.header("1. Estado de datos disponibles")
     st.markdown(
         "Supervise el estado de cobertura, registros históricos y disponibilidad operacional "
-        "de las 21 series climáticas, o ejecute una actualización atómica y no destructiva."
+        "de las 21 series climáticas, o ejecute una actualización de series climáticas."
     )
     st.divider()
 
@@ -1143,11 +1143,12 @@ elif seccion_seleccionada == "1. Estado de datos disponibles":
     col_stat3.metric("Último Año con Registros", max_ult_anio)
 
     # Botón de Actualización
-    st.subheader("🔄 Actualización Atómica de Series Climáticas")
+    st.subheader("🔄 Actualización de Series Climáticas")
     st.markdown(
         "Al presionar el botón, el sistema descargará las series más recientes desde las fuentes oficiales "
-        "de NOAA/CPC/PSL/CSU, validando su estructura antes de reemplazar los archivos locales. "
-        "Si una descarga falla, el dato válido existente se conserva intacto de manera segura y no destructiva."
+        "de NOAA/CPC/PSL/CSU, validando su estructura antes de reemplazar los datos disponibles. "
+        "Si una descarga presenta errores o inconsistencias, se conserva la versión anterior para evitar "
+        "que el sistema quede con datos incompletos."
     )
 
     if st.button(

@@ -19,7 +19,7 @@
 │ ├── 🌦️ Análisis (Operacional & Reanálisis Histórico)       │
 │ ├── 📊 Explorador de Índices (Fichas Técnicas & Series)      │
 │ ├── 📚 Metodología Interactiva                              │
-│ ├── 📈 Estado y Actualización Atómica de Datos              │
+│ ├── 📈 Estado y Actualización de Series Climáticas          │
 │ └── ⚙️ Configuración y Calibración de Umbrales              │
 └──────────────────────────────┬──────────────────────────────┘
                                │ Consume API Pública
@@ -31,7 +31,7 @@
 │ ├── windows.py    → Ventanas móviles (12m / 6m / Cruce año) │
 │ ├── metrics.py    → Pearson float64 y MAD                   │
 │ ├── quality.py    → Aislamiento de sentinelas y limpieza    │
-│ ├── data.py       → Carga, parsing y actualización atómica  │
+│ ├── data.py       → Carga, parsing y actualización segura   │
 │ ├── results.py    → Dataclasses de resultados y trazabilidad│
 │ └── config.py     → Constantes y umbrales metodológicos     │
 └──────────────────────────────┬──────────────────────────────┘
@@ -59,7 +59,7 @@
 * **`engine.py`:** Expone `calcular_analogos()`, orquestando la validación estricta de cobertura, intersección de años candidatos, cálculo de métricas y ranking.
 * **`windows.py`:** Implementa la extracción continua de ventanas de $N$ meses ($N=12$ operacional, $N=6$ metodológico) generalizando cruces interanuales.
 * **`catalog.py`:** Determina fechas operacionales disponibles y compila la tabla de salud de fuentes.
-* **`data.py`:** Gestiona descargas atómicas no destructivas con validación previa al reemplazo de archivos locales.
+* **`data.py`:** Gestiona la carga y actualización segura de series, con validación estructural previa antes del reemplazo atómico de archivos locales.
 
 ---
 

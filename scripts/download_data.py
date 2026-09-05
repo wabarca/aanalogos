@@ -1,6 +1,6 @@
 """
 Script de Descarga y Actualización Automatizada de Series Climáticas.
-Verifica estado HTTP, tamaño mínimo, estructura de datos y reemplaza de forma segura y atómica.
+Verifica estado HTTP, tamaño mínimo, estructura de datos y actualiza los archivos de forma segura y no destructiva.
 """
 
 import os

@@ -1,5 +1,5 @@
 """
-Pruebas de actualización atómica y no destructiva de series climáticas.
+Pruebas de actualización segura y no destructiva de series climáticas.
 """
 
 import unittest

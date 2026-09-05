@@ -26,7 +26,7 @@ python scripts/download_data.py
 El script:
 1. Conecta con las URLs oficiales configuradas en `config/data_sources.yaml`.
 2. Verifica el código de respuesta HTTP (200 OK) y el tamaño del archivo.
-3. Descarga a un archivo temporal y realiza un reemplazo atómico en `data/`.
+3. Descarga a un archivo temporal, valida su integridad y realiza un reemplazo seguro (atómico) en `data/` para evitar datos incompletos.
 4. Transforma y estructura los archivos a matrices estándar de 12 meses.
 
 ---

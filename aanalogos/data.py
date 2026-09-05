@@ -363,7 +363,7 @@ def verificar_y_descargar_datos(
 ) -> Dict[str, dict]:
     """
     Verifica la existencia e integridad de los archivos CSV para las 21 series climáticas.
-    Si faltan archivos o si `force_update=True`, descarga y procesa de forma atómica y no destructiva.
+    Si faltan archivos o si `force_update=True`, descarga, valida y actualiza las series de forma segura y no destructiva.
     """
     def _resolver_directorio_salida():
         cands = [

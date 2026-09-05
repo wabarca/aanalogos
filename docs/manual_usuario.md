@@ -29,7 +29,7 @@ La barra lateral izquierda contiene el logotipo institucional, nombre de la enti
 
 * **Panel de Cobertura:** Indicadores de salud global (ej. `21 / 21 series disponibles`, cobertura promedio en años y último año con registros).
 * **Inventario Detallado:** Tabla completa con código, nombre legible, primer año, último año, último mes publicado, tipo de variable, variable exacta en motor y estado de disponibilidad (`✓ Disponible`, `✗ No disponible`, `⚠ Error`).
-* **Botón ↻ Actualizar índices:** Descarga atómica y no destructiva desde las fuentes oficiales de NOAA/CPC/PSL/CSU sin riesgo de corromper series locales.
+* **Botón ↻ Actualizar índices:** Permite actualizar las series climáticas descargando los datos más recientes desde las fuentes oficiales de NOAA/CPC/PSL/CSU. El sistema valida la integridad y estructura de cada archivo antes de reemplazar los datos disponibles; si una descarga presenta errores o inconsistencias, se conserva la versión anterior para evitar que el sistema quede con datos incompletos.
 
 ---
 
