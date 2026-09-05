@@ -441,22 +441,39 @@ if seccion_seleccionada == "3. Análisis de años análogos":
                         f"⚠️ No existen datos suficientes de correlación y MAD para el índice {idx_seleccionado} en el período seleccionado."
                     )
                 else:
-                    # Generar figura científica fiel a la referencia
-                    fig_ind = generar_grafico_individual_indice(
+                    import io
+
+                    # 1. Gráfico cronológico
+                    st.markdown("#### 1. Correlación y MAD — Orden cronológico")
+                    fig_crono = generar_grafico_individual_indice(
                         resultado=resultado,
                         codigo_indice=idx_seleccionado,
-                        catalogo=CATALOGO
+                        catalogo=CATALOGO,
+                        orden="cronologico"
                     )
-                    st.pyplot(fig_ind, clear_figure=True)
+                    st.pyplot(fig_crono, clear_figure=True)
 
-                    # Exportar imagen en memoria para botón de descarga opcional
-                    import io
-                    buf_img = io.BytesIO()
-                    fig_ind.savefig(buf_img, format="png", dpi=150, facecolor=fig_ind.get_facecolor(), edgecolor="none")
-                    buf_img.seek(0)
-                    plt.close(fig_ind)
+                    buf_img_crono = io.BytesIO()
+                    fig_crono.savefig(buf_img_crono, format="png", dpi=150, facecolor=fig_crono.get_facecolor(), edgecolor="none")
+                    buf_img_crono.seek(0)
+                    plt.close(fig_crono)
 
-                    # Paneles de parámetros y resumen debajo del gráfico
+                    # 2. Gráfico ordenado por correlación Pearson (mayor a menor)
+                    st.markdown("#### 2. Correlación y MAD — Años ordenados por correlación (mayor a menor)")
+                    fig_sort = generar_grafico_individual_indice(
+                        resultado=resultado,
+                        codigo_indice=idx_seleccionado,
+                        catalogo=CATALOGO,
+                        orden="pearson_desc"
+                    )
+                    st.pyplot(fig_sort, clear_figure=True)
+
+                    buf_img_sort = io.BytesIO()
+                    fig_sort.savefig(buf_img_sort, format="png", dpi=150, facecolor=fig_sort.get_facecolor(), edgecolor="none")
+                    buf_img_sort.seek(0)
+                    plt.close(fig_sort)
+
+                    # Paneles de parámetros y resumen debajo de los gráficos
                     col_p1, col_p2 = st.columns(2)
                     r_th_actual = float(df_traz_indice["Umbral_r"].iloc[0])
                     mad_th_actual = float(df_traz_indice["Umbral_MAD"].iloc[0])
@@ -483,13 +500,24 @@ if seccion_seleccionada == "3. Análisis de años análogos":
                     else:
                         st.markdown(f"**Años análogos para el índice seleccionado:** Ninguno (Años análogos encontrados: 0)")
 
-                    # Botón de descarga de la figura
-                    st.download_button(
-                        label=f"📥 Descargar Gráfico {idx_seleccionado} (PNG)",
-                        data=buf_img,
-                        file_name=f"grafico_{idx_seleccionado}_{resultado.year_objetivo}_m{resultado.mes_objetivo}.png",
-                        mime="image/png"
-                    )
+                    # Botones de descarga de las figuras
+                    col_dl1, col_dl2 = st.columns(2)
+                    with col_dl1:
+                        st.download_button(
+                            label=f"📥 Descargar Gráfico Cronológico ({idx_seleccionado})",
+                            data=buf_img_crono,
+                            file_name=f"grafico_{idx_seleccionado}_cronologico_{resultado.year_objetivo}_m{resultado.mes_objetivo}.png",
+                            mime="image/png",
+                            key=f"dl_crono_{idx_seleccionado}"
+                        )
+                    with col_dl2:
+                        st.download_button(
+                            label=f"📥 Descargar Gráfico Ordenado ({idx_seleccionado})",
+                            data=buf_img_sort,
+                            file_name=f"grafico_{idx_seleccionado}_ordenado_{resultado.year_objetivo}_m{resultado.mes_objetivo}.png",
+                            mime="image/png",
+                            key=f"dl_sort_{idx_seleccionado}"
+                        )
 
         with tab_graficos:
             st.markdown("### Histograma de Coincidencias por Año Candidato")

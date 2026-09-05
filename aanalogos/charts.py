@@ -43,18 +43,20 @@ def generar_grafico_individual_indice(
     resultado: ResultadoAnalogos,
     codigo_indice: str,
     catalogo: Optional[Dict[str, Any]] = None,
-    ruta_salida: Optional[str] = None
+    ruta_salida: Optional[str] = None,
+    orden: str = "cronologico"
 ) -> plt.Figure:
     """
     Genera una figura científica individual para el índice especificado, reproduciendo
     fielmente la composición de referencia: doble eje (Pearson r y MAD), líneas de umbral,
-    rectángulos verticales de años análogos con etiqueta inferior, y tarjetas de parámetros/resumen.
+    rectángulos verticales de años análogos con etiqueta superior a 90°, y tarjetas de parámetros/resumen.
     
     Parámetros:
     - resultado: Objeto ResultadoAnalogos devuelto por el motor.
     - codigo_indice: Código del índice a graficar (ej. 'AMO', 'TNA', 'RONI').
     - catalogo: Catálogo de metadatos de índices (opcional).
     - ruta_salida: Ruta de archivo opcional para guardar el PNG.
+    - orden: Modo de ordenamiento del eje X ('cronologico' o 'pearson_desc').
     
     Retorna:
     - matplotlib.figure.Figure lista para renderizar en Streamlit o guardar en disco.
@@ -64,25 +66,21 @@ def generar_grafico_individual_indice(
 
     meta = catalogo.get(codigo_indice, {})
     nombre_indice = meta.get("name", codigo_indice)
-    institucion_fuente = meta.get("source_inst", "NOAA PSL / CPC")
+    institucion_fuente = meta.get("source_inst", meta.get("source", "NOAA PSL / CPC"))
 
     # Extraer trazabilidad calculada para el índice
     df_traz = resultado.tabla_trazabilidad
     if df_traz is None or df_traz.empty:
         raise ValueError("El resultado no contiene tabla de trazabilidad estadística.")
 
-    df_idx = df_traz[df_traz["Indice"] == codigo_indice].sort_values("YEAR").copy()
+    df_idx = df_traz[df_traz["Indice"] == codigo_indice].copy()
     if df_idx.empty:
         raise ValueError(f"No se encontraron datos de trazabilidad para el índice '{codigo_indice}'.")
 
     # Filtrar registros que tengan valores finitos de Pearson o MAD
-    df_validos = df_idx.dropna(subset=["Pearson", "MAD"])
+    df_validos = df_idx.dropna(subset=["Pearson", "MAD"]).copy()
     if df_validos.empty:
         raise ValueError(f"El índice '{codigo_indice}' no cuenta con datos numéricos suficientes en el período.")
-
-    years = df_validos["YEAR"].values
-    r_vals = df_validos["Pearson"].values
-    mad_vals = df_validos["MAD"].values
 
     # Obtener umbrales utilizados por el motor
     if "Umbral_r" in df_validos.columns and "Umbral_MAD" in df_validos.columns:
@@ -107,8 +105,31 @@ def generar_grafico_individual_indice(
     else:
         ventana_desc = f"Últimos {resultado.longitud_ventana} meses"
 
+    # Ordenamiento de datos y configuración del eje X
+    if orden == "pearson_desc":
+        df_plot = df_validos.sort_values("Pearson", ascending=False).reset_index(drop=True)
+        n_cand = len(df_plot)
+        x_vals = np.arange(n_cand)
+        x_margin = 0.8
+        x_min_lim = -x_margin
+        x_max_lim = n_cand - 1 + x_margin
+        x_label_title = "Año (ordenado por correlación, mayor a menor)"
+        subtitulo_texto = f"Correlación y MAD – Años ordenados por correlación (mayor a menor) – Ventana: {ventana_desc}"
+    else:
+        df_plot = df_validos.sort_values("YEAR").reset_index(drop=True)
+        x_vals = df_plot["YEAR"].values
+        n_cand = len(df_plot)
+        min_year = int(min(x_vals))
+        max_year = int(max(x_vals))
+        x_margin = max(2.5, float(np.round((max_year - min_year) * 0.035)))
+        x_min_lim = min_year - x_margin
+        x_max_lim = max_year + x_margin
+        x_label_title = "Año"
+        subtitulo_texto = f"Correlación y MAD – Ventana: {ventana_desc}"
+
     # Escala dinámica de MAD para 7 ticks (6 intervalos) que adapta la altura real de cada índice
-    max_mad = float(np.nanmax(mad_vals)) if len(mad_vals) > 0 else 1.0
+    mad_vals_all = df_plot["MAD"].values
+    max_mad = float(np.nanmax(mad_vals_all)) if len(mad_vals_all) > 0 else 1.0
     criterio_max = max(max_mad, mad_th) * 1.15
 
     posibles_pasos = [0.05, 0.10, 0.15, 0.20, 0.25, 0.50, 1.00, 1.50, 2.00, 2.50, 5.00]
@@ -147,7 +168,7 @@ def generar_grafico_individual_indice(
     )
     fig.text(
         0.5, 0.930,
-        f"Correlación y MAD – Ventana: {ventana_desc}",
+        subtitulo_texto,
         ha="center", va="center",
         fontsize=13, color="#475569"
     )
@@ -199,24 +220,29 @@ def generar_grafico_individual_indice(
     ax1 = fig.add_axes([0.08, 0.33, 0.84, 0.47])
     ax2 = ax1.twinx()
 
-    min_year = int(min(years))
-    max_year = int(max(years))
-    x_margin = max(2.5, float(np.round((max_year - min_year) * 0.035)))
-    ax1.set_xlim(min_year - x_margin, max_year + x_margin)
-    ax2.set_xlim(min_year - x_margin, max_year + x_margin)
+    ax1.set_xlim(x_min_lim, x_max_lim)
+    ax2.set_xlim(x_min_lim, x_max_lim)
 
-    # Configuración de ticks en X: cada 5 años
-    tick_start = int(np.floor(min_year / 5) * 5)
-    if min_year % 5 != 0:
-        xticks = [min_year] + list(range(tick_start + 5, max_year + 1, 5))
+    if orden == "pearson_desc":
+        step_tick = 5 if n_cand >= 20 else 2
+        xticks = [0] + list(range(step_tick, n_cand, step_tick))
+        if (n_cand - 1) not in xticks and ((n_cand - 1) - xticks[-1] >= 2):
+            xticks.append(n_cand - 1)
+        xticklabels = [str(int(df_plot.loc[i, "YEAR"])) for i in xticks]
+        ax1.set_xticks(xticks)
+        ax1.set_xticklabels(xticklabels, rotation=35, ha="right", fontsize=10, color="#334155")
     else:
-        xticks = list(range(tick_start, max_year + 1, 5))
-    if max_year not in xticks and (max_year - xticks[-1] >= 2):
-        xticks.append(max_year)
+        tick_start = int(np.floor(min_year / 5) * 5)
+        if min_year % 5 != 0:
+            xticks = [min_year] + list(range(tick_start + 5, max_year + 1, 5))
+        else:
+            xticks = list(range(tick_start, max_year + 1, 5))
+        if max_year not in xticks and (max_year - xticks[-1] >= 2):
+            xticks.append(max_year)
+        ax1.set_xticks(xticks)
+        ax1.set_xticklabels([str(y) for y in xticks], rotation=35, ha="right", fontsize=10, color="#334155")
 
-    ax1.set_xticks(xticks)
-    ax1.set_xticklabels([str(y) for y in xticks], rotation=35, ha="right", fontsize=10, color="#334155")
-    ax1.set_xlabel("Año", fontsize=12, fontweight="bold", color="#1E293B", labelpad=5)
+    ax1.set_xlabel(x_label_title, fontsize=12, fontweight="bold", color="#1E293B", labelpad=5)
 
     # Configuración Eje Y1 (Correlación r: -1.50 a +1.50)
     ax1.set_ylim(-1.50, 1.50)
@@ -252,36 +278,39 @@ def generar_grafico_individual_indice(
     h_bottom = -1.10
     h_top = 1.00
     rect_height = h_top - h_bottom
+    band_width = 0.9 if orden == "pearson_desc" else 1.5
 
-    for y_match in anios_analogos:
-        rect_patch = mpatches.FancyBboxPatch(
-            (y_match - 0.75, h_bottom), 1.5, rect_height,
-            boxstyle="round,pad=0.02,rounding_size=0.15",
-            facecolor="#E8F5E9",
-            edgecolor="#2E7D32",
-            linewidth=1.2,
-            alpha=0.55,
-            zorder=2
-        )
-        ax1.add_patch(rect_patch)
+    for i, row in df_plot.iterrows():
+        if row["Coincidencia"] == 1:
+            x_pos = i if orden == "pearson_desc" else row["YEAR"]
+            rect_patch = mpatches.FancyBboxPatch(
+                (x_pos - (band_width / 2.0), h_bottom), band_width, rect_height,
+                boxstyle="round,pad=0.02,rounding_size=0.15",
+                facecolor="#E8F5E9",
+                edgecolor="#2E7D32",
+                linewidth=1.2,
+                alpha=0.55,
+                zorder=2
+            )
+            ax1.add_patch(rect_patch)
 
-        # Etiqueta en la parte superior fuera de la banda (y = 1.06) con orientación vertical (90°)
-        y_label_pos = 1.06
-        ax1.text(
-            y_match, y_label_pos, str(y_match),
-            ha="center", va="bottom",
-            rotation=90,
-            fontsize=9.5, fontweight="bold",
-            color="#1B5E20",
-            clip_on=False,
-            zorder=6
-        )
+            # Etiqueta en la parte superior fuera de la banda (y = 1.06) con orientación vertical (90°)
+            ax1.text(
+                x_pos, 1.06, str(int(row["YEAR"])),
+                ha="center", va="bottom",
+                rotation=90,
+                fontsize=9.5, fontweight="bold",
+                color="#1B5E20",
+                clip_on=False,
+                zorder=6
+            )
 
     # 5. Líneas de Umbral Horizontales
     # Umbral r
     ax1.axhline(r_th, color="#1565C0", linestyle="--", dashes=(6, 3), linewidth=1.5, zorder=3)
+    x_lbl_r = (-x_margin * 0.5) if orden == "pearson_desc" else (min_year - (x_margin * 0.7))
     txt_r = ax1.text(
-        min_year - (x_margin * 0.7), r_th + 0.05,
+        x_lbl_r, r_th + 0.05,
         f"Umbral r = {r_th:.2f}",
         color="#1565C0", fontsize=10.5, fontweight="bold",
         va="bottom", zorder=5
@@ -290,8 +319,9 @@ def generar_grafico_individual_indice(
 
     # Umbral MAD
     ax2.axhline(mad_th, color="#D32F2F", linestyle="--", dashes=(6, 3), linewidth=1.5, zorder=3)
+    x_lbl_mad = (n_cand - 1 + (x_margin * 0.5)) if orden == "pearson_desc" else (max_year + (x_margin * 0.7))
     txt_mad = ax2.text(
-        max_year + (x_margin * 0.7), mad_th + (0.015 * mad_max_axis),
+        x_lbl_mad, mad_th + (0.015 * mad_max_axis),
         f"Umbral MAD = {mad_th:.2f}",
         color="#D32F2F", fontsize=10.5, fontweight="bold",
         ha="right", va="bottom", zorder=5
@@ -301,7 +331,7 @@ def generar_grafico_individual_indice(
     # 6. Series de datos
     # Pearson r
     ax1.plot(
-        years, r_vals,
+        x_vals, df_plot["Pearson"].values,
         color="#1976D2", linestyle="--", dashes=(4, 3), linewidth=1.2,
         marker="o", markersize=5, markerfacecolor="#1976D2", markeredgecolor="#0D47A1", markeredgewidth=0.8,
         zorder=4
@@ -309,7 +339,7 @@ def generar_grafico_individual_indice(
 
     # MAD
     ax2.plot(
-        years, mad_vals,
+        x_vals, df_plot["MAD"].values,
         color="#D32F2F", linestyle="--", dashes=(4, 3), linewidth=1.2,
         marker="o", markersize=5, markerfacecolor="#D32F2F", markeredgecolor="#B71C1C", markeredgewidth=0.8,
         zorder=4
@@ -348,31 +378,34 @@ def generar_grafico_individual_indice(
     fig.add_artist(card_left)
 
     fig.text(
-        0.04, 0.18,
+        0.045, 0.185,
         "Parámetros de umbral (definidos por el usuario)",
-        fontsize=12, fontweight="bold", color="#1565C0"
+        fontsize=13, fontweight="bold", color="#0F2942"
     )
-    line_th_r = Line2D(
-        [0.045, 0.065], [0.142, 0.142],
+    l_r = Line2D(
+        [0.050, 0.075], [0.145, 0.145],
         transform=fig.transFigure,
-        color="#1565C0", linestyle="--", dashes=(4, 2), linewidth=2.0,
-        zorder=3
+        color="#1565C0", linestyle="--", dashes=(6, 3), linewidth=2.0
     )
-    fig.add_artist(line_th_r)
-    fig.text(0.075, 0.142, f"Umbral de correlación (r) mínimo: {r_th:.2f}", color="#1E293B", fontsize=11, va="center")
+    fig.add_artist(l_r)
+    fig.text(0.085, 0.145, f"Umbral de correlación (r) mínimo: {r_th:.2f}", fontsize=12, color="#1E293B", va="center")
 
-    line_th_mad = Line2D(
-        [0.045, 0.065], [0.100, 0.100],
+    l_mad = Line2D(
+        [0.050, 0.075], [0.095, 0.095],
         transform=fig.transFigure,
-        color="#D32F2F", linestyle="--", dashes=(4, 2), linewidth=2.0,
-        zorder=3
+        color="#D32F2F", linestyle="--", dashes=(6, 3), linewidth=2.0
     )
-    fig.add_artist(line_th_mad)
-    fig.text(0.075, 0.100, f"Umbral de MAD máximo: {mad_th:.2f}", color="#1E293B", fontsize=11, va="center")
+    fig.add_artist(l_mad)
+    fig.text(0.085, 0.095, f"Umbral de MAD máximo: {mad_th:.2f}", fontsize=12, color="#1E293B", va="center")
 
     # Panel Derecho: Resumen
+    min_cand_y = int(df_validos["YEAR"].min())
+    max_cand_y = int(df_validos["YEAR"].max())
+    total_eval = len(df_validos)
+    total_matches = len(anios_analogos)
+
     card_right = mpatches.FancyBboxPatch(
-        (0.505, 0.052), 0.47, 0.165,
+        (0.515, 0.052), 0.46, 0.165,
         boxstyle="round,pad=0.01,rounding_size=0.02",
         transform=fig.transFigure,
         facecolor="#FFFDF5",
@@ -383,20 +416,20 @@ def generar_grafico_individual_indice(
     fig.add_artist(card_right)
 
     fig.text(
-        0.52, 0.18,
+        0.535, 0.185,
         "Resumen",
-        fontsize=12, fontweight="bold", color="#8D6E63"
+        fontsize=13, fontweight="bold", color="#6A4B00"
     )
-    fig.text(0.525, 0.142, "•", color="#8D6E63", fontsize=14, va="center")
-    fig.text(0.542, 0.142, f"Total de años evaluados: {len(years)} ({min_year}–{max_year})", color="#1E293B", fontsize=11, va="center")
-    fig.text(0.525, 0.100, "•", color="#8D6E63", fontsize=14, va="center")
-    fig.text(0.542, 0.100, f"Años análogos encontrados: {len(anios_analogos)}", color="#1E293B", fontsize=11, va="center")
+    fig.text(0.540, 0.145, "•", fontsize=16, color="#B45309", va="center")
+    fig.text(0.555, 0.145, f"Total de años evaluados: {total_eval} ({min_cand_y}–{max_cand_y})", fontsize=12, color="#1E293B", va="center")
+    fig.text(0.540, 0.095, "•", fontsize=16, color="#B45309", va="center")
+    fig.text(0.555, 0.095, f"Años análogos encontrados: {total_matches}", fontsize=12, color="#1E293B", va="center")
 
     # 9. Pie de página (Footer)
     fig.text(
-        0.025, 0.02,
-        f"Fuente: {institucion_fuente} | Cálculos: Aanalogos v3.2.0 | Ventana de comparación: {ventana_desc}",
-        fontsize=9, color="#94A3B8"
+        0.025, 0.018,
+        f"Fuente: {institucion_fuente} | Cálculos: Aanalogos | Ventana: {resultado.longitud_ventana} meses",
+        fontsize=9.5, color="#64748B"
     )
 
     if ruta_salida:

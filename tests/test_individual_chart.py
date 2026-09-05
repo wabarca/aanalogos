@@ -4,6 +4,7 @@ Verifica la consistencia absoluta entre los resultados del motor y la figura gen
 """
 
 import unittest
+import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -185,6 +186,71 @@ class TestIndividualChart(unittest.TestCase):
         self.assertEqual(len(txt_mad), 1)
         self.assertIsNone(txt_mad[0].get_bbox_patch())
         self.assertTrue(len(txt_mad[0].get_path_effects()) > 0)
+
+    def test_sorted_chart_generation(self):
+        """Verifica que generar_grafico_individual_indice con orden='pearson_desc' genere una figura válida."""
+        fig = generar_grafico_individual_indice(self.resultado, "TNA", orden="pearson_desc")
+        self.assertIsInstance(fig, plt.Figure)
+        self.assertGreaterEqual(len(fig.axes), 2)
+        plt.close(fig)
+
+    def test_sorted_chart_pearson_descending_monotonicity(self):
+        """
+        Verifica que en el gráfico ordenado (orden='pearson_desc'), los valores de la serie Pearson
+        sigan un orden estrictamente no creciente (de mayor a menor correlación).
+        """
+        fig = generar_grafico_individual_indice(self.resultado, "AMO", orden="pearson_desc")
+        ax1 = fig.axes[0]
+        self.assertEqual(ax1.get_xlabel(), "Año (ordenado por correlación, mayor a menor)")
+
+        # Extraer la serie Pearson graficada en ax1
+        lines = ax1.get_lines()
+        # Línea de datos de Pearson (la que tiene color azul #1976D2 y markers)
+        line_r = [l for l in lines if l.get_color() == "#1976D2"][0]
+        y_data = line_r.get_ydata()
+
+        # Comprobar monotonicidad descendente
+        for k in range(len(y_data) - 1):
+            self.assertGreaterEqual(y_data[k], y_data[k + 1])
+
+        plt.close(fig)
+
+    def test_sorted_chart_matches_and_pairs_integrity(self):
+        """
+        Verifica que el gráfico ordenado preserve los pares exactos (Año, Pearson, MAD, Coincidencia)
+        y que las bandas verdes se dibujen en las posiciones correctas.
+        """
+        traz_amo = self.resultado.tabla_trazabilidad[self.resultado.tabla_trazabilidad["Indice"] == "AMO"]
+        df_validos = traz_amo.dropna(subset=["Pearson", "MAD"]).sort_values("Pearson", ascending=False).reset_index(drop=True)
+
+        fig = generar_grafico_individual_indice(self.resultado, "AMO", orden="pearson_desc")
+        ax1 = fig.axes[0]
+        ax2 = fig.axes[1]
+
+        # Comprobar serie Pearson y serie MAD
+        line_r = [l for l in ax1.get_lines() if l.get_color() == "#1976D2" and len(l.get_ydata()) > 2][0]
+        line_mad = [l for l in ax2.get_lines() if l.get_color() == "#D32F2F" and len(l.get_ydata()) > 2][0]
+
+        np.testing.assert_allclose(line_r.get_ydata(), df_validos["Pearson"].values, rtol=1e-5)
+        np.testing.assert_allclose(line_mad.get_ydata(), df_validos["MAD"].values, rtol=1e-5)
+
+        # Comprobar etiquetas de años análogos
+        indices_coincidentes = df_validos[df_validos["Coincidencia"] == 1].index.tolist()
+        anios_coincidentes = df_validos[df_validos["Coincidencia"] == 1]["YEAR"].tolist()
+
+        etiquetas_x = []
+        anios_etiquetados = []
+        for text in ax1.texts:
+            try:
+                val = int(text.get_text())
+                if val in anios_coincidentes:
+                    anios_etiquetados.append(val)
+                    etiquetas_x.append(int(round(text.get_position()[0])))
+            except ValueError:
+                pass
+
+        self.assertEqual(sorted(etiquetas_x), sorted(indices_coincidentes))
+        self.assertEqual(sorted(anios_etiquetados), sorted(anios_coincidentes))
 
         plt.close(fig)
 
