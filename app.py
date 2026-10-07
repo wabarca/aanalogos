@@ -10,6 +10,7 @@ import datetime
 import pandas as pd
 import numpy as np
 import streamlit as st
+import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 
 # Agregar directorio del proyecto para importar aanalogos
@@ -32,6 +33,13 @@ from aanalogos import (
     obtener_documentos_disponibles,
     transformar_enlaces_markdown,
     buscar_etiqueta_documento,
+    obtener_configuracion_defecto,
+    validar_y_sanitizar_checkpoint,
+    codificar_checkpoint,
+    decodificar_checkpoint,
+    generar_componente_cliente,
+    CLAVE_STORAGE_DEFECTO,
+    INDICES_DEFECTO,
     UMBRALES_OSCILACIONES,
     NOMBRES_MESES,
     LONGITUD_VENTANA_METODOLOGICA,
@@ -146,9 +154,39 @@ if not oscilaciones_disponibles or len(oscilaciones_disponibles) < 10:
         st.cache_resource.clear()
         oscilaciones_disponibles = obtener_datos_oscilaciones()
 
-# Inicialización de estado en session_state
-if "umbrales_usuario" not in st.session_state:
-    st.session_state["umbrales_usuario"] = obtener_umbrales_metodologicos()
+# Inicialización de estado y checkpoint multi-usuario
+indices_validos = list(UMBRALES_OSCILACIONES.keys())
+cfg_default = obtener_configuracion_defecto()
+
+state_param = st.query_params.get("state")
+if state_param and "checkpoint_cargado" not in st.session_state:
+    cfg_inicial = decodificar_checkpoint(state_param, indices_validos=indices_validos)
+    st.session_state["checkpoint_cargado"] = True
+elif "checkpoint_cargado" not in st.session_state:
+    cfg_inicial = cfg_default
+    st.session_state["checkpoint_cargado"] = True
+else:
+    cfg_inicial = None
+
+if cfg_inicial:
+    if "seccion_nav" not in st.session_state:
+        st.session_state["seccion_nav"] = cfg_inicial.get("seccion", "3. Análisis de años análogos")
+    if "indices_sel" not in st.session_state:
+        st.session_state["indices_sel"] = [
+            NOMBRES_LEGIBLES[k] for k in cfg_inicial.get("indices", INDICES_DEFECTO) if k in NOMBRES_LEGIBLES
+        ]
+    if "modo_analisis_val" not in st.session_state:
+        st.session_state["modo_analisis_val"] = cfg_inicial.get("modo_analisis", "Operacional")
+    if "ventana_val" not in st.session_state:
+        st.session_state["ventana_val"] = f"{cfg_inicial.get('longitud_ventana', 12)} meses"
+    if "year_obj_val" not in st.session_state:
+        st.session_state["year_obj_val"] = int(cfg_inicial.get("year_objetivo", 2015))
+    if "mes_obj_val" not in st.session_state:
+        st.session_state["mes_obj_val"] = int(cfg_inicial.get("mes_objetivo", 10))
+    if "alcance_val" not in st.session_state:
+        st.session_state["alcance_val"] = cfg_inicial.get("tipo_reanalisis", "Retrospectivo Completo (Todos los años históricos)")
+    if "umbrales_usuario" not in st.session_state:
+        st.session_state["umbrales_usuario"] = cfg_inicial.get("umbrales_usuario", obtener_umbrales_metodologicos())
 
 # Determinar fecha y mes operacional por defecto
 year_op_default, mes_op_default = determinar_ultimo_mes_disponible(
@@ -164,25 +202,52 @@ if CONFIG_INSTITUCION.get("logo"):
 st.sidebar.title("🌦️ AAnalogos")
 st.sidebar.caption(f"**{CONFIG_INSTITUCION['name']}**  \n*{CONFIG_INSTITUCION['division']}*")
 
+opciones_secciones = [
+    "1. Estado de datos disponibles",
+    "2. Configuración de umbrales",
+    "3. Análisis de años análogos",
+    "4. Explorador de índices",
+    "5. Metodología",
+    "Documentación y créditos",
+]
+
 # Si el usuario hace clic en un enlace de documentación, navegar automáticamente a la sección 6
-seccion_inicial_idx = 5 if st.query_params.get("doc") else 2
+if st.query_params.get("doc"):
+    seccion_inicial_idx = 5
+else:
+    sec_guardada = st.session_state.get("seccion_nav", "3. Análisis de años análogos")
+    seccion_inicial_idx = opciones_secciones.index(sec_guardada) if sec_guardada in opciones_secciones else 2
 
 seccion_seleccionada = st.sidebar.radio(
     "Navegación del Sistema:",
-    [
-        "1. Estado de datos disponibles",
-        "2. Configuración de umbrales",
-        "3. Análisis de años análogos",
-        "4. Explorador de índices",
-        "5. Metodología",
-        "Documentación y créditos",
-    ],
+    opciones_secciones,
     index=seccion_inicial_idx,
 )
+st.session_state["seccion_nav"] = seccion_seleccionada
 
 # Si el usuario navega fuera de la documentación, limpiar el parámetro 'doc' de la URL
 if seccion_seleccionada != "Documentación y créditos" and "doc" in st.query_params:
     del st.query_params["doc"]
+
+# Botón para restablecer valores iniciales
+if st.sidebar.button("↺ Restablecer valores iniciales", help="Restaura la configuración inicial del sistema"):
+    for k in [
+        "seccion_nav",
+        "indices_sel",
+        "modo_analisis_val",
+        "ventana_val",
+        "year_obj_val",
+        "mes_obj_val",
+        "alcance_val",
+        "umbrales_usuario",
+        "resultado",
+    ]:
+        if k in st.session_state:
+            del st.session_state[k]
+    st.session_state["checkpoint_cargado"] = False
+    if "state" in st.query_params:
+        del st.query_params["state"]
+    st.rerun()
 
 st.sidebar.divider()
 
@@ -215,39 +280,45 @@ if seccion_seleccionada == "3. Análisis de años análogos":
 
     # Selección de Modo de Análisis y Ventana
     col_mode, col_vent = st.columns([1, 1])
+    modo_guardado = st.session_state.get("modo_analisis_val", "Operacional")
+    idx_modo = 0 if modo_guardado == "Operacional" else 1
     with col_mode:
         modo_analisis = st.radio(
             "**Modo de Análisis:**",
             ["Operacional", "Reanálisis Histórico"],
-            index=0,
+            index=idx_modo,
             horizontal=True,
             help="El modo operacional utiliza automáticamente el año actual, el último mes publicado y la ventana seleccionada.",
         )
+        st.session_state["modo_analisis_val"] = modo_analisis
+
+    vent_guardada = st.session_state.get("ventana_val", "12 meses")
+    idx_vent = 0 if "12" in vent_guardada else 1
     with col_vent:
         sel_ventana_str = st.selectbox(
             "Ventana de análisis:",
             options=["12 meses", "6 meses"],
-            index=0,
+            index=idx_vent,
             key="selector_ventana_analisis",
             help="12 meses es la opción predeterminada actual; 6 meses permite evaluar con la ventana de la metodología original.",
         )
+        st.session_state["ventana_val"] = sel_ventana_str
         longitud_ventana = 12 if "12" in sel_ventana_str else 6
 
-    # Preselección de índices en Sidebar por defecto: RONI, TNA y ONIv6
-    default_indices = [
-        NOMBRES_LEGIBLES.get("RONI", "RONI"),
-        NOMBRES_LEGIBLES.get("TNA", "TNA"),
-        NOMBRES_LEGIBLES.get("ONIv6", "ONIv6"),
-    ]
+    # Preselección de índices en Sidebar
+    indices_default_list = st.session_state.get("indices_sel")
+    if not indices_default_list:
+        indices_default_list = [
+            NOMBRES_LEGIBLES[k] for k in ["RONI", "TNA", "ONIv6"] if k in NOMBRES_LEGIBLES
+        ]
 
     indices_seleccionados_str = st.sidebar.multiselect(
         "Selección de Índices / Oscilaciones:",
         options=list(NOMBRES_LEGIBLES.values()),
-        default=[
-            NOMBRES_LEGIBLES[k] for k in ["RONI", "TNA", "ONIv6"] if k in NOMBRES_LEGIBLES
-        ],
+        default=indices_default_list,
         help="Seleccione una o más oscilaciones climáticas para el análisis multivariado.",
     )
+    st.session_state["indices_sel"] = indices_seleccionados_str
     indices_codigos = [
         MAPA_ETIQUETA_A_CODIGO[item] for item in indices_seleccionados_str
     ]
@@ -273,33 +344,41 @@ if seccion_seleccionada == "3. Análisis de años análogos":
         )
         st.sidebar.markdown(f"**Ventana:** `{longitud_ventana} meses` *(Operacional)*")
     else:
+        year_guardado = int(st.session_state.get("year_obj_val", 2015))
         year_objetivo = st.sidebar.number_input(
             "Año Objetivo ($Y_{\\text{obj}}$):",
             min_value=1950,
             max_value=now_sys.year,
-            value=2015,
+            value=min(max(year_guardado, 1950), now_sys.year),
             step=1,
             help="Año histórico que se desea reanalizar.",
         )
+        st.session_state["year_obj_val"] = year_objetivo
         opciones_meses = [f"{i} — {NOMBRES_MESES[i-1]}" for i in range(1, 13)]
+        mes_guardado = int(st.session_state.get("mes_obj_val", 10))
+        idx_mes = min(max(mes_guardado - 1, 0), 11)
         mes_seleccionado_str = st.sidebar.selectbox(
             "Mes Objetivo (Cierre de Ventana):",
             options=opciones_meses,
-            index=9,  # Octubre por defecto
+            index=idx_mes,
             help="Mes en el cual culmina la ventana retrospectiva.",
         )
         mes_objetivo = int(mes_seleccionado_str.split(" — ")[0])
+        st.session_state["mes_obj_val"] = mes_objetivo
         st.sidebar.markdown(f"**Ventana:** `{longitud_ventana} meses`")
 
+        alcance_guardado = st.session_state.get("alcance_val", "")
+        idx_alcance = 1 if "Backtesting" in alcance_guardado else 0
         tipo_reanalisis = st.sidebar.radio(
             "Alcance del Reanálisis:",
             [
                 "Retrospectivo Completo (Todos los años históricos)",
                 "Backtesting / Simulación Tiempo Real (Corte en $Y_{\\text{obj}}$)",
             ],
-            index=0,
+            index=idx_alcance,
             help="Retrospectivo Completo compara con todos los años del registro (incluso posteriores a Y_obj). Backtesting simula lo que se habría observado evaluando solo años <= Y_obj.",
         )
+        st.session_state["alcance_val"] = tipo_reanalisis
         max_year_corte = year_objetivo if "Backtesting" in tipo_reanalisis else None
 
     # Información contextual en el panel principal
@@ -1404,4 +1483,38 @@ elif seccion_seleccionada == "Documentación y créditos":
             "- Colorado State University (CSU) Department of Atmospheric Science  \n\n"
             "**Licencia y Uso:** Código abierto para servicios meteorológicos e instituciones de investigación."
         )
+
+# ==============================================================================
+# PERSISTENCIA DE CHECKPOINTS MULTI-USUARIO Y MECANISMO KEEP-ALIVE
+# ==============================================================================
+indices_cod_actuales = [
+    MAPA_ETIQUETA_A_CODIGO[item]
+    for item in st.session_state.get("indices_sel", [])
+    if item in MAPA_ETIQUETA_A_CODIGO
+]
+if not indices_cod_actuales:
+    indices_cod_actuales = list(INDICES_DEFECTO)
+
+estado_actual_dict = {
+    "indices": indices_cod_actuales,
+    "modo_analisis": st.session_state.get("modo_analisis_val", "Operacional"),
+    "longitud_ventana": 12 if "12" in st.session_state.get("ventana_val", "12 meses") else 6,
+    "year_objetivo": int(st.session_state.get("year_obj_val", 2015)),
+    "mes_objetivo": int(st.session_state.get("mes_obj_val", 10)),
+    "tipo_reanalisis": st.session_state.get("alcance_val", "Retrospectivo Completo (Todos los años históricos)"),
+    "umbrales_usuario": st.session_state.get("umbrales_usuario", obtener_umbrales_metodologicos()),
+    "seccion": seccion_seleccionada,
+}
+
+estado_encoded = codificar_checkpoint(estado_actual_dict)
+
+# Sincronizar URL si no estamos navegando en un documento Markdown específico
+if not st.query_params.get("doc"):
+    if st.query_params.get("state") != estado_encoded:
+        st.query_params["state"] = estado_encoded
+
+# Inyectar script cliente en iframe invisible para Keep-Alive Web Worker y LocalStorage
+html_cliente = generar_componente_cliente(estado_actual_dict)
+components.html(html_cliente, height=0, width=0)
+
 

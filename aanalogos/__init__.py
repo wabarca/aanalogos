@@ -30,6 +30,15 @@ from .docs import (
     transformar_enlaces_markdown,
     buscar_etiqueta_documento,
 )
+from .checkpoint import (
+    obtener_configuracion_defecto,
+    validar_y_sanitizar_checkpoint,
+    codificar_checkpoint,
+    decodificar_checkpoint,
+    generar_componente_cliente,
+    CLAVE_STORAGE_DEFECTO,
+    INDICES_DEFECTO,
+)
 
 __version__ = "3.2.0"
 
@@ -60,4 +69,11 @@ __all__ = [
     "resolver_enlace_markdown",
     "transformar_enlaces_markdown",
     "buscar_etiqueta_documento",
+    "obtener_configuracion_defecto",
+    "validar_y_sanitizar_checkpoint",
+    "codificar_checkpoint",
+    "decodificar_checkpoint",
+    "generar_componente_cliente",
+    "CLAVE_STORAGE_DEFECTO",
+    "INDICES_DEFECTO",
 ]
