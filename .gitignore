@@ -68,6 +68,9 @@ data/raw/
 data/cache/
 data/downloads/
 
+# Documentación interna / privada (no sincronizada con el repositorio)
+docs-private/
+
 # Salidas generadas por ejecuciones manuales o pruebas
 Años_Análogos.txt
 Trazabilidad_Detallada.txt
